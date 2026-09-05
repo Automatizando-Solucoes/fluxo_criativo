@@ -131,3 +131,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: acoplamento do core a `/schedule` e confusão de identificação entre rotinas.
 - Possível regressão: nenhuma rotina legada é modificada ou acionada.
 - Validação: testes locais de formato, timezone e registros em memória no lote de testes.
+
+## Fase I, lote 5: contratos de integração externa
+
+- Commit: `core: define external integration contracts`
+- Arquivos: `core/integrations/`, `docs/core/INTEGRATION-CONTRACTS.md` e este changelog.
+- Antes: a intenção de integração era inseparável de provider e runtime legados.
+- Depois: capacidades como geração de imagem, insights e pesquisa são neutras; envio e publicação declaram side effect.
+- Risco mitigado: vazamento de nomes de provider ou APIs concretas para o core.
+- Possível regressão: nenhuma API, notificação ou publicação é acionada.
+- Validação: teste local do contrato e revisão de que não há clientes externos.
