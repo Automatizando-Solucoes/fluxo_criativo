@@ -111,3 +111,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: interpretar `disabled` como permissão implícita ou aceitar standing approval fora de validade.
 - Possível regressão: nenhuma execução é conectada ao contrato nesta fase.
 - Validação: revisão estática e cobertura unitária local no lote de testes de contrato.
+
+## Fase I, lote 3: contrato de secret provider
+
+- Commit: `core: add secret provider contract`
+- Arquivos: `core/secrets/`, reserva documental em `adapters/secrets/1password/` e este changelog.
+- Antes: a política 1Password não possuía um contrato executável neutro de runtime.
+- Depois: um mock só conhece nomes lógicos, disponibilidade e referências `op://`; a operação exige allowlist e não executa processo nesta fase.
+- Risco mitigado: introdução acidental de API que retorne plaintext ao modelo.
+- Possível regressão: nenhuma integração é alterada ou executada.
+- Validação: testes locais de contrato no lote de testes, sem binário `op`, vault ou credencial.
