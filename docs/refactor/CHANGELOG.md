@@ -121,3 +121,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: introdução acidental de API que retorne plaintext ao modelo.
 - Possível regressão: nenhuma integração é alterada ou executada.
 - Validação: testes locais de contrato no lote de testes, sem binário `op`, vault ou credencial.
+
+## Fase I, lote 4: contrato de scheduler
+
+- Commit: `core: add scheduler contract`
+- Arquivos: `core/scheduling/`, `docs/core/SCHEDULER-CONTRACT.md` e este changelog.
+- Antes: scheduling era descrito somente pelas superfícies específicas de runtime.
+- Depois: job serializável valida ID, workflow, timezone, schedule, idempotência, approval e destino; a implementação em memória não agenda nem executa nada.
+- Risco mitigado: acoplamento do core a `/schedule` e confusão de identificação entre rotinas.
+- Possível regressão: nenhuma rotina legada é modificada ou acionada.
+- Validação: testes locais de formato, timezone e registros em memória no lote de testes.
