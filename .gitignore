@@ -98,6 +98,9 @@ scripts/*.log
 # docs/processo-criativos.md virou scripts/README-creative.md.
 # ══════════════════════════════════════════
 docs/
+!docs/
+!docs/refactor/
+!docs/refactor/**
 
 # ══════════════════════════════════════════
 # Sistema operacional
