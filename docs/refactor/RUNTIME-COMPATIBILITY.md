@@ -21,7 +21,34 @@
 - Claude continua sendo compatível durante a migração. `.claude/` não será removido nesta etapa.
 - Hermes é o destino de operação contínua, mas nenhum comportamento Hermes é assumido sem configuração/documentação validada pelo operador.
 - Codex permanece executor de engenharia e deve ler os roteiros atuais até os adapters existirem.
-- Nenhum runtime pode publicar, notificar, gastar orçamento ou expor segredo sem uma aprovação persistida.
+- Nenhum runtime pode expor segredo. Ações passam por uma `ApprovalPolicy` persistida, com default seguro e trilha de auditoria.
+
+## Política de aprovação
+
+Há dois modelos. `APPROVAL_PER_ACTION` corresponde a `mode: manual` e é obrigatório para ativar campanha Meta, aumentar orçamento, escalar investimento, deletar conteúdo, modificar recursos externos sensíveis e qualquer operação irreversível ou financeira.
+
+`STANDING_APPROVAL` corresponde a `mode: standing`. O usuário pode configurá-lo explicitamente para workflow recorrente e de escopo limitado, por exemplo: enviar relatório diário ao próprio Telegram, atualizar dashboard toda manhã, gerar pesquisa semanal, publicar conteúdo orgânico de uma fila previamente aprovada ou publicar no horário programado quando `autopublish` estiver habilitado para aquele workflow.
+
+```text
+ApprovalPolicy
+
+mode:
+  manual
+  standing
+  disabled
+
+scope:
+  workflow
+  network
+  action_type
+  product
+
+expires_at:
+limits:
+revocable:
+```
+
+Uma standing approval registra `workflow_id`, escopo, redes permitidas, tipos de conteúdo, horário/frequência, validade, limites, quem autorizou e como pode ser revogada. `disabled` significa que a ação não está autorizada, não “sem aprovação”. O padrão é `autopublish = false`; `autopublish = true` exige configuração explícita para aquele workflow. Operações financeiras permanecem `manual` por padrão.
 
 ## Compatibilidade por classe
 

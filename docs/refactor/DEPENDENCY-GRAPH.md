@@ -52,7 +52,8 @@ executor-de-plano-de-acao
 | Pesquisa e dashboards | scripts sob skills de Apify/Instagram/TikTok/LinkedIn/YouTube | APIs e páginas públicas; grava dashboards/insights |
 | Tráfego | `trafego_fetch.py`, `fetch-ad-insights.py`, `relatorio-ads-cli.py`, `relatorio-ads.ps1` | Meta Graph API, dados de Ads; relatórios podem enviar Telegram/Z-API |
 | Análise avançada | `scripts/trafego-analysis/` | clientes Meta, Google e Hotmart definidos no pacote Python |
-| Agendamento de carrossel | `programar-carrossel-noticia` | API `/schedule` do Claude; ID em `RELATORIO_CRON_ID`/rotina Claude |
+| Agendamento de carrossel | `programar-carrossel`, `programar-carrossel-noticia` | Claude `/schedule`; cada Routine possui `schedule_id` próprio, registrado em `meus-produtos/{ativo}/agendamentos/carrossel/{slug}.md` |
+| Relatório Ads | `ads-relatorio`, `enviar-relatorio-ads`, `relatorio-ads-cli.py`, `relatorio-ads.ps1` | Fluxo separado; `RELATORIO_CRON_ID` pertence historicamente ao agendamento do relatório Ads. A documentação e o scheduling atuais são inconsistentes e exigem reconciliação antes de um scheduler neutro. |
 
 ## Hooks para evento
 
@@ -69,7 +70,30 @@ executor-de-plano-de-acao
 2. Commands devem apontar para um identificador de workflow, em vez de chamar `Skill`, `Agent`, `/schedule` ou MCP diretamente.
 3. APIs devem estar atrás de adaptadores: Meta, imagem, vídeo, pesquisa, notificação e publicação social.
 4. Hooks devem ser políticas locais de runtime, fora da lógica de negócio.
-5. Operações externas, públicas ou financeiras devem receber um objeto de aprovação antes do adaptador.
+5. Operações externas devem avaliar uma `ApprovalPolicy` persistida antes do adaptador; ações financeiras e irreversíveis permanecem manuais por padrão.
+
+## Modelo de aprovação futuro
+
+```text
+ApprovalPolicy
+
+mode:
+  manual
+  standing
+  disabled
+
+scope:
+  workflow
+  network
+  action_type
+  product
+
+expires_at:
+limits:
+revocable:
+```
+
+`disabled` significa que a ação não está autorizada, não ausência de aprovação. A política permite autorização por ação ou autorização contínua com escopo, limites e revogação registrados.
 
 ## Lacunas verificadas
 

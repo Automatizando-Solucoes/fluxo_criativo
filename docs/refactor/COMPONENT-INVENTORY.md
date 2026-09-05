@@ -13,7 +13,7 @@ Método: leitura estática. Nenhum hook, instalador, script operacional, API ou 
 | Componente | Finalidade e dependências | I/O e risco | Classe |
 |---|---|---|---|
 | `AGENTS.md` | Manual de operação Codex; encaminha para commands, skills e estado de produto. | Lê/escreve conceitualmente `meus-produtos/`; depende de `.claude/`. | REVIEW |
-| `CLAUDE.md` | Contexto e regras do Claude, incluindo comandos, APIs e hooks. | Forte dependência de Claude, MCP e `/schedule`; contém orientações de segredo. | LEGACY |
+| `CLAUDE.md` | Especificação funcional de referência do runtime Claude Code, incluindo comandos, APIs e hooks. | Continua durante a compatibilidade Claude; não copiar instruções específicas de runtime para o core. Só poderá ser depreciado depois de core neutro + adapter Claude terem regressão validada. | REVIEW / COMPATIBILITY |
 | `ARQUITETURA.md`, `README.md`, `COMO-USAR.md` | Documentação de produto e operação. | Sem execução direta; devem ser reconciliados após a migração. | REVIEW |
 | `meus-produtos/{slug}/` e `.ativo` | Fonte de verdade por produto: perfil, pesquisa, identidade, entregas e toolkit. | Escrita local, inclusive exclusão por comandos de produto. | SAFE |
 | `.claude/agents-memory/` | Preferências e aprendizado por agente. | Escrita local; não deve conter segredos. | REVIEW |
@@ -27,7 +27,7 @@ Método: leitura estática. Nenhum hook, instalador, script operacional, API ou 
 | `estrategista-de-produto` | Orquestra produto VTSD, pesquisa, concepção e identidade. | Atualiza estado do produto. | REVIEW |
 | `estrategista-low-ticket` | Fluxo Low Ticket; depende de pesquisa, copy e páginas. | Gera produto, quiz, páginas e anúncios. | REVIEW |
 | `estrategista-middle-ticket` | Fluxo Middle Ticket; concepção, identidade, página 8D e tráfego. | Gera entregas e pode encaminhar a Meta. | REVIEW |
-| `estrategista-ht` | Orquestra C10X através de `/ht-*`. | Depende de skills ausentes. | LEGACY |
+| `estrategista-ht` | Orquestra C10X através de `/ht-*`. | Deve ser preservado; a dependência externa das skills está ausente e bloqueia execução. Não implementar aproximações. | REVIEW / BLOCKED_EXTERNAL |
 | `copywriter` | Encaminha copy para skills e revisora. | Escreve entregas de copy. | SAFE |
 | `construtor-de-paginas` | Encaminha páginas, templates e clonagem visual. | Gera HTML; pode encaminhar a publicação. | REVIEW |
 | `criador-de-campanhas` | Orquestra anúncios e tráfego. | Pode chegar a operações Meta. | REVIEW |

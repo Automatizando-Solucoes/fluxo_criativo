@@ -8,7 +8,7 @@ Este plano descreve alterações futuras. Nenhuma delas foi aplicada nesta fase.
 |---|---|---|---|
 | Crítica | `setup-node.sh` instala Homebrew/Node/nvm/apt/winget, usa `sudo` e `curl | bash` em `SessionStart`. | Remover da configuração e do repositório apenas após documentar pré-requisitos. | Pesquisa textual: nenhum SessionStart instala/executa rede/admin. |
 | Crítica | `agent-status-writer.js` pode ler token e fazer POST remoto para URL configurável. | Reescrever para estado estritamente local, sem `.env`, `http` ou `https`. | Teste estático de ausência de rede/`WORKSHOP_*`. |
-| Alta | `settings.json` possui permissões globais de web e Bash. | Restringir por capacidades mínimas e evitar hooks de rede. | Revisão de allow-list. |
+| Alta | `settings.json` possui permissões globais de web e Bash. | Remover autoaprovação excessiva, impedir rede em hooks, limitar Bash e separar leitura/pesquisa de side effects por adapters/gates. Não remover `WebSearch`/`WebFetch`, que são capacidades funcionais necessárias à pesquisa. | Revisão de allow-list e de separação de capacidades. |
 | Alta | Instalares fazem instalação automática e o Windows exige admin. | Mover para `legacy/installers/` ou retirar da distribuição ativa depois de regressão. | Nenhum caminho principal aponta para eles. |
 | Média | GSD update consulta `npm view` em SessionStart e usa diretórios de usuário/cache. | Desativar/remover da configuração ativa ou tornar ação manual. | Sem subprocesso/rede em hooks. |
 | Média | Fluxos de configuração instruem coleta de tokens em chat. | Atualizar para secure setup/OAuth/MCP/.env fora do chat. | Busca por expressões de coleta direta e revisão manual. |
@@ -26,6 +26,10 @@ Podem ler o projeto, validar saída e escrever estado local limitado. Não podem
 - `PUBLISH_MODE=dry-run` por padrão.
 - Meta Ads: preview, aprovação explícita e campanha inicialmente `PAUSED`.
 - Escala de gasto e publicação social exigem approval gate persistente.
+
+## Política de aprovação futura
+
+Toda ação externa avalia uma `ApprovalPolicy` com `mode` (`manual`, `standing` ou `disabled`), escopo por workflow/rede/tipo de ação/produto, `expires_at`, limites e revogabilidade. `disabled` bloqueia a ação. Ações financeiras, irreversíveis ou de modificação externa sensível usam `manual` por padrão. Uma autorização `standing` só vale quando o usuário a configurou explicitamente, dentro de escopo e validade definidos; `autopublish` começa como `false`.
 
 ## Ordem da sanitização posterior
 
