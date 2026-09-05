@@ -2,7 +2,7 @@
 
 Toolkit completo de marketing digital, copy e infoprodutos baseado nas metodologias **VTSD (Venda Todo Santo Dia)**, **Light Copy**, **C10X (High Ticket)** e **Low Ticket**. Roda dentro do **Claude Code** (VS Code) ou no **Cursor**, transformando o chat em um consultor especialista que entrega materiais prontos para uso.
 
-Não é software tradicional: é um sistema de prompts estruturados (CLAUDE.md, regras, comandos, agentes, skills e scripts) que orquestra o assistente do início ao fim de um funil. Também é empacotado como app desktop (`Fluxo Criativo`, Electron) com instalador próprio para Windows e Mac, que provisiona Python, Git, Node e o app Claude automaticamente.
+Não é software tradicional: é um sistema de prompts estruturados (CLAUDE.md, regras, comandos, agentes, skills e scripts) que orquestra o assistente do início ao fim de um funil. A distribuição desktop Electron é opcional e legada, não faz parte do core e não é pré-requisito para a inteligência do projeto.
 
 ## Por onde começar
 
@@ -113,7 +113,7 @@ workshop_inteligente/
 ├── ARQUITETURA.md               Guia técnico completo
 ├── COMO-USAR.md                 Guia passo a passo
 ├── README.md                    Este arquivo
-├── package.json                 Metadados Electron (Fluxo Criativo v1.0.2)
+├── package.json                 Metadados de distribuição Electron opcional/legada
 ├── vercel.json                  Config Vercel para páginas publicadas
 ├── .env.example                 Modelo de chaves de API
 │
@@ -128,8 +128,7 @@ workshop_inteligente/
 │
 ├── .cursor/rules/               Regras específicas do Cursor (.mdc)
 │
-├── electron/                    App desktop Fluxo Criativo (Electron)
-│   ├── main.js                  Processo principal Electron
+├── electron/                    Ausente neste commit; distribuição desktop não está funcional
 │   ├── preload.js               Preload do app
 │   ├── preload-panel.js         Preload da janela do painel
 │   ├── installer.js             Lógica de provisionamento (Python, Git, Node, Claude)

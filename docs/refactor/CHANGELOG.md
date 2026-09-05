@@ -61,3 +61,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: execução acidental de instalador com rede, privilégio e dependências desatualizadas.
 - Possível regressão: usuários que dependiam do caminho antigo precisam de um setup manual/documentado; nenhum workflow de negócio referencia os arquivos.
 - Validação: busca de todas as referências, atualização do README e confirmação de que `instalador/` não permanece como destino ativo.
+
+## Lote 7: desacoplamento da distribuição desktop opcional
+
+- Commit: `refactor: decouple optional desktop distribution`
+- Arquivos: `package.json`, `README.md`, `docs/refactor/DESKTOP-DISTRIBUTION.md` e este changelog.
+- Antes: a documentação apresentava Electron e instaladores como parte funcional do produto, embora o diretório `electron/` esteja ausente neste commit.
+- Depois: a distribuição desktop é explicitamente opcional/legada; scripts e manifesto são preservados sem execução ou remoção cega.
+- Risco mitigado: expectativa de setup obrigatório ou app desktop funcional sem fonte correspondente.
+- Possível regressão: nenhuma no core; consumidores de builds Electron precisam de uma recuperação dedicada.
+- Validação: busca estática de referências Electron/desktop, conferência da ausência de `electron/` e `git diff --check`.
