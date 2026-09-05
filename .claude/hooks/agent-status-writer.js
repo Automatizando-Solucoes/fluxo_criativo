@@ -4,6 +4,7 @@
 
 const fs = require('fs')
 const path = require('path')
+const PROJECT_ROOT = path.resolve(__dirname, '..', '..')
 
 const AGENT_BY_SKILL = {
   'produto-novo': 'estrategista-de-produto',
@@ -65,9 +66,9 @@ function readJson(filePath) {
   }
 }
 
-function readActiveProduct(cwd) {
+function readActiveProduct() {
   try {
-    return fs.readFileSync(path.join(cwd, 'meus-produtos', '.ativo'), 'utf8').trim()
+    return fs.readFileSync(path.join(PROJECT_ROOT, 'meus-produtos', '.ativo'), 'utf8').trim()
   } catch {
     return ''
   }
@@ -104,10 +105,9 @@ process.stdin.on('end', () => {
   clearTimeout(timeout)
   try {
     const data = JSON.parse(input || '{}')
-    const cwd = data.cwd || process.cwd()
     const toolName = String(data.tool_name || data.tool || '')
     const toolInput = data.tool_input || {}
-    const statusFile = path.join(cwd, '.claude', 'agents-memory', 'agents-status.json')
+    const statusFile = path.join(PROJECT_ROOT, '.claude', 'agents-memory', 'agents-status.json')
     const status = readJson(statusFile)
     const previous = status._meta && status._meta.lastActive
     const skill = toolName === 'Skill' ? String(toolInput.skill || '') : ''
@@ -126,7 +126,7 @@ process.stdin.on('end', () => {
       lastCategory: category,
       lastTask: task,
       lastSkill: skill,
-      activeProduct: readActiveProduct(cwd),
+      activeProduct: readActiveProduct(),
       progress: {},
       updated: new Date(timestamp).toLocaleTimeString('pt-BR'),
       timestamp,

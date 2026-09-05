@@ -85,3 +85,9 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Commit: `security: complete 1Password secret catalog`
 - Arquivos: `.env.example`, `.env.op.example`, catálogo 1Password, teste estático e este changelog.
 - Depois: todos os segredos do catálogo legado têm referência 1Password; IDs são classificados como configuração não secreta; aliases Meta são temporários e não duplicam itens no vault.
+
+## Ajuste: confinamento do status writer
+
+- Commit: `security: confine status hook writes to project root`
+- Arquivos: status writer, teste local-only/confinamento e este changelog.
+- Depois: o hook resolve a raiz pelo próprio caminho e ignora `data.cwd` como autoridade de filesystem. A fixture de teste comprova que um cwd externo não recebe escrita.
