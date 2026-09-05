@@ -161,3 +161,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: fallback implícito para command/skill arbitrário e acoplamento de adapter a nomes não documentados.
 - Possível regressão: as fontes originais permanecem nos mesmos caminhos e nenhum dispatcher novo as chama.
 - Validação: registry carregado em teste local, IDs duplicados e desconhecidos rejeitados.
+
+## Fase I, lote 8: skeletons de adapters de runtime
+
+- Commit: `core: add runtime adapter skeletons`
+- Arquivos: `adapters/claude/`, `adapters/hermes/`, `adapters/codex/` e este changelog.
+- Antes: não havia uma superfície comum para cada runtime consultar o registry.
+- Depois: cada runtime resolve ID conhecido para um destino descritivo e não executável; apenas Claude expõe a origem atual como referência.
+- Risco mitigado: execução acidental de workflows durante a etapa de compatibilidade.
+- Possível regressão: nenhuma; Hermes e Codex seguem sem adapter operacional nesta fase.
+- Validação: testes locais de resolução e falha explícita para workflow desconhecido.
