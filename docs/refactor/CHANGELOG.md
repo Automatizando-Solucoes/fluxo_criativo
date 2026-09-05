@@ -1,4 +1,4 @@
-# Changelog da Sanitização
+# Changelog da Sanitização e evolução do core
 
 Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio commit e validado sem rede, credenciais, APIs, instaladores ou deploy.
 
@@ -91,3 +91,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Commit: `security: confine status hook writes to project root`
 - Arquivos: status writer, teste local-only/confinamento e este changelog.
 - Depois: o hook resolve a raiz pelo próprio caminho e ignora `data.cwd` como autoridade de filesystem. A fixture de teste comprova que um cwd externo não recebe escrita.
+
+## Fase I, lote 1: contrato neutro de workflow
+
+- Commit: `core: introduce runtime-neutral workflow contracts`
+- Arquivos: documentação em `docs/core/`, contrato em `core/contracts/`, definições descritivas iniciais em `core/workflows/` e este changelog.
+- Antes: a intenção de workflow só era endereçável por superfícies específicas do Claude.
+- Depois: sete workflows têm IDs lógicos e metadados serializáveis, sem executar ou mover a origem legada.
+- Risco mitigado: acoplamento prematuro de futuros runtimes a comandos, skills e agents do Claude.
+- Possível regressão: nenhuma execução foi redirecionada; o core ainda é somente descritivo.
+- Validação: revisão estática das fontes de compatibilidade e `git diff --check`.
