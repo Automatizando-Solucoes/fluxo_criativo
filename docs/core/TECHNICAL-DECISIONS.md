@@ -16,6 +16,10 @@ Os formatos de contrato continuam sendo objetos serializáveis. Claude Code, Her
 
 Nenhuma dependência foi adicionada. A implementação usa somente módulos padrão do Node.js, em especial `node:assert`, `node:fs`, `node:path` e `node:os` nos testes.
 
+## Imutabilidade de contratos
+
+Contratos serializáveis retornados pelo core passam por cópia estruturada e freeze profundo com módulos padrão. Isso impede que consumidores alterem arrays e objetos internos do registry, approval ou job por referência compartilhada. Estruturas internas mutáveis, como os mapas privados do scheduler em memória, não passam por esse helper.
+
 ## Limite da decisão
 
 Node não passa a ser pré-requisito da inteligência de marketing nem do estado em `meus-produtos/`. Ele é apenas o runtime de referência para os contratos executáveis desta fase. Nenhum workflow legado é executado por este core.

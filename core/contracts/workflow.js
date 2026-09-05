@@ -1,6 +1,7 @@
 'use strict';
 
 const { INTEGRATION_CAPABILITIES } = require('../integrations/contracts');
+const { immutableCopy } = require('./immutable');
 
 const CAPABILITY_PATTERN = /^[a-z][a-z0-9_-]*\.[a-z][a-z0-9_-]*$/;
 const WORKFLOW_ID_PATTERN = /^[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_-]*)+$/;
@@ -50,7 +51,7 @@ function assertWorkflowContract(workflow) {
   if (!workflow.source || typeof workflow.source.kind !== 'string' || typeof workflow.source.path !== 'string') {
     throw new TypeError('workflow.source must describe the current compatibility source');
   }
-  return Object.freeze({ ...workflow });
+  return immutableCopy(workflow);
 }
 
 function requiresChildRiskResolution(workflow) {

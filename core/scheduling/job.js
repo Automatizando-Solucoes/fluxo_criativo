@@ -1,6 +1,7 @@
 'use strict';
 
 const { createApprovalPolicy } = require('../approvals/policy');
+const { immutableCopy } = require('../contracts/immutable');
 
 function assertTimezone(timezone) {
   if (typeof timezone !== 'string' || timezone.length === 0) {
@@ -53,15 +54,15 @@ function createScheduledJob(input) {
     throw new TypeError('destination is required');
   }
   if (typeof input.enabled !== 'boolean') throw new TypeError('enabled must be boolean');
-  return Object.freeze({
+  return immutableCopy({
     job_id: input.job_id,
     workflow_id: input.workflow_id,
-    input: Object.freeze({ ...input.input }),
-    schedule: Object.freeze({ ...input.schedule }),
+    input: { ...input.input },
+    schedule: { ...input.schedule },
     timezone: input.timezone,
     idempotency_key: input.idempotency_key,
     approval_policy: approvalPolicy,
-    destination: Object.freeze({ ...input.destination }),
+    destination: { ...input.destination },
     enabled: input.enabled,
   });
 }

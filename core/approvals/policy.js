@@ -1,5 +1,7 @@
 'use strict';
 
+const { immutableCopy } = require('../contracts/immutable');
+
 const APPROVAL_MODES = Object.freeze(['manual', 'standing', 'disabled']);
 
 function assertOptionalString(value, field) {
@@ -74,19 +76,19 @@ function createApprovalPolicy(input) {
     network: input.network || scope.network || null,
     action_type: input.action_type || scope.action_type || null,
   };
-  return Object.freeze({
+  return immutableCopy({
     mode,
     workflow_id: input.workflow_id,
     product: resolvedScope.product,
     network: resolvedScope.network,
     action_type: resolvedScope.action_type,
-    scope: Object.freeze(resolvedScope),
+    scope: resolvedScope,
     expires_at: input.expires_at || null,
-    limits: Object.freeze({ ...limits }),
+    limits: { ...limits },
     authorized_by: input.authorized_by || null,
     created_at: input.created_at || null,
     revoked_at: input.revoked_at || null,
-    manual_grant: manualGrant ? Object.freeze({ ...manualGrant }) : null,
+    manual_grant: manualGrant ? { ...manualGrant } : null,
   });
 }
 

@@ -211,3 +211,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: gates futuros subestimarem leitura/generação externa ou delegação de toolkit.
 - Possível regressão: qualquer nova definição com capability de integração e `external: false` falha na validação.
 - Validação: teste local relacionando capabilities de integração à metadata de efeito externo.
+
+## Fase I, ajuste 4: imutabilidade profunda de contratos
+
+- Commit: `core: make contract values deeply immutable`
+- Arquivos: helper de contratos, workflow, approvals, scheduling, decisão técnica, testes e este changelog.
+- Antes: apenas o objeto externo era congelado; arrays e objetos internos podiam ser alterados por referência.
+- Depois: cópia estruturada seguida de freeze profundo protege valores serializáveis retornados pelo core.
+- Risco mitigado: consumidor alterar metadata, inputs, limites ou job depois da validação do contrato.
+- Possível regressão: consumidores futuros devem criar novo contrato em vez de mutar um existente.
+- Validação: testes locais tentam mutar campos aninhados e confirmam que o registry retorna valor intacto.

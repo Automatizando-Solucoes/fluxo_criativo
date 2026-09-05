@@ -23,6 +23,16 @@ const { resolveCodexWorkflow } = require('../../adapters/codex/resolver');
 assert.equal(new Set(workflowRegistry.list().map((workflow) => workflow.id)).size, workflowDefinitions.length);
 assert.equal(workflowRegistry.list().length, 7);
 assert.throws(() => createWorkflowRegistry([workflowDefinitions[0], workflowDefinitions[0]]), /duplicate workflow id/);
+const immutableWorkflow = workflowRegistry.get('copy.social');
+assert.throws(() => immutableWorkflow.outputs.push('unexpected_output'), TypeError);
+assert.throws(() => { immutableWorkflow.inputs.product_slug.required = false; }, TypeError);
+assert.throws(() => { immutableWorkflow.side_effects.external = true; }, TypeError);
+assert.throws(() => immutableWorkflow.capabilities.push('unexpected.capability'), TypeError);
+const intactWorkflow = workflowRegistry.get('copy.social');
+assert.deepEqual(intactWorkflow.outputs, ['content_file']);
+assert.equal(intactWorkflow.inputs.product_slug.required, true);
+assert.equal(intactWorkflow.side_effects.external, false);
+assert.deepEqual(intactWorkflow.capabilities, ['filesystem.read', 'filesystem.write']);
 for (const workflow of workflowRegistry.list()) {
   if (workflow.capabilities.some((capability) => INTEGRATION_CAPABILITIES.includes(capability))) {
     assert.equal(workflow.side_effects.external, true, `${workflow.id} must declare external interaction`);
@@ -40,6 +50,8 @@ const standingContext = {
   action_id: 'research-1', now: '2029-06-01T00:00:00.000Z', usage: { runs: 2 },
 };
 assert.equal(evaluateApproval(standing, standingContext).allowed, true);
+assert.throws(() => { standing.limits.runs = 999; }, TypeError);
+assert.equal(standing.limits.runs, 2);
 assert.equal(evaluateApproval(standing, { ...standingContext, workflow_id: 'copy.social' }).reason, 'workflow_mismatch');
 assert.equal(evaluateApproval(standing, { ...standingContext, product: 'other-product' }).reason, 'product_mismatch');
 assert.equal(evaluateApproval(standing, { ...standingContext, network: 'other-network' }).reason, 'network_mismatch');
@@ -88,6 +100,8 @@ const job = createScheduledJob({
 });
 const scheduler = new InMemoryScheduler();
 assert.equal(scheduler.register(job).timezone, 'America/Manaus');
+assert.throws(() => { job.input.product_slug = 'other-product'; }, TypeError);
+assert.equal(job.input.product_slug, 'fixture-product');
 assert.throws(() => scheduler.register({ ...job, job_id: 'fixture-job-2' }), /idempotency key already registered/);
 assert.throws(() => createScheduledJob({
   ...job, approval_policy: { mode: 'standing', workflow_id: 'research.market', authorized_by: 'fixture-user' },
