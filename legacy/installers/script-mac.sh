@@ -11,6 +11,7 @@ echo "   Workshop IA - Instalador Mac"
 echo "========================================"
 echo ""
 
+# LEGACY: preserved for historical reference only. Do not execute for current setup.
 # Homebrew
 if ! command -v brew &>/dev/null; then
   echo "[1/6] Instalando Homebrew..."

@@ -51,3 +51,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: vazamento de credencial em chat, terminal, histórico ou telemetria.
 - Possível regressão: configuração guiada de integrações deixa de testar/concluir automaticamente até existir secure setup/adapters.
 - Validação: inventário estático, busca de instruções diretas de coleta nos commands cobertos e ausência de segredo real em alterações.
+
+## Lote 6: isolamento de instaladores legados
+
+- Commit: `refactor: isolate legacy installers`
+- Arquivos: instaladores movidos para `legacy/installers/`, `legacy/installers/README.md`, `README.md` e este changelog.
+- Antes: instaladores ativos sob `instalador/` eram apresentados como setup atual e executavam instalação automática.
+- Depois: permanecem somente como histórico, explicitamente fora do core e não utilizáveis para setup atual.
+- Risco mitigado: execução acidental de instalador com rede, privilégio e dependências desatualizadas.
+- Possível regressão: usuários que dependiam do caminho antigo precisam de um setup manual/documentado; nenhum workflow de negócio referencia os arquivos.
+- Validação: busca de todas as referências, atualização do README e confirmação de que `instalador/` não permanece como destino ativo.
