@@ -171,3 +171,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: execução acidental de workflows durante a etapa de compatibilidade.
 - Possível regressão: nenhuma; Hermes e Codex seguem sem adapter operacional nesta fase.
 - Validação: testes locais de resolução e falha explícita para workflow desconhecido.
+
+## Fase I, lote 9: testes de contrato do core
+
+- Commit: `test: cover runtime-neutral core contracts`
+- Arquivos: `tests/core/runtime-neutral-contracts.test.js` e este changelog.
+- Antes: os contratos iniciais não tinham uma bateria local integrada.
+- Depois: o teste verifica registry, approvals, secret provider sem plaintext, scheduler, estado sem traversal, adapters e presença dos ativos legados.
+- Risco mitigado: regressão silenciosa de contrato, ID duplicado, timezone inválida, aprovação expirada ou caminho escapando do produto.
+- Possível regressão: nenhuma chamada externa é simulada; integrações reais continuam cobertas apenas por fases futuras.
+- Validação: `node tests/core/runtime-neutral-contracts.test.js`, além dos testes de segurança existentes, sem rede ou credenciais.
