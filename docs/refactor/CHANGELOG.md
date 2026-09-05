@@ -141,3 +141,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: vazamento de nomes de provider ou APIs concretas para o core.
 - Possível regressão: nenhuma API, notificação ou publicação é acionada.
 - Validação: teste local do contrato e revisão de que não há clientes externos.
+
+## Fase I, lote 6: limite de estado de produto
+
+- Commit: `core: introduce product state boundary`
+- Arquivos: `core/state/` e este changelog.
+- Antes: cada superfície resolvia diretamente caminhos de produto.
+- Depois: funções pequenas validam slug, produto ativo e tipos de artefato conhecidos, sem modificar `meus-produtos/`.
+- Risco mitigado: path traversal e divergência de caminhos de contexto/entrega entre runtimes.
+- Possível regressão: nenhum arquivo existente é migrado, escrito ou renomeado.
+- Validação: fixture local de estado, traversal rejeitado e smoke check da estrutura legada.
