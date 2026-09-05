@@ -181,3 +181,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: regressão silenciosa de contrato, ID duplicado, timezone inválida, aprovação expirada ou caminho escapando do produto.
 - Possível regressão: nenhuma chamada externa é simulada; integrações reais continuam cobertas apenas por fases futuras.
 - Validação: `node tests/core/runtime-neutral-contracts.test.js`, além dos testes de segurança existentes, sem rede ou credenciais.
+
+## Fase I, ajuste 1: escopo e grants de approval policy
+
+- Commit: `core: enforce approval scope and action grants`
+- Arquivos: `core/approvals/`, testes de contrato e este changelog.
+- Antes: approval era avaliada sem contexto de operação e `manual` podia ser interpretado como autorização persistente.
+- Depois: evaluator valida workflow, escopo, expiração, revogação e limites; `manual_grant` fica preso a um único `action_id`.
+- Risco mitigado: autorização fora de escopo, standing além do limite e reuso acidental de aprovação manual.
+- Possível regressão: chamadores futuros devem fornecer contexto e uso suficientes; dados insuficientes para limite bloqueiam por segurança.
+- Validação: testes unitários locais para divergências de escopo, grants, expiração, revogação e limites.

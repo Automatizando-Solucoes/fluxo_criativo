@@ -26,13 +26,36 @@ assert.throws(() => createWorkflowRegistry([workflowDefinitions[0], workflowDefi
 assert.deepEqual(APPROVAL_MODES, ['manual', 'standing', 'disabled']);
 const standing = createApprovalPolicy({
   mode: 'standing', workflow_id: 'research.market', product: 'fixture-product',
-  expires_at: '2030-01-01T00:00:00.000Z', authorized_by: 'fixture-user',
-  created_at: '2029-01-01T00:00:00.000Z', limits: { runs: 2 },
+  network: 'web', action_type: 'research', expires_at: '2030-01-01T00:00:00.000Z',
+  authorized_by: 'fixture-user', created_at: '2029-01-01T00:00:00.000Z', limits: { runs: 2 },
 });
-assert.equal(evaluateApproval(standing, '2029-06-01T00:00:00.000Z').allowed, true);
-assert.equal(evaluateApproval(standing, '2030-01-01T00:00:00.000Z').reason, 'expired');
+const standingContext = {
+  workflow_id: 'research.market', product: 'fixture-product', network: 'web', action_type: 'research',
+  action_id: 'research-1', now: '2029-06-01T00:00:00.000Z', usage: { runs: 2 },
+};
+assert.equal(evaluateApproval(standing, standingContext).allowed, true);
+assert.equal(evaluateApproval(standing, { ...standingContext, workflow_id: 'copy.social' }).reason, 'workflow_mismatch');
+assert.equal(evaluateApproval(standing, { ...standingContext, product: 'other-product' }).reason, 'product_mismatch');
+assert.equal(evaluateApproval(standing, { ...standingContext, network: 'other-network' }).reason, 'network_mismatch');
+assert.equal(evaluateApproval(standing, { ...standingContext, action_type: 'other-action' }).reason, 'action_type_mismatch');
+assert.equal(evaluateApproval(standing, { ...standingContext, now: '2030-01-01T00:00:00.000Z' }).reason, 'expired');
+assert.equal(evaluateApproval(standing, { ...standingContext, usage: { runs: 3 } }).reason, 'limit_exceeded:runs');
+assert.equal(evaluateApproval(standing, { ...standingContext, usage: {} }).reason, 'limits_not_evaluated');
+assert.equal(evaluateApproval(createApprovalPolicy({ mode: 'standing', workflow_id: 'research.market', revoked_at: '2029-01-02T00:00:00.000Z', authorized_by: 'fixture-user' }), { workflow_id: 'research.market' }).reason, 'revoked');
 const disabled = createApprovalPolicy({ mode: 'disabled', workflow_id: 'copy.social' });
-assert.deepEqual(evaluateApproval(disabled), { allowed: false, reason: 'disabled' });
+assert.deepEqual(evaluateApproval(disabled, { workflow_id: 'copy.social' }), { allowed: false, reason: 'disabled' });
+const manual = createApprovalPolicy({ mode: 'manual', workflow_id: 'copy.social' });
+assert.equal(evaluateApproval(manual, { workflow_id: 'copy.social', action_id: 'publish-1' }).reason, 'manual_grant_required');
+const manualForOtherAction = createApprovalPolicy({
+  mode: 'manual', workflow_id: 'copy.social',
+  manual_grant: { action_id: 'publish-2', approved_by: 'fixture-user', approved_at: '2029-01-01T00:00:00.000Z' },
+});
+assert.equal(evaluateApproval(manualForOtherAction, { workflow_id: 'copy.social', action_id: 'publish-1' }).reason, 'manual_action_mismatch');
+const manualGranted = createApprovalPolicy({
+  mode: 'manual', workflow_id: 'copy.social',
+  manual_grant: { action_id: 'publish-1', approved_by: 'fixture-user', approved_at: '2029-01-01T00:00:00.000Z' },
+});
+assert.deepEqual(evaluateApproval(manualGranted, { workflow_id: 'copy.social', action_id: 'publish-1' }), { allowed: true, reason: 'manual' });
 
 const secretProvider = new MockSecretProvider({
   IMAGE_API_KEY: 'op://fixture-vault/image-provider/api-key',
