@@ -21,10 +21,7 @@
       "Read(package.json)",
       "Read(vercel.json)",
       "WebFetch(*)",
-      "WebSearch(*)",
-      "Bash(ls *)",
-      "Bash(vercel *)",
-      "Bash(python3)"
+      "WebSearch(*)"
     ]
   },
   "hooks": {
