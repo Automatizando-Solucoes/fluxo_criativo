@@ -79,3 +79,9 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Antes: provisionamento externo genérico e `.env` ainda apareciam como padrão documental.
 - Depois: 1Password é a fonte de verdade; `.env.op` guarda apenas referências `op://` e `op run` injeta variáveis em runtime. `.env` é `LEGACY_SECRET_FLOW`.
 - Validação: testes estáticos sem acesso a vault, credenciais ou binário `op`.
+
+## Ajuste: catálogo 1Password completo
+
+- Commit: `security: complete 1Password secret catalog`
+- Arquivos: `.env.example`, `.env.op.example`, catálogo 1Password, teste estático e este changelog.
+- Depois: todos os segredos do catálogo legado têm referência 1Password; IDs são classificados como configuração não secreta; aliases Meta são temporários e não duplicam itens no vault.
