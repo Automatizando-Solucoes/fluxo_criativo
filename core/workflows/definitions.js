@@ -15,7 +15,7 @@ const workflowDefinitions = [
     outputs: ['copy_file'], requires: ['product.profile', 'product.research'],
     capabilities: ['filesystem.read', 'filesystem.write'],
     side_effects: { external: false, financial: false }, approval: { required: false },
-    source: { kind: 'claude.skill', path: '.claude/skills/paginas/SKILL.md' },
+    source: { kind: 'claude.command', path: '.claude/commands/copy-pagina.md' },
   },
   {
     id: 'copy.ad', version: 1, category: 'copy',
@@ -23,7 +23,7 @@ const workflowDefinitions = [
     outputs: ['ad_copy_file'], requires: ['product.profile', 'product.research'],
     capabilities: ['filesystem.read', 'filesystem.write'],
     side_effects: { external: false, financial: false }, approval: { required: false },
-    source: { kind: 'claude.skill', path: '.claude/skills/anuncios-texto/SKILL.md' },
+    source: { kind: 'claude.command', path: '.claude/commands/copy-anuncio.md' },
   },
   {
     id: 'copy.social', version: 1, category: 'copy',
@@ -31,7 +31,7 @@ const workflowDefinitions = [
     outputs: ['content_file'], requires: ['product.profile', 'product.research'],
     capabilities: ['filesystem.read', 'filesystem.write'],
     side_effects: { external: false, financial: false }, approval: { required: false },
-    source: { kind: 'claude.skill', path: '.claude/skills/conteudo/SKILL.md' },
+    source: { kind: 'claude.command', path: '.claude/commands/copy-social.md' },
   },
   {
     id: 'creative.static', version: 1, category: 'creative',
@@ -47,7 +47,7 @@ const workflowDefinitions = [
     outputs: ['traffic_insights_file'], requires: ['product.profile'],
     capabilities: ['filesystem.read', 'filesystem.write', 'ads.insights'],
     side_effects: { external: false, financial: false }, approval: { required: false },
-    source: { kind: 'claude.skill', path: '.claude/skills/trafego-insights/SKILL.md' },
+    source: { kind: 'claude.command', path: '.claude/commands/trafego-insights.md' },
   },
   {
     id: 'toolkit.execute', version: 1, category: 'toolkit',

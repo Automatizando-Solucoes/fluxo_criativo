@@ -151,3 +151,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: path traversal e divergência de caminhos de contexto/entrega entre runtimes.
 - Possível regressão: nenhum arquivo existente é migrado, escrito ou renomeado.
 - Validação: fixture local de estado, traversal rejeitado e smoke check da estrutura legada.
+
+## Fase I, lote 7: registry inicial de workflows
+
+- Commit: `core: add initial workflow registry`
+- Arquivos: `core/workflows/`, `docs/core/WORKFLOW-REGISTRY.md` e este changelog.
+- Antes: não havia registro único de IDs neutros e suas origens de compatibilidade.
+- Depois: sete IDs são validados, únicos e resolvidos de forma explícita para suas fontes atuais, sem execução automática.
+- Risco mitigado: fallback implícito para command/skill arbitrário e acoplamento de adapter a nomes não documentados.
+- Possível regressão: as fontes originais permanecem nos mesmos caminhos e nenhum dispatcher novo as chama.
+- Validação: registry carregado em teste local, IDs duplicados e desconhecidos rejeitados.
