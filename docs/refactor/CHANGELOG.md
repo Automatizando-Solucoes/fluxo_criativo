@@ -71,3 +71,11 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: expectativa de setup obrigatório ou app desktop funcional sem fonte correspondente.
 - Possível regressão: nenhuma no core; consumidores de builds Electron precisam de uma recuperação dedicada.
 - Validação: busca estática de referências Electron/desktop, conferência da ausência de `electron/` e `git diff --check`.
+
+## Política posterior: 1Password como secret provider
+
+- Commit: `security: adopt 1Password as primary secret provider`
+- Arquivos: política global, seis commands de configuração, `.env.op.example`, documentação 1Password, testes estáticos e este changelog.
+- Antes: provisionamento externo genérico e `.env` ainda apareciam como padrão documental.
+- Depois: 1Password é a fonte de verdade; `.env.op` guarda apenas referências `op://` e `op run` injeta variáveis em runtime. `.env` é `LEGACY_SECRET_FLOW`.
+- Validação: testes estáticos sem acesso a vault, credenciais ou binário `op`.

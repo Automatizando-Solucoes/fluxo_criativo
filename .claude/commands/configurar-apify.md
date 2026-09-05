@@ -1,87 +1,19 @@
 ---
 name: workshop-marketing:configurar-apify
-description: Guia para criar conta no Apify, gerar o Personal API Token e salvar no .env como APIFY_API_TOKEN. Skill reutilizável chamada por qualquer skill que dependa do Apify (instagram-dashboard, etc.).
+description: Orienta a configuração externa e não interativa do Apify via 1Password.
 allowed-tools: Read, WebFetch, WebSearch
 model: sonnet
 ---
 
 # Configurar Apify
 
-Guia para criar a conta, gerar o token e salvar no `.env`. So precisa fazer uma vez.
+Esta integração usa a variável `APIFY_API_TOKEN` e o 1Password é a fonte de verdade do segredo.
 
-> Política de segurança: não solicite, receba, teste ou grave o token pelo chat. O operador deve provisionar `APIFY_API_TOKEN` fora da conversa por `.env` manual, secret store ou secure setup. As etapas legadas de coleta, curl e edição abaixo não são executáveis durante a sanitização.
+1. Explique a finalidade do Apify para pesquisa e dashboards.
+2. Oriente o operador a criar ou atualizar a credencial no 1Password fora desta conversa.
+3. Oriente o operador a registrar uma referência `op://<vault>/<item>/<field>` para `APIFY_API_TOKEN` em `.env.op` local, baseado em `.env.op.example`.
+4. Peça somente a confirmação: “já configurei no 1Password”.
+5. Quando houver autorização operacional, verifique disponibilidade sem revelar valor, usando `op run --env-file=.env.op -- sh -c 'test -n "$APIFY_API_TOKEN"'`.
+6. Relate apenas configurado ou indisponível. Não leia, imprima, copie, teste contra API ou grave o segredo.
 
-O Apify tem plano gratuito com US$ 5/mes de credito, suficiente para rodar o dashboard do Instagram todo dia e outras automacoes. Nao precisa de cartao de credito para comecar.
-
----
-
-## Passo 1. Criar a conta
-
-Pergunte:
-
-```
-Voce ja tem conta no Apify?
-
-1. Sim, ja tenho
-2. Nao tenho ainda
-```
-
-**Se nao tiver:** instrua a acessar `https://console.apify.com/sign-up`, criar conta gratuita com email ou Google e voltar quando estiver logado.
-
-**Se ja tiver:** avance para o Passo 2.
-
----
-
-## Passo 2. Copiar o Personal API Token
-
-Instrua o usuario:
-
-```
-Para copiar o token:
-
-1. Acesse https://console.apify.com/settings/integrations
-2. Localize a secao "Personal API Tokens"
-3. Copie o token listado
-```
-
-Peca o token:
-
-```
-Cole seu Apify API Token aqui:
-```
-
----
-
-## Passo 3. Testar o token
-
-Rode o teste de conexao com o valor informado:
-
-```bash
-curl -s "https://api.apify.com/v2/users/me?token={TOKEN_INFORMADO}" | head -c 300
-```
-
-- Se retornar `{"data":{"id":...}}`: token valido, continua.
-- Se retornar `{"error":...}`: token invalido ou copiado com espaco. Peca para verificar e colar novamente. Repita o Passo 2.
-
----
-
-## Passo 4. Salvar no .env
-
-Leia o `.env`.
-
-- Se a linha `APIFY_API_TOKEN` ja existir: atualize o valor com Edit.
-- Se nao existir: adicione `APIFY_API_TOKEN={valor}` ao final do arquivo.
-
-O nome padrao obrigatorio da variavel e `APIFY_API_TOKEN`. Nao usar variacao diferente desse nome.
-
-Confirme ao usuario:
-
-```
-Token do Apify salvo como APIFY_API_TOKEN e testado com sucesso.
-```
-
----
-
-## Apos configurar
-
-Retorne ao fluxo que chamou esta skill (ex: `/instagram-dashboard`) e continue de onde parou.
+Se o runtime não tiver 1Password configurado, interrompa a integração e aponte para `docs/security/ONEPASSWORD.md`.

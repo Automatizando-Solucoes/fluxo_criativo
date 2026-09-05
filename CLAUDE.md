@@ -48,15 +48,15 @@ O hook automático em `scripts/verificar-acentuacao.py` roda ao fim de cada gera
 
 ---
 
-## TOKENS E SEGREDOS APENAS NO .env (REGRA GLOBAL)
+## 1PASSWORD E SEGREDOS EM RUNTIME (REGRA GLOBAL)
 
 > Esta regra tem prioridade absoluta sobre qualquer skill, agente ou conveniência operacional. Aplica-se a 100% dos arquivos do projeto.
 
-**Token Meta, API key, secret, credencial ou qualquer valor sensível NUNCA pode aparecer escrito (literal, hardcoded) em qualquer arquivo do projeto que não seja o `.env`.** O `.env` está no `.gitignore` e é o único local autorizado.
+**1Password é a fonte de verdade de segredos do projeto. Valores sensíveis nunca entram no contexto do modelo nem são persistidos em plaintext. Workflows usam referências `op://` e injeção em runtime.**
 
 ### Sanitização: provisionamento fora da conversa
 
-Esta regra prevalece sobre instruções antigas de commands e skills. Nunca peça, receba, repita, valide ou grave token, chave, senha ou credencial pelo chat. O operador provisiona o segredo fora da conversa por `.env` manual, OAuth, MCP, secret store ou secure setup do runtime. Não passe segredo em argumento, URL, header ou comando mostrado no chat. Depois da configuração externa, o fluxo pode apenas verificar a presença da variável sem revelar seu valor e orientar o usuário a seguir a documentação segura.
+Esta regra prevalece sobre instruções antigas de commands e skills. Nunca peça, receba, repita, valide ou grave token, chave, senha ou credencial pelo chat. O operador registra a credencial no 1Password e mantém somente referências `op://` em `.env.op` local. Use `op run --env-file=.env.op -- <processo>` para injeção em runtime. O modelo pode conhecer nome lógico, referência e status booleano, mas não pode executar uma leitura que revele plaintext. `.env` é `LEGACY_SECRET_FLOW` até migração individual.
 
 ### Proibido em qualquer arquivo `.py`, `.md`, `.json`, `.sh`, `.yml`, `.yaml`, `.txt`, `.html`, etc.
 

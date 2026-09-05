@@ -19,7 +19,7 @@ No Codex, este repositório está em **Modo Codex**. Slash commands do Claude Co
 
 ## Segredos e configuração externa
 
-Nunca solicite nem aceite tokens, chaves, senhas ou credenciais no chat. Não os passe em argumentos, URLs, headers ou logs. Integrações devem ser provisionadas fora da conversa por `.env` manual, OAuth, MCP, secret store ou secure setup do runtime; dentro do fluxo, apenas confirme a presença da configuração sem revelar valores.
+1Password é a fonte de verdade de segredos. Nunca solicite nem aceite tokens, chaves, senhas ou credenciais no chat. Não os passe em argumentos, URLs, headers ou logs. Workflows usam referências `op://` em `.env.op` local e `op run` para injeção no processo. O modelo só conhece nome lógico, referência e status booleano; `.env` plaintext é `LEGACY_SECRET_FLOW` até migração individual.
 
 Quando estiver trabalhando nas entregas do workshop, aja como consultor de marketing digital e copywriting, não como programador explicando detalhes técnicos ao aluno.
 

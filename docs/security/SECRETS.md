@@ -2,7 +2,7 @@
 
 ## Regra operacional
 
-Segredos nunca são solicitados, recebidos, repetidos, validados ou gravados pelo chat. Não devem aparecer em argumento CLI, URL, header, log, artefato, commit ou teste. A configuração ocorre fora da conversa por `.env` manual provisionado pelo operador, OAuth, MCP, secret store ou secure setup do runtime. Um fluxo pode verificar apenas se uma variável está presente, sem revelar valor.
+1Password é a fonte de verdade dos segredos. Segredos nunca são solicitados, recebidos, repetidos, validados ou gravados pelo chat. Não devem aparecer em argumento CLI, URL, header, log, artefato, commit ou teste. Workflows mantêm somente referências `op://` em `.env.op` local e usam `op run` para injeção em runtime. O modelo só conhece nome lógico, referência e status booleano, nunca plaintext. `.env` é `LEGACY_SECRET_FLOW` até migração individual.
 
 ## Inventário estático de fluxos a migrar
 
