@@ -15,6 +15,7 @@ const { InMemoryScheduler } = require('../../core/scheduling/in-memory');
 const { getActiveProduct, getProductPath, getArtifactPath } = require('../../core/state/product-state');
 const { createWorkflowRegistry, workflowRegistry, UnknownWorkflowError } = require('../../core/workflows/registry');
 const { workflowDefinitions } = require('../../core/workflows/definitions');
+const { INTEGRATION_CAPABILITIES } = require('../../core/integrations/contracts');
 const { resolveClaudeWorkflow } = require('../../adapters/claude/resolver');
 const { resolveHermesWorkflow } = require('../../adapters/hermes/resolver');
 const { resolveCodexWorkflow } = require('../../adapters/codex/resolver');
@@ -22,6 +23,11 @@ const { resolveCodexWorkflow } = require('../../adapters/codex/resolver');
 assert.equal(new Set(workflowRegistry.list().map((workflow) => workflow.id)).size, workflowDefinitions.length);
 assert.equal(workflowRegistry.list().length, 7);
 assert.throws(() => createWorkflowRegistry([workflowDefinitions[0], workflowDefinitions[0]]), /duplicate workflow id/);
+for (const workflow of workflowRegistry.list()) {
+  if (workflow.capabilities.some((capability) => INTEGRATION_CAPABILITIES.includes(capability))) {
+    assert.equal(workflow.side_effects.external, true, `${workflow.id} must declare external interaction`);
+  }
+}
 
 assert.deepEqual(APPROVAL_MODES, ['manual', 'standing', 'disabled']);
 const standing = createApprovalPolicy({
@@ -107,6 +113,7 @@ assert.equal(resolveClaudeWorkflow('copy.social').target.path, '.claude/commands
 assert.equal(resolveClaudeWorkflow('copy.social').executable, false);
 assert.equal(resolveHermesWorkflow('copy.social').target.status, 'not_implemented');
 assert.equal(resolveCodexWorkflow('copy.social').target.status, 'not_implemented');
+assert.equal(resolveClaudeWorkflow('toolkit.execute').requires_child_risk_resolution, true);
 assert.throws(() => resolveClaudeWorkflow('unknown.workflow'), UnknownWorkflowError);
 
 for (const requiredPath of ['.claude/agents', '.claude/commands', '.claude/skills', 'CLAUDE.md', 'AGENTS.md']) {

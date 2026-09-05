@@ -1,6 +1,7 @@
 'use strict';
 
 const { workflowRegistry } = require('../../core/workflows/registry');
+const { requiresChildRiskResolution } = require('../../core/contracts/workflow');
 
 function resolveClaudeWorkflow(workflowId) {
   const workflow = workflowRegistry.get(workflowId);
@@ -8,6 +9,7 @@ function resolveClaudeWorkflow(workflowId) {
     workflow_id: workflow.id,
     runtime: 'claude',
     target: Object.freeze({ ...workflow.source }),
+    requires_child_risk_resolution: requiresChildRiskResolution(workflow),
     executable: false,
   });
 }

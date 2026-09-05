@@ -201,3 +201,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: jobs com policy incompleta/desalinhada e registro silencioso de intenção duplicada.
 - Possível regressão: chamadores futuros precisam informar policy completa e chave única.
 - Validação: testes locais de policy inválida, workflow divergente e duplicidade de chave.
+
+## Fase I, ajuste 3: efeitos externos e risco composto corretos
+
+- Commit: `core: align workflow effects with external capabilities`
+- Arquivos: contratos, definições/registry, skeletons de adapter, documentação, testes e este changelog.
+- Antes: workflows com pesquisa, geração ou leitura externa podiam parecer locais; `toolkit.execute` parecia filesystem-only.
+- Depois: capabilities externas exigem `side_effects.external`; `toolkit.execute` é composto, conservador e exige resolução de risco dos filhos.
+- Risco mitigado: gates futuros subestimarem leitura/generação externa ou delegação de toolkit.
+- Possível regressão: qualquer nova definição com capability de integração e `external: false` falha na validação.
+- Validação: teste local relacionando capabilities de integração à metadata de efeito externo.

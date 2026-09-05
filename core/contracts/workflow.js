@@ -1,5 +1,7 @@
 'use strict';
 
+const { INTEGRATION_CAPABILITIES } = require('../integrations/contracts');
+
 const CAPABILITY_PATTERN = /^[a-z][a-z0-9_-]*\.[a-z][a-z0-9_-]*$/;
 const WORKFLOW_ID_PATTERN = /^[a-z][a-z0-9_-]*(?:\.[a-z][a-z0-9_-]*)+$/;
 
@@ -30,6 +32,18 @@ function assertWorkflowContract(workflow) {
   if (!workflow.side_effects || typeof workflow.side_effects.external !== 'boolean' || typeof workflow.side_effects.financial !== 'boolean') {
     throw new TypeError('workflow.side_effects must declare external and financial booleans');
   }
+  if (workflow.capabilities.some((capability) => INTEGRATION_CAPABILITIES.includes(capability)) && !workflow.side_effects.external) {
+    throw new TypeError('workflows with integration capabilities must declare external side effects');
+  }
+  if (workflow.kind !== 'atomic' && workflow.kind !== 'composite') {
+    throw new TypeError('workflow.kind must be atomic or composite');
+  }
+  if (typeof workflow.risk_from_children !== 'boolean') {
+    throw new TypeError('workflow.risk_from_children must be boolean');
+  }
+  if (workflow.kind === 'composite' && !workflow.risk_from_children) {
+    throw new TypeError('composite workflows must inherit risk from children');
+  }
   if (!workflow.approval || typeof workflow.approval.required !== 'boolean') {
     throw new TypeError('workflow.approval.required must be boolean');
   }
@@ -39,4 +53,8 @@ function assertWorkflowContract(workflow) {
   return Object.freeze({ ...workflow });
 }
 
-module.exports = { assertWorkflowContract, WORKFLOW_ID_PATTERN };
+function requiresChildRiskResolution(workflow) {
+  return workflow.kind === 'composite' && workflow.risk_from_children === true;
+}
+
+module.exports = { assertWorkflowContract, requiresChildRiskResolution, WORKFLOW_ID_PATTERN };
