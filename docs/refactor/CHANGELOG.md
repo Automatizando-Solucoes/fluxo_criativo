@@ -21,3 +21,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: execução automática de comandos, deploy não confirmado e uso de interpretador fora do escopo.
 - Possível regressão: scripts locais que antes não pediam autorização agora exigem confirmação explícita, sem remoção do script ou da capacidade funcional.
 - Validação: revisão estática da allow-list, confirmação da manutenção de `WebSearch`/`WebFetch` e `git diff --check`.
+
+## Lote 3: isolamento de hooks
+
+- Commit: `security: isolate hooks from external side effects`
+- Arquivos: `.claude/settings.json`, `docs/refactor/HOOK-AUDIT.md`, este changelog.
+- Antes: hooks GSD, incluindo atualização por `npm view`, eram configurados como parte do runtime ativo.
+- Depois: GSD fica preservado, mas desativado como compatibilidade opcional. Permanecem ativos apenas guards/validações locais e o status writer pendente de reescrita local-only.
+- Risco mitigado: consulta externa e dependência de GSD durante sessões de negócio.
+- Possível regressão: recursos de status/guardas GSD não são carregados automaticamente; nenhuma metodologia ou workflow de negócio depende deles.
+- Validação: matriz de cada hook, busca por referências GSD ativas em `settings.json` e revisão dos matchers restantes.
