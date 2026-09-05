@@ -101,3 +101,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: acoplamento prematuro de futuros runtimes a comandos, skills e agents do Claude.
 - Possível regressão: nenhuma execução foi redirecionada; o core ainda é somente descritivo.
 - Validação: revisão estática das fontes de compatibilidade e `git diff --check`.
+
+## Fase I, lote 2: contrato de approval policy
+
+- Commit: `core: add approval policy contract`
+- Arquivos: `core/approvals/` e este changelog.
+- Antes: a política `manual`/`standing`/`disabled` existia apenas na documentação de refatoração.
+- Depois: há um objeto serializável com escopo, validade, limites, autorizador e revogação, sem banco ou side effect.
+- Risco mitigado: interpretar `disabled` como permissão implícita ou aceitar standing approval fora de validade.
+- Possível regressão: nenhuma execução é conectada ao contrato nesta fase.
+- Validação: revisão estática e cobertura unitária local no lote de testes de contrato.
