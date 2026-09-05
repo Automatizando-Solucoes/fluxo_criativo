@@ -1,5 +1,7 @@
 'use strict';
 
+const { createApprovalPolicy } = require('../approvals/policy');
+
 function assertTimezone(timezone) {
   if (typeof timezone !== 'string' || timezone.length === 0) {
     throw new TypeError('timezone is required');
@@ -43,6 +45,10 @@ function createScheduledJob(input) {
   if (!input.approval_policy || typeof input.approval_policy !== 'object') {
     throw new TypeError('approval_policy is required');
   }
+  const approvalPolicy = createApprovalPolicy(input.approval_policy);
+  if (approvalPolicy.workflow_id !== input.workflow_id) {
+    throw new TypeError('approval_policy.workflow_id must match job.workflow_id');
+  }
   if (!input.destination || typeof input.destination !== 'object' || Array.isArray(input.destination)) {
     throw new TypeError('destination is required');
   }
@@ -54,7 +60,7 @@ function createScheduledJob(input) {
     schedule: Object.freeze({ ...input.schedule }),
     timezone: input.timezone,
     idempotency_key: input.idempotency_key,
-    approval_policy: Object.freeze({ ...input.approval_policy }),
+    approval_policy: approvalPolicy,
     destination: Object.freeze({ ...input.destination }),
     enabled: input.enabled,
   });

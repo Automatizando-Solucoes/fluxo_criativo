@@ -75,10 +75,18 @@ assert.throws(() => secretProvider.run_with_secrets(
 const job = createScheduledJob({
   job_id: 'fixture-job', workflow_id: 'copy.social', input: { product_slug: 'fixture-product' },
   schedule: { kind: 'cron', expression: '0 9 * * *' }, timezone: 'America/Manaus',
-  idempotency_key: 'fixture-key', approval_policy: { mode: 'standing' },
+  idempotency_key: 'fixture-key', approval_policy: {
+    mode: 'standing', workflow_id: 'copy.social', authorized_by: 'fixture-user',
+  },
   destination: { kind: 'local' }, enabled: true,
 });
-assert.equal(new InMemoryScheduler().register(job).timezone, 'America/Manaus');
+const scheduler = new InMemoryScheduler();
+assert.equal(scheduler.register(job).timezone, 'America/Manaus');
+assert.throws(() => scheduler.register({ ...job, job_id: 'fixture-job-2' }), /idempotency key already registered/);
+assert.throws(() => createScheduledJob({
+  ...job, approval_policy: { mode: 'standing', workflow_id: 'research.market', authorized_by: 'fixture-user' },
+}), /must match job.workflow_id/);
+assert.throws(() => createScheduledJob({ ...job, approval_policy: { mode: 'standing' } }), /workflow_id is required/);
 assert.throws(() => createScheduledJob({ ...job, timezone: 'Not/A_Zone' }), /invalid IANA timezone/);
 assert.throws(() => createScheduledJob({ ...job, schedule: { kind: 'cron' } }), /expression/);
 

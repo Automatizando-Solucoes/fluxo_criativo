@@ -191,3 +191,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: autorização fora de escopo, standing além do limite e reuso acidental de aprovação manual.
 - Possível regressão: chamadores futuros devem fornecer contexto e uso suficientes; dados insuficientes para limite bloqueiam por segurança.
 - Validação: testes unitários locais para divergências de escopo, grants, expiração, revogação e limites.
+
+## Fase I, ajuste 2: scheduler com approval e idempotência válidas
+
+- Commit: `core: validate scheduled approvals and idempotency`
+- Arquivos: `core/scheduling/`, contrato de scheduler, testes e este changelog.
+- Antes: qualquer objeto podia preencher `approval_policy` e a chave de idempotência não tinha efeito.
+- Depois: job exige `ApprovalPolicy` válida para o mesmo workflow; scheduler em memória rejeita `job_id` e `idempotency_key` duplicados.
+- Risco mitigado: jobs com policy incompleta/desalinhada e registro silencioso de intenção duplicada.
+- Possível regressão: chamadores futuros precisam informar policy completa e chave única.
+- Validação: testes locais de policy inválida, workflow divergente e duplicidade de chave.
