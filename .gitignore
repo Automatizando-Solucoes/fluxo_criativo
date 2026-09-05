@@ -101,6 +101,8 @@ docs/
 !docs/
 !docs/refactor/
 !docs/refactor/**
+!docs/security/
+!docs/security/**
 
 # ══════════════════════════════════════════
 # Sistema operacional

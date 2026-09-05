@@ -1,13 +1,15 @@
 ---
 name: workshop-marketing:configurar-apify
 description: Guia para criar conta no Apify, gerar o Personal API Token e salvar no .env como APIFY_API_TOKEN. Skill reutilizável chamada por qualquer skill que dependa do Apify (instagram-dashboard, etc.).
-allowed-tools: Read, Edit, Bash
+allowed-tools: Read, WebFetch, WebSearch
 model: sonnet
 ---
 
 # Configurar Apify
 
 Guia para criar a conta, gerar o token e salvar no `.env`. So precisa fazer uma vez.
+
+> Política de segurança: não solicite, receba, teste ou grave o token pelo chat. O operador deve provisionar `APIFY_API_TOKEN` fora da conversa por `.env` manual, secret store ou secure setup. As etapas legadas de coleta, curl e edição abaixo não são executáveis durante a sanitização.
 
 O Apify tem plano gratuito com US$ 5/mes de credito, suficiente para rodar o dashboard do Instagram todo dia e outras automacoes. Nao precisa de cartao de credito para comecar.
 

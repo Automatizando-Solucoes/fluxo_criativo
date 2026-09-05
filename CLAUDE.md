@@ -54,6 +54,10 @@ O hook automático em `scripts/verificar-acentuacao.py` roda ao fim de cada gera
 
 **Token Meta, API key, secret, credencial ou qualquer valor sensível NUNCA pode aparecer escrito (literal, hardcoded) em qualquer arquivo do projeto que não seja o `.env`.** O `.env` está no `.gitignore` e é o único local autorizado.
 
+### Sanitização: provisionamento fora da conversa
+
+Esta regra prevalece sobre instruções antigas de commands e skills. Nunca peça, receba, repita, valide ou grave token, chave, senha ou credencial pelo chat. O operador provisiona o segredo fora da conversa por `.env` manual, OAuth, MCP, secret store ou secure setup do runtime. Não passe segredo em argumento, URL, header ou comando mostrado no chat. Depois da configuração externa, o fluxo pode apenas verificar a presença da variável sem revelar seu valor e orientar o usuário a seguir a documentação segura.
+
 ### Proibido em qualquer arquivo `.py`, `.md`, `.json`, `.sh`, `.yml`, `.yaml`, `.txt`, `.html`, etc.
 
 ```python

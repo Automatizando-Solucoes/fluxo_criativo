@@ -1,13 +1,15 @@
 ---
 name: workshop-marketing:configurar-replicate
 description: Guia para criar conta no Replicate (via GitHub), gerar o API Token e salvar no .env como REPLICATE_API_TOKEN. Skill reutilizável chamada por qualquer skill que anime criativos via API (sub-fluxo Animar em loop do /criativo-estatico).
-allowed-tools: Read, Edit, Bash
+allowed-tools: Read, WebFetch, WebSearch
 model: sonnet
 ---
 
 # Configurar Replicate
 
 Guia para criar a conta, gerar o token e salvar no `.env`. Só precisa fazer uma vez.
+
+> Política de segurança: não solicite, receba, teste ou grave token pelo chat. O operador provisiona `REPLICATE_API_TOKEN` fora da conversa por `.env` manual, secret store ou secure setup. As etapas legadas de coleta, curl e edição abaixo não são executáveis durante a sanitização.
 
 O Replicate é a plataforma que anima os criativos direto pelo chat (image-to-video). Funciona por crédito pré-pago: você adiciona um valor pequeno (a partir de uns dólares) e cada vídeo de loop consome centavos. Sem mensalidade.
 

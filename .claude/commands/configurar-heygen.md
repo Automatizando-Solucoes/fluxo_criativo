@@ -1,11 +1,13 @@
 ---
 name: workshop-marketing:configurar-heygen
 description: Guia para conectar uma conta do HeyGen ao projeto (videos com avatar IA). Salva a API key no .env como HEYGEN_API_KEY para ser usada pela skill /video-heygen.
-allowed-tools: Read, Edit, Bash
+allowed-tools: Read, WebFetch, WebSearch
 model: sonnet
 ---
 
 # Configurar HeyGen para Videos com Avatar IA
+
+> Política de segurança: não solicite, receba, teste ou grave chave pelo chat. O operador provisiona `HEYGEN_API_KEY` fora da conversa por `.env` manual, secret store ou secure setup. As etapas legadas de coleta, curl e edição abaixo não são executáveis durante a sanitização.
 
 Guia interativo para conectar sua conta do HeyGen ao projeto. So precisa fazer uma vez.
 

@@ -41,3 +41,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: telemetria remota e exposição indireta de segredo em hook.
 - Possível regressão: endpoint remoto de status deixa de receber eventos por decisão de segurança; o painel local preserva os dois arquivos de contrato.
 - Validação: teste estático local-only, busca de padrões proibidos e verificação sintática do JavaScript sem rede.
+
+## Lote 5: segredos fora dos fluxos conversacionais
+
+- Commit: `security: remove secrets from conversational setup flows`
+- Arquivos: política em `CLAUDE.md` e `AGENTS.md`, commands de configuração, `.gitignore`, `docs/security/SECRETS.md` e este changelog.
+- Antes: vários commands pediam credenciais no chat, testavam por curl e escreviam `.env` durante a conversa.
+- Depois: a política global proíbe coleta, argumento CLI, URL/header e log de segredo; os commands cobertos exigem provisionamento externo. As integrações permanecem disponíveis para adapters futuros.
+- Risco mitigado: vazamento de credencial em chat, terminal, histórico ou telemetria.
+- Possível regressão: configuração guiada de integrações deixa de testar/concluir automaticamente até existir secure setup/adapters.
+- Validação: inventário estático, busca de instruções diretas de coleta nos commands cobertos e ausência de segredo real em alterações.
