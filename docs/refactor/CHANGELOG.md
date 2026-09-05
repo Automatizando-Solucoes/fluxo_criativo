@@ -31,3 +31,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: consulta externa e dependência de GSD durante sessões de negócio.
 - Possível regressão: recursos de status/guardas GSD não são carregados automaticamente; nenhuma metodologia ou workflow de negócio depende deles.
 - Validação: matriz de cada hook, busca por referências GSD ativas em `settings.json` e revisão dos matchers restantes.
+
+## Lote 4: status do agente somente local
+
+- Commit: `security: make agent status reporting local only`
+- Arquivos: `.claude/hooks/agent-status-writer.js`, `tests/security/agent-status-writer-local-only.test.js`, este changelog.
+- Antes: o hook lia `.env` e variáveis `WORKSHOP_*`, podendo enviar status para endpoint remoto por HTTP/HTTPS.
+- Depois: o hook só lê a entrada do evento e estado local mínimo do produto, atualizando `agents-status.json` e `agents-status.js` para o painel local. Não registra entrada bruta de ferramentas, segredos ou URLs.
+- Risco mitigado: telemetria remota e exposição indireta de segredo em hook.
+- Possível regressão: endpoint remoto de status deixa de receber eventos por decisão de segurança; o painel local preserva os dois arquivos de contrato.
+- Validação: teste estático local-only, busca de padrões proibidos e verificação sintática do JavaScript sem rede.
