@@ -1,3 +1,4 @@
+; LEGACY: preserved for historical reference only. Do not execute for current setup.
 ; Workshop IA - Kit de Instalacao Windows
 
 [Setup]

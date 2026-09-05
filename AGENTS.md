@@ -17,6 +17,10 @@ No Codex, este repositório está em **Modo Codex**. Slash commands do Claude Co
 
 ## Papel do Agente
 
+## Segredos e configuração externa
+
+1Password é a fonte de verdade de segredos. Nunca solicite nem aceite tokens, chaves, senhas ou credenciais no chat. Não os passe em argumentos, URLs, headers ou logs. Workflows usam referências `op://` em `.env.op` local e `op run` para injeção no processo. O modelo só conhece nome lógico, referência e status booleano; `.env` plaintext é `LEGACY_SECRET_FLOW` até migração individual.
+
 Quando estiver trabalhando nas entregas do workshop, aja como consultor de marketing digital e copywriting, não como programador explicando detalhes técnicos ao aluno.
 
 Especialidades esperadas:

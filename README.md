@@ -2,7 +2,7 @@
 
 Toolkit completo de marketing digital, copy e infoprodutos baseado nas metodologias **VTSD (Venda Todo Santo Dia)**, **Light Copy**, **C10X (High Ticket)** e **Low Ticket**. Roda dentro do **Claude Code** (VS Code) ou no **Cursor**, transformando o chat em um consultor especialista que entrega materiais prontos para uso.
 
-Não é software tradicional: é um sistema de prompts estruturados (CLAUDE.md, regras, comandos, agentes, skills e scripts) que orquestra o assistente do início ao fim de um funil. Também é empacotado como app desktop (`Fluxo Criativo`, Electron) com instalador próprio para Windows e Mac, que provisiona Python, Git, Node e o app Claude automaticamente.
+Não é software tradicional: é um sistema de prompts estruturados (CLAUDE.md, regras, comandos, agentes, skills e scripts) que orquestra o assistente do início ao fim de um funil. A distribuição desktop Electron é opcional e legada, não faz parte do core e não é pré-requisito para a inteligência do projeto.
 
 ## Por onde começar
 
@@ -24,7 +24,7 @@ Abra a pasta do projeto, instale a extensão Claude Code, use os slash commands 
 Abra a pasta com **File → Open Folder**. As regras em `.cursor/rules/` e o `CLAUDE.md` passam a orientar o chat. No Cursor, a barra `/` não é equivalente à do Claude Code. Para seguir um fluxo, diga no chat "segue o comando copy-pagina" ou anexe o arquivo `.claude/commands/copy-pagina.md` com `@`.
 
 ### App desktop Fluxo Criativo (Electron)
-Distribuição empacotada para alunos. O instalador (`instalador/script-windows.txt` para Inno Setup no Windows e `instalador/script-mac.sh` no Mac) baixa Python 3, Git, Node.js, o app oficial Claude e clona este repositório em `~/Documents/workshop-ia`. Ao abrir o app, o aluno vê o painel local (`painel/index.html`) com a Sala dos Agentes, que reflete em tempo real o que o Claude Code está executando via hook `agent-status-writer.js`. Build: `npm run build` (Mac) ou `npm run build:win` (Windows).
+Distribuição desktop é opcional e legada. Os instaladores históricos foram isolados em `legacy/installers/`, não fazem parte do core e não devem ser usados para setup atual. O painel local continua como artefato separado, sem ser pré-requisito da inteligência do projeto.
 
 ## Pré-requisitos
 
@@ -113,7 +113,7 @@ workshop_inteligente/
 ├── ARQUITETURA.md               Guia técnico completo
 ├── COMO-USAR.md                 Guia passo a passo
 ├── README.md                    Este arquivo
-├── package.json                 Metadados Electron (Fluxo Criativo v1.0.2)
+├── package.json                 Metadados de distribuição Electron opcional/legada
 ├── vercel.json                  Config Vercel para páginas publicadas
 ├── .env.example                 Modelo de chaves de API
 │
@@ -128,14 +128,13 @@ workshop_inteligente/
 │
 ├── .cursor/rules/               Regras específicas do Cursor (.mdc)
 │
-├── electron/                    App desktop Fluxo Criativo (Electron)
-│   ├── main.js                  Processo principal Electron
+├── electron/                    Ausente neste commit; distribuição desktop não está funcional
 │   ├── preload.js               Preload do app
 │   ├── preload-panel.js         Preload da janela do painel
 │   ├── installer.js             Lógica de provisionamento (Python, Git, Node, Claude)
 │   └── setup.html               Tela de setup inicial
 │
-├── instalador/                  Scripts de instalação por SO
+├── legacy/installers/           Instaladores históricos, não usar no setup atual
 │   ├── script-windows.txt       Inno Setup script (gera workshop-ia-setup-windows.exe)
 │   └── script-mac.sh            Shell script para Mac
 │
@@ -486,7 +485,7 @@ Antes de qualquer operação que demore mais de 10 segundos, o assistente anunci
 
 ## O que sobe para o git
 
-**Sobe:** `.claude/commands/`, `.claude/agents/`, `.claude/skills/`, `.claude/rules/`, `.claude/hooks/`, `.claude/settings.json`, `CLAUDE.md`, `AGENTS.md`, `ARQUITETURA.md`, `README.md`, `COMO-USAR.md`, `.env.example`, `scripts/`, `electron/`, `instalador/`, `painel/` (sem `sala-assets` gerados), `package.json`, `vercel.json`.
+**Sobe:** `.claude/commands/`, `.claude/agents/`, `.claude/skills/`, `.claude/rules/`, `.claude/hooks/`, `.claude/settings.json`, `CLAUDE.md`, `AGENTS.md`, `ARQUITETURA.md`, `README.md`, `COMO-USAR.md`, `.env.example`, `scripts/`, `legacy/installers/`, `painel/` (sem `sala-assets` gerados), `package.json`, `vercel.json`.
 
 **Não sobe:** `.env`, `meus-produtos/` (dados do aluno), `.claude/agents-memory/`, `.claude/projects/`, `.claude/worktrees/`, `.claude/tools/` (binários Whisper instalados sob demanda), `.claude/settings.local.json`, `dist-electron/`, `node_modules/` e demais arquivos de runtime.
 

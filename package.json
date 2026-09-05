@@ -2,6 +2,7 @@
   "name": "fluxo-criativo",
   "version": "1.0.0",
   "private": true,
+  "description": "Distribuição Electron opcional e legada; não é requisito do core.",
   "main": "electron/main.js",
   "scripts": {
     "start": "electron .",
