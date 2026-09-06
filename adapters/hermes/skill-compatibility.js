@@ -43,4 +43,8 @@ function getSkillCompatibility(id) {
   return entry;
 }
 
-module.exports = { SKILL_CLASSES, skillCompatibility, getSkillCompatibility };
+function isHermesWrapperCandidate(skill) {
+  return skill.classification === 'HERMES_WRAPPER';
+}
+
+module.exports = { SKILL_CLASSES, skillCompatibility, getSkillCompatibility, isHermesWrapperCandidate };

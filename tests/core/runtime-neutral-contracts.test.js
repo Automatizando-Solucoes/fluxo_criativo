@@ -125,7 +125,9 @@ try {
 
 assert.equal(resolveClaudeWorkflow('copy.social').target.path, '.claude/commands/copy-social.md');
 assert.equal(resolveClaudeWorkflow('copy.social').executable, false);
-assert.equal(resolveHermesWorkflow('copy.social').target.status, 'not_implemented');
+assert.equal(resolveHermesWorkflow('copy.social').target.kind, 'hermes.skill');
+assert.equal(resolveHermesWorkflow('copy.social').mode, 'dry_run');
+assert.equal(resolveHermesWorkflow('copy.social').executable, false);
 assert.equal(resolveCodexWorkflow('copy.social').target.status, 'not_implemented');
 assert.equal(resolveClaudeWorkflow('toolkit.execute').requires_child_risk_resolution, true);
 assert.throws(() => resolveClaudeWorkflow('unknown.workflow'), UnknownWorkflowError);

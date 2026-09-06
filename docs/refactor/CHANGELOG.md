@@ -311,3 +311,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: adapter Hermes introduzir `get_secret`, `op read` exposto ao modelo ou execução arbitrária.
 - Possível regressão: integrações externas permanecem intencionalmente indisponíveis.
 - Validação: teste local confirma allowlist, bloqueio e ausência de API plaintext.
+
+## Fase J, lote 10: testes do adapter Hermes
+
+- Commit: `test: cover Hermes runtime adapter contracts`
+- Arquivos: testes Hermes, pequena função de classificação e este changelog.
+- Antes: wrappers, delegates, cron, gateway e boundary 1Password não tinham regressão integrada.
+- Depois: teste local cobre resolução, bloqueios, políticas, imutabilidade de descriptor e ausência de chamadas externas.
+- Risco mitigado: wrapper executável acidentalmente, cron manual/disabled automatizado, delegate com segredo e gateway com envio.
+- Possível regressão: testes intencionalmente não provam integração Hermes real, que continua fora do escopo.
+- Validação: `node tests/hermes/hermes-adapter.test.js` sem Hermes instalado, rede ou credencial.
