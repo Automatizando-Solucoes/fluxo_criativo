@@ -221,3 +221,123 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: consumidor alterar metadata, inputs, limites ou job depois da validação do contrato.
 - Possível regressão: consumidores futuros devem criar novo contrato em vez de mutar um existente.
 - Validação: testes locais tentam mutar campos aninhados e confirmam que o registry retorna valor intacto.
+
+## Fase J, lote 1: contexto operacional Hermes
+
+- Commit: `hermes: add project runtime context`
+- Arquivos: `HERMES.md`, `docs/hermes/README.md` e este changelog.
+- Antes: Hermes tinha apenas um skeleton técnico, sem contexto operacional próprio.
+- Depois: o runtime possui contexto curto sobre estado, core, segurança, approvals e delegação, sem herdar `CLAUDE.md` como autoridade.
+- Risco mitigado: runtime assumir commands Claude como nativos ou tratar segredo/aprovação de forma incompatível.
+- Possível regressão: nenhuma execução é habilitada.
+- Validação: revisão estática do contexto e testes do adapter no lote final.
+
+## Fase J, lote 2: classificação de skills Hermes
+
+- Commit: `hermes: classify compatible marketing skills`
+- Arquivos: matriz declarativa em `adapters/hermes/`, documentação Hermes e este changelog.
+- Antes: não havia allowlist para distinguir conhecimento portável de superfícies Claude.
+- Depois: seis conhecimentos candidatos têm classificação explícita; somente metodologia local pode ser nativa, e dependências externas/runtime passam por wrapper.
+- Risco mitigado: carregamento indiscriminado de `.claude/skills/` e execução de dependências Claude por Hermes.
+- Possível regressão: skills fora da allowlist não são resolvidas pelo adapter nesta fase.
+- Validação: teste local verifica classificação antes de resolver wrapper.
+
+## Fase J, lote 3: wrappers iniciais de workflow
+
+- Commit: `hermes: add initial workflow skill wrappers`
+- Arquivos: seis wrappers Hermes, documentação de preparação/arquitetura e este changelog.
+- Antes: os workflows do core não tinham superfície Hermes identificável.
+- Depois: cada workflow alvo possui wrapper curto que aponta para registry, estado, conhecimento e fonte Claude; capabilities externas retornam dry-run.
+- Risco mitigado: duplicação de skill, chamada de provider por prompt e execução direta de command Claude.
+- Possível regressão: wrappers não produzem artefato operacional nem executam integração nesta fase.
+- Validação: testes locais conferem caminhos, workflow IDs e ausência de chamadas externas.
+
+## Fase J, lote 4: resolver Hermes para wrappers suportados
+
+- Commit: `hermes: resolve supported workflows to wrappers`
+- Arquivos: resolver Hermes, documentação do adapter e este changelog.
+- Antes: todo workflow Hermes retornava `not_implemented`.
+- Depois: os seis IDs suportados resolvem caminho de wrapper explícito e não executável; qualquer outro ID falha sem fallback.
+- Risco mitigado: runtime tentar executar command/skill Claude sem wrapper ou liberar toolkit composto por engano.
+- Possível regressão: workflows Hermes fora da primeira allowlist permanecem indisponíveis por design.
+- Validação: teste local de resolução, ID desconhecido e toolkit sem wrapper.
+
+## Fase J, lote 5: mapa de agentes Hermes
+
+- Commit: `hermes: map interactive agents and delegates`
+- Arquivos: mapa declarativo de agentes, documentação Hermes e este changelog.
+- Antes: o plano de agentes não era consumível pelo adapter.
+- Depois: agentes interativos, candidatos a delegate e clonador adiado estão explicitamente classificados e desabilitados.
+- Risco mitigado: converter entrevista/orquestração em subagente ou liberar clonador sem gate.
+- Possível regressão: nenhum agente é invocado pelo adapter nesta fase.
+- Validação: teste local confere mapeamento e que nenhum delegate esteja habilitado.
+
+## Fase J, lote 6: contrato seguro de delegação
+
+- Commit: `hermes: add safe delegation contract`
+- Arquivos: contrato/mock Hermes, arquitetura Hermes e este changelog.
+- Antes: candidatos a delegate não tinham envelope de contexto ou restrição executável.
+- Depois: request valida agente, workflow, produto, paths e capabilities; o resolver retorna apenas descriptor dry-run.
+- Risco mitigado: delegate receber segredo, ampliar capability, encadear delegates ou executar side effect externo.
+- Possível regressão: delegação real permanece indisponível por design.
+- Validação: testes locais de bloqueio de segredo/capability externa e ausência de dispatch.
+
+## Fase J, lote 7: tradução de cron Hermes
+
+- Commit: `hermes: add cron job translation adapter`
+- Arquivos: adapter de scheduling Hermes, documentação e este changelog.
+- Antes: o core tinha job neutro, mas não descriptor Hermes para inspecionar a tradução.
+- Depois: job válido vira descriptor `hermes.cron` dry-run, preservando timezone, chave de idempotência, workdir, policy, destino e wrapper necessário.
+- Risco mitigado: cron real ou permissão externa implícita por tradução de scheduler.
+- Possível regressão: jobs sem wrapper Hermes continuam indisponíveis; manual/disabled não são automatizados.
+- Validação: testes locais de timezone, idempotência, policy disabled/manual e ausência de cron real.
+
+## Fase J, lote 8: descriptors de gateway Hermes
+
+- Commit: `hermes: add gateway notification descriptors`
+- Arquivos: gateway Hermes, arquitetura Hermes e este changelog.
+- Antes: notificações de aprovação/resultado não tinham formato neutro para gateway.
+- Depois: quatro eventos e destinos futuros têm descriptors dry-run que não enviam e recusam campos sensíveis.
+- Risco mitigado: integração custom prematura, envio acidental e vazamento de segredo em payload.
+- Possível regressão: nenhum canal recebe notificação até adapter/gateway real posterior.
+- Validação: teste local garante `sent: false` e rejeição de payload com token/secret.
+
+## Fase J, lote 9: fronteira 1Password para runtime Hermes
+
+- Commit: `hermes: define 1Password runtime boundary`
+- Arquivos: allowlist documental de operações, adapter 1Password, documentação Hermes e este changelog.
+- Antes: o contrato 1Password não tinha uma enumeração local de operações futuras Hermes.
+- Depois: seis operações são allowlisted apenas como descriptors bloqueados/dry-run; não existe leitura de vault, plaintext ou shell genérico.
+- Risco mitigado: adapter Hermes introduzir `get_secret`, `op read` exposto ao modelo ou execução arbitrária.
+- Possível regressão: integrações externas permanecem intencionalmente indisponíveis.
+- Validação: teste local confirma allowlist, bloqueio e ausência de API plaintext.
+
+## Fase J, lote 10: testes do adapter Hermes
+
+- Commit: `test: cover Hermes runtime adapter contracts`
+- Arquivos: testes Hermes, pequena função de classificação e este changelog.
+- Antes: wrappers, delegates, cron, gateway e boundary 1Password não tinham regressão integrada.
+- Depois: teste local cobre resolução, bloqueios, políticas, imutabilidade de descriptor e ausência de chamadas externas.
+- Risco mitigado: wrapper executável acidentalmente, cron manual/disabled automatizado, delegate com segredo e gateway com envio.
+- Possível regressão: testes intencionalmente não provam integração Hermes real, que continua fora do escopo.
+- Validação: `node tests/hermes/hermes-adapter.test.js` sem Hermes instalado, rede ou credencial.
+
+## Fase J, ajuste 1: metadata e autoridade dos wrappers
+
+- Commit: `hermes: align wrapper metadata and source authority`
+- Arquivos: política de fonte, seis wrappers, documentação Hermes, testes e este changelog.
+- Antes: wrappers tinham frontmatter mínimo e a separação entre método Claude e operação Hermes não era uma regra centralizada.
+- Depois: skills declaram nome slash compatível, descrição, versão e workflow único; política central bloqueia instruções operacionais vindas da fonte Claude.
+- Risco mitigado: Hermes executar instrução de runtime Claude por referência ou não descobrir wrapper por metadata padrão.
+- Possível regressão: nenhuma execução foi habilitada; wrappers continuam dry-run.
+- Validação: teste local de metadata, unicidade, mapeamento de slash command e referência da política.
+
+## Fase J, ajuste 2: gates de approval e capability no cron Hermes
+
+- Commit: `hermes: enforce approval and capability gates in cron adapter`
+- Arquivos: adapter/documentação de cron, arquitetura, testes e este changelog.
+- Antes: cron só distinguia modes e podia marcar job como agendado sem avaliar escopo, validade, limites ou capability.
+- Depois: `evaluateApproval` recebe contexto separado; descriptor é sempre dry-run/não agendado e só workflow local com standing válida fica elegível.
+- Risco mitigado: policy fora de escopo, expirada, revogada ou sem uso avaliado tornar cron aparentemente permitido; capability externa virar permissão implícita.
+- Possível regressão: chamadores futuros precisam fornecer rede, ação e uso quando a policy os limitar.
+- Validação: testes locais de standing válida/inválida, escopo, limites, manual, disabled e workflows externos.

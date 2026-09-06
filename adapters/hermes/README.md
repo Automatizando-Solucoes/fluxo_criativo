@@ -1,3 +1,5 @@
-# Adapter Hermes (skeleton)
+# Adapter Hermes
 
-Este skeleton confirma que um `workflow_id` conhecido pode ser traduzido para um wrapper Hermes futuro. Não cria `HERMES.md`, diretório de skills externo, wrapper, cron, gateway ou delegate.
+O resolver aceita somente os seis workflows que possuem wrappers em `skills/`. Ele retorna um descriptor `hermes.skill`, sempre com `executable: false` e `mode: dry_run` nesta fase. Não chama Hermes, commands Claude ou integrações.
+
+Workflows sem wrapper falham explicitamente. Em particular, `toolkit.execute` continua bloqueado até que o runtime futuro resolva riscos dos filhos e seus gates.
