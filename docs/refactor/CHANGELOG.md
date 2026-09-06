@@ -241,3 +241,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: carregamento indiscriminado de `.claude/skills/` e execução de dependências Claude por Hermes.
 - Possível regressão: skills fora da allowlist não são resolvidas pelo adapter nesta fase.
 - Validação: teste local verifica classificação antes de resolver wrapper.
+
+## Fase J, lote 3: wrappers iniciais de workflow
+
+- Commit: `hermes: add initial workflow skill wrappers`
+- Arquivos: seis wrappers Hermes, documentação de preparação/arquitetura e este changelog.
+- Antes: os workflows do core não tinham superfície Hermes identificável.
+- Depois: cada workflow alvo possui wrapper curto que aponta para registry, estado, conhecimento e fonte Claude; capabilities externas retornam dry-run.
+- Risco mitigado: duplicação de skill, chamada de provider por prompt e execução direta de command Claude.
+- Possível regressão: wrappers não produzem artefato operacional nem executam integração nesta fase.
+- Validação: testes locais conferem caminhos, workflow IDs e ausência de chamadas externas.
