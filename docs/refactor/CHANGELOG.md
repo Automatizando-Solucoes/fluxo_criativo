@@ -432,3 +432,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Arquivos: adapter/teste de imagem, status e changelog.
 - Depois: OpenRouter/Freepik são allowlisted por capability, secret lógico e runtime injection mock; resultado não contém segredo e artefato fica no produto.
 - Validação: `node tests/claude/image-generation.test.js` sem rede.
+
+## Fase Claude, lote 11: vídeo
+
+- Commit: `claude: complete video generation workflow`
+- Arquivos: adapter/teste de vídeo, status e changelog.
+- Depois: FFmpeg/Remotion são `LOCAL_RENDER` dry-run sem secret; HeyGen/Replicate são `EXTERNAL_RENDER` allowlisted por SecretProvider e mock.
+- Validação: `node tests/claude/video-generation.test.js` sem render, rede ou credencial.
