@@ -221,3 +221,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: consumidor alterar metadata, inputs, limites ou job depois da validação do contrato.
 - Possível regressão: consumidores futuros devem criar novo contrato em vez de mutar um existente.
 - Validação: testes locais tentam mutar campos aninhados e confirmam que o registry retorna valor intacto.
+
+## Fase J, lote 1: contexto operacional Hermes
+
+- Commit: `hermes: add project runtime context`
+- Arquivos: `HERMES.md`, `docs/hermes/README.md` e este changelog.
+- Antes: Hermes tinha apenas um skeleton técnico, sem contexto operacional próprio.
+- Depois: o runtime possui contexto curto sobre estado, core, segurança, approvals e delegação, sem herdar `CLAUDE.md` como autoridade.
+- Risco mitigado: runtime assumir commands Claude como nativos ou tratar segredo/aprovação de forma incompatível.
+- Possível regressão: nenhuma execução é habilitada.
+- Validação: revisão estática do contexto e testes do adapter no lote final.
