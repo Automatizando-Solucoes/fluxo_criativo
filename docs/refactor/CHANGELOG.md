@@ -381,3 +381,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: copy persistida sem revisão, caminho inconsistente ou etapa de mídia/publicação confundida com geração de texto.
 - Possível regressão: o gate não tenta reescrever texto nem chamar skill/agent; revisão metodológica completa continua no Claude.
 - Validação: `node tests/claude/copy-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 7: falha explícita de High Ticket/C10X
+
+- Commit: `claude: make high ticket dependency failure explicit`
+- Arquivos: resolver/status C10X, teste com fixture, documentação, agente HT, status e changelog.
+- Antes: o orquestrador preservado descrevia rota `/ht-*` indisponível sem um bloqueio executável que exibisse dependência e estado existente.
+- Depois: ausência de `ht-*` resulta em `BLOCKED_EXTERNAL`, com dependências faltantes, artefatos preservados e instrução de retomada; nenhuma aproximação de C10X foi criada.
+- Risco mitigado: agente tentar invocar skill ausente, inventar metodologia ou apagar estado High Ticket durante falha.
+- Possível regressão: High Ticket permanece bloqueado até o plugin C10X real ser disponibilizado, por design.
+- Validação: `node tests/claude/high-ticket-blocked.test.js` sem plugin, rede ou produto real.
