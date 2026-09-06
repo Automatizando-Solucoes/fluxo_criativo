@@ -7,6 +7,8 @@ description: Listar os produtos cadastrados e trocar o produto ativo.
 
 Lista todos os produtos cadastrados em `meus-produtos/` e permite trocar o produto ativo.
 
+> **Contrato local de estado:** a seleção deve obedecer a `docs/claude/PRODUCT-WORKFLOW.md` e `adapters/claude/product-workflow.js`: aceite apenas slug válido de diretório existente, escreva somente `.ativo`/manifesto sob `meus-produtos/` e nunca derive caminho de input não validado.
+
 ## Usage
 
 ```

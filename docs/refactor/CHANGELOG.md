@@ -351,3 +351,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: declarar workflow pronto apenas porque existe Markdown ou ativar integração sem boundary/fixture.
 - Possível regressão: nenhuma alteração de command, skill, agent, script, Hermes ou estado de produto.
 - Validação: inventário estático de árvore, referências de scheduling, secrets e dependências C10X.
+
+## Fase Claude, lote 2: produto e VTSD
+
+- Commit: `claude: complete product and VTSD workflow`
+- Arquivos: contrato local Claude de produto, teste com fixture, documentação de invariantes, commands de criar/trocar e status funcional.
+- Antes: criação, seleção, atualização de manifesto e não sobrescrita estavam apenas distribuídas em instruções de command e script.
+- Depois: o adapter local valida slug/tipo, recusa sobrescrita, confina writes a `meus-produtos/`, atualiza manifesto e é coberto sem tocar produto real; a cadeia VTSD e revisores existentes é preservada.
+- Risco mitigado: path traversal, seleção de produto inexistente, sobrescrita silenciosa e manifesto desatualizado.
+- Possível regressão: commands continuam a usar seus procedimentos compatíveis; o contrato não executa browser, pesquisa ou painel automaticamente.
+- Validação: `node tests/claude/product-vtsd-workflow.test.js` com fixture temporária e sem rede.
