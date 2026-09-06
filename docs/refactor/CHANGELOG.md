@@ -400,3 +400,12 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Depois: pesquisa, perfil e consumidor são pré-requisitos; o plano persiste etapas, quiz opcional e handoff de tráfego dry-run com criação futura PAUSED/manual.
 - Risco mitigado: partir para anúncios/campanha sem base VTSD ou inferir publicação/checkout.
 - Validação: `node tests/claude/low-ticket-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 6: Middle Ticket
+
+- Commit: `claude: complete middle ticket workflow`
+- Arquivos: contrato/teste Middle Ticket, status e changelog.
+- Antes: a cadeia 8D e o handoff de tráfego dependiam somente do roteiro do agente.
+- Depois: contrato local exige pesquisa/perfil/consumidor, persiste as etapas 8D e preserva Meta como handoff dry-run/manual.
+- Risco mitigado: tratar criativos ou plano de anúncios como permissão para provider/campanha externa.
+- Validação: `node tests/claude/middle-ticket-workflow.test.js` com fixture local.
