@@ -391,3 +391,12 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: agente tentar invocar skill ausente, inventar metodologia ou apagar estado High Ticket durante falha.
 - Possível regressão: High Ticket permanece bloqueado até o plugin C10X real ser disponibilizado, por design.
 - Validação: `node tests/claude/high-ticket-blocked.test.js` sem plugin, rede ou produto real.
+
+## Fase Claude, lote 5: Low Ticket
+
+- Commit: `claude: complete low ticket workflow`
+- Arquivos: contrato/teste de Low Ticket, status e changelog.
+- Antes: commands LT existentes não possuíam plano de cadeia tipado nem fixture de pré-requisitos/handoff.
+- Depois: pesquisa, perfil e consumidor são pré-requisitos; o plano persiste etapas, quiz opcional e handoff de tráfego dry-run com criação futura PAUSED/manual.
+- Risco mitigado: partir para anúncios/campanha sem base VTSD ou inferir publicação/checkout.
+- Validação: `node tests/claude/low-ticket-workflow.test.js` com fixture local.
