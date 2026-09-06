@@ -341,3 +341,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: policy fora de escopo, expirada, revogada ou sem uso avaliado tornar cron aparentemente permitido; capability externa virar permissão implícita.
 - Possível regressão: chamadores futuros precisam fornecer rede, ação e uso quando a policy os limitar.
 - Validação: testes locais de standing válida/inválida, escopo, limites, manual, disabled e workflows externos.
+
+## Fase Claude, lote 1: auditoria funcional atual
+
+- Commit: `docs: map Claude workflow completion status`
+- Arquivos: `docs/claude/WORKFLOW-STATUS.md` e este changelog.
+- Antes: o inventário arquitetural não distinguia de forma operacional cadeia local coerente de roteiro parcial/legado.
+- Depois: os workflows principais têm commands, dependências, I/O, capabilities externas, approval, secrets e lacunas mapeados por leitura estática.
+- Risco mitigado: declarar workflow pronto apenas porque existe Markdown ou ativar integração sem boundary/fixture.
+- Possível regressão: nenhuma alteração de command, skill, agent, script, Hermes ou estado de produto.
+- Validação: inventário estático de árvore, referências de scheduling, secrets e dependências C10X.
