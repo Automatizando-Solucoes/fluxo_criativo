@@ -425,3 +425,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Antes: geração, scheduler Claude e publicação podiam ser confundidos; `RELATORIO_CRON_ID` aparecia no mesmo domínio.
 - Depois: artefato de conteúdo, descriptor de rotina e publicação são separados; cada rotina tem `schedule_id`, timezone e modo dry-run, sem publicação e sem ID de relatório Ads.
 - Validação: `node tests/claude/carousel-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 10: imagem
+
+- Commit: `claude: complete image generation adapters`
+- Arquivos: adapter/teste de imagem, status e changelog.
+- Depois: OpenRouter/Freepik são allowlisted por capability, secret lógico e runtime injection mock; resultado não contém segredo e artefato fica no produto.
+- Validação: `node tests/claude/image-generation.test.js` sem rede.
