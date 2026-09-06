@@ -361,3 +361,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: path traversal, seleção de produto inexistente, sobrescrita silenciosa e manifesto desatualizado.
 - Possível regressão: commands continuam a usar seus procedimentos compatíveis; o contrato não executa browser, pesquisa ou painel automaticamente.
 - Validação: `node tests/claude/product-vtsd-workflow.test.js` com fixture temporária e sem rede.
+
+## Fase Claude, lote 3: pesquisa de mercado
+
+- Commit: `claude: complete market research workflow`
+- Arquivos: adapter/fixture de pesquisa, documentação, skill de compatibilidade, status e este changelog.
+- Antes: os nove eixos eram instrucionais, sem contrato local de relatório, source failure ou boundary de provider autenticado.
+- Depois: relatório exige nove eixos, data, fonte e separação FATO/INFERÊNCIA; revisor é descrito sem invocação; Apify/Ads Library só produzem descriptor `dry_run` por `SecretProvider`.
+- Risco mitigado: pesquisa sem rastreabilidade, token no chat/.env, provider real sem boundary e falha de fonte destruindo a pesquisa anterior.
+- Possível regressão: o adapter não executa WebSearch/WebFetch nem o revisor; essas capacidades continuam no runtime Claude quando autorizadas.
+- Validação: `node tests/claude/market-research-workflow.test.js` com fonte/segredo mock e sem rede.
