@@ -417,3 +417,11 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Antes: build/deploy não tinham contrato local separado.
 - Depois: build requer copy revisada, verifica HTML e assets relativos, grava no produto e retorna deploy manual não aprovado.
 - Validação: `node tests/claude/page-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 9: carrossel e scheduling
+
+- Commit: `claude: complete carousel generation and scheduling`
+- Arquivos: adapter/teste de carrossel, status e changelog.
+- Antes: geração, scheduler Claude e publicação podiam ser confundidos; `RELATORIO_CRON_ID` aparecia no mesmo domínio.
+- Depois: artefato de conteúdo, descriptor de rotina e publicação são separados; cada rotina tem `schedule_id`, timezone e modo dry-run, sem publicação e sem ID de relatório Ads.
+- Validação: `node tests/claude/carousel-workflow.test.js` com fixture local.
