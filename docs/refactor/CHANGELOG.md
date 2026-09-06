@@ -446,3 +446,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Arquivos: adapter/teste Meta, status e changelog.
 - Depois: READ/WRITE/FINANCIAL_WRITE são explícitos; aliases convergem para `META_ACCESS_TOKEN`; drafts de campanha são PAUSED; write financeiro falha sem grant manual da ação correta.
 - Validação: `node tests/claude/meta-ads-workflow.test.js` com SecretProvider mock e sem API.
+
+## Fase Claude, lote 13: relatório Ads
+
+- Commit: `claude: complete Ads reporting workflow`
+- Arquivos: adapter/teste de relatório, status e changelog.
+- Depois: período, métricas e análise persistem artefato local; Telegram/WhatsApp/local recebem apenas descriptor `sent:false`; cron de relatório não se mistura com carrossel.
+- Validação: `node tests/claude/ads-report.test.js` sem envio.
