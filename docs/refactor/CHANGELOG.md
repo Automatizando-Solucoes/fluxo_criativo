@@ -439,3 +439,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Arquivos: adapter/teste de vídeo, status e changelog.
 - Depois: FFmpeg/Remotion são `LOCAL_RENDER` dry-run sem secret; HeyGen/Replicate são `EXTERNAL_RENDER` allowlisted por SecretProvider e mock.
 - Validação: `node tests/claude/video-generation.test.js` sem render, rede ou credencial.
+
+## Fase Claude, lote 12: Meta Ads
+
+- Commit: `claude: complete Meta Ads workflow with approval gates`
+- Arquivos: adapter/teste Meta, status e changelog.
+- Depois: READ/WRITE/FINANCIAL_WRITE são explícitos; aliases convergem para `META_ACCESS_TOKEN`; drafts de campanha são PAUSED; write financeiro falha sem grant manual da ação correta.
+- Validação: `node tests/claude/meta-ads-workflow.test.js` com SecretProvider mock e sem API.
