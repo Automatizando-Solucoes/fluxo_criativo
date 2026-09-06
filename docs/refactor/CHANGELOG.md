@@ -291,3 +291,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: cron real ou permissão externa implícita por tradução de scheduler.
 - Possível regressão: jobs sem wrapper Hermes continuam indisponíveis; manual/disabled não são automatizados.
 - Validação: testes locais de timezone, idempotência, policy disabled/manual e ausência de cron real.
+
+## Fase J, lote 8: descriptors de gateway Hermes
+
+- Commit: `hermes: add gateway notification descriptors`
+- Arquivos: gateway Hermes, arquitetura Hermes e este changelog.
+- Antes: notificações de aprovação/resultado não tinham formato neutro para gateway.
+- Depois: quatro eventos e destinos futuros têm descriptors dry-run que não enviam e recusam campos sensíveis.
+- Risco mitigado: integração custom prematura, envio acidental e vazamento de segredo em payload.
+- Possível regressão: nenhum canal recebe notificação até adapter/gateway real posterior.
+- Validação: teste local garante `sent: false` e rejeição de payload com token/secret.
