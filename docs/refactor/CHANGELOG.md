@@ -409,3 +409,11 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Depois: contrato local exige pesquisa/perfil/consumidor, persiste as etapas 8D e preserva Meta como handoff dry-run/manual.
 - Risco mitigado: tratar criativos ou plano de anúncios como permissão para provider/campanha externa.
 - Validação: `node tests/claude/middle-ticket-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 8: páginas
+
+- Commit: `claude: complete page generation workflow`
+- Arquivos: adapter/teste de página, status e changelog.
+- Antes: build/deploy não tinham contrato local separado.
+- Depois: build requer copy revisada, verifica HTML e assets relativos, grava no produto e retorna deploy manual não aprovado.
+- Validação: `node tests/claude/page-workflow.test.js` com fixture local.

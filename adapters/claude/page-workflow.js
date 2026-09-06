@@ -1,0 +1,6 @@
+'use strict';
+const fs = require('node:fs'); const path = require('node:path');
+const { immutableCopy } = require('../../core/contracts/immutable'); const { assertProductSlug, getProductPath } = require('../../core/state/product-state');
+function validatePageHtml(html) { if (typeof html !== 'string' || !/<html[\s>]/i.test(html) || !/<body[\s>]/i.test(html) || !/<\/html>/i.test(html)) throw new TypeError('page HTML must contain html and body structure'); if (/\b(?:src|href)=["'](?:\/|https?:\/\/)/i.test(html)) throw new Error('page assets must use relative paths'); return true; }
+function buildPage({ projectRoot, product_slug, html, copy_review }) { const slug = assertProductSlug(product_slug); if (!copy_review || copy_review.status !== 'passed') throw new Error('reviewed copy is required before page build'); validatePageHtml(html); const product = getProductPath(slug, projectRoot); if (!fs.existsSync(product)) throw new Error(`product does not exist: ${slug}`); const output = path.join(product, 'entregas', 'paginas', `pagina-${slug}.html`); fs.mkdirSync(path.dirname(output), { recursive: true }); fs.writeFileSync(output, html); return immutableCopy({ status: 'built', output_path: output, deploy: { mode: 'manual', approved: false } }); }
+module.exports = { validatePageHtml, buildPage };
