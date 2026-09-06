@@ -1,10 +1,14 @@
 ---
-name: copy-page
+name: copy-pagina
+description: Orienta a criação de copy de página com contexto local do produto.
+version: 1.0.0
 workflow_id: copy.page
 mode: dry_run
 ---
 
 # Copy de página (Hermes wrapper)
+
+Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fonte Claude.
 
 1. Resolva `copy.page` no registry e exija `product_slug` e `page_type`.
 2. Use o produto ativo e leia somente os artefatos locais necessários: perfil, pesquisa e identidade do consumidor, quando existirem.

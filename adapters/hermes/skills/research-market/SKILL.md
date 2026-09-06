@@ -1,10 +1,14 @@
 ---
-name: research-market
+name: pesquisa-mercado
+description: Planeja uma pesquisa de mercado a partir do contexto de produto.
+version: 1.0.0
 workflow_id: research.market
 mode: dry_run
 ---
 
 # Pesquisa de mercado (Hermes wrapper)
+
+Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fonte Claude.
 
 1. Resolva `research.market` em `core/workflows/registry.js`.
 2. Exija `product_slug` e o contexto metodológico disponível no produto.

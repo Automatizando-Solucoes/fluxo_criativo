@@ -321,3 +321,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: wrapper executável acidentalmente, cron manual/disabled automatizado, delegate com segredo e gateway com envio.
 - Possível regressão: testes intencionalmente não provam integração Hermes real, que continua fora do escopo.
 - Validação: `node tests/hermes/hermes-adapter.test.js` sem Hermes instalado, rede ou credencial.
+
+## Fase J, ajuste 1: metadata e autoridade dos wrappers
+
+- Commit: `hermes: align wrapper metadata and source authority`
+- Arquivos: política de fonte, seis wrappers, documentação Hermes, testes e este changelog.
+- Antes: wrappers tinham frontmatter mínimo e a separação entre método Claude e operação Hermes não era uma regra centralizada.
+- Depois: skills declaram nome slash compatível, descrição, versão e workflow único; política central bloqueia instruções operacionais vindas da fonte Claude.
+- Risco mitigado: Hermes executar instrução de runtime Claude por referência ou não descobrir wrapper por metadata padrão.
+- Possível regressão: nenhuma execução foi habilitada; wrappers continuam dry-run.
+- Validação: teste local de metadata, unicidade, mapeamento de slash command e referência da política.

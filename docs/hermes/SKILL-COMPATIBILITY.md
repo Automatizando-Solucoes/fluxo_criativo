@@ -18,3 +18,5 @@ Esta é uma allowlist de avaliação, não uma configuração para carregar toda
 - `CLAUDE_ONLY_TEMP`: dependência forte de Claude, sem adapter seguro; não cria wrapper executável.
 
 Skills fora desta matriz não estão aprovadas para carregamento Hermes. Em especial, qualquer skill que manipule `.env`, peça token, use Bash, `/schedule`, `Skill`/`Agent` Claude, MCP Claude ou API externa continua bloqueada até adapter próprio.
+
+Todo wrapper Hermes também referencia `adapters/hermes/SOURCE-POLICY.md`. A fonte Claude pode informar método e contexto, mas nunca autoriza comportamento operacional Hermes.

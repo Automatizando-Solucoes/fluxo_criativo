@@ -1,10 +1,14 @@
 ---
-name: creative-static
+name: criativo-estatico
+description: Estrutura um briefing de criativo estático com contexto de produto.
+version: 1.0.0
 workflow_id: creative.static
 mode: dry_run
 ---
 
 # Criativo estático (Hermes wrapper)
+
+Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fonte Claude.
 
 1. Resolva `creative.static` e exija `product_slug` e `brief`.
 2. Consulte o perfil e a pesquisa locais quando existirem.

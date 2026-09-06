@@ -1,10 +1,14 @@
 ---
-name: copy-ad
+name: copy-anuncio
+description: Orienta a criação de copy de anúncio a partir do contexto aprovado.
+version: 1.0.0
 workflow_id: copy.ad
 mode: dry_run
 ---
 
 # Copy de anúncio (Hermes wrapper)
+
+Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fonte Claude.
 
 1. Resolva `copy.ad` e exija `product_slug` e `offer`.
 2. Use artefatos locais de perfil, pesquisa e consumidor quando existirem.

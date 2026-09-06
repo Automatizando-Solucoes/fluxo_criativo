@@ -15,15 +15,44 @@ const { toHermesCronJob } = require('../../adapters/hermes/scheduling/cron');
 const { createGatewayDescriptor, formatGatewayNotification } = require('../../adapters/hermes/gateway/descriptors');
 const { ONEPASSWORD_OPERATION_REGISTRY, prepareRuntimeInjection } = require('../../adapters/secrets/1password/operations');
 
+const EXPECTED_SLASH_COMMANDS = Object.freeze({
+  'research.market': 'pesquisa-mercado',
+  'copy.page': 'copy-pagina',
+  'copy.ad': 'copy-anuncio',
+  'copy.social': 'copy-social',
+  'creative.static': 'criativo-estatico',
+  'traffic.insights': 'trafego-insights',
+});
+
+function getFrontmatterField(content, field) {
+  const match = content.match(new RegExp(`^${field}:\\s*(.+)$`, 'm'));
+  return match ? match[1].trim() : null;
+}
+
 assert.equal(fs.existsSync(path.join(root, 'HERMES.md')), true, 'HERMES.md must exist');
 
+const wrapperNames = new Set();
+const wrapperWorkflowIds = new Set();
 for (const [workflowId, wrapperPath] of Object.entries(WRAPPER_PATHS)) {
   const resolution = resolveHermesWorkflow(workflowId);
   assert.equal(resolution.target.path, wrapperPath);
   assert.equal(resolution.executable, false);
   assert.equal(resolution.mode, 'dry_run');
   assert.equal(fs.existsSync(path.join(root, wrapperPath)), true, `wrapper missing: ${wrapperPath}`);
+  const content = fs.readFileSync(path.join(root, wrapperPath), 'utf8');
+  const name = getFrontmatterField(content, 'name');
+  assert.ok(name, `${wrapperPath} must declare a name`);
+  assert.ok(getFrontmatterField(content, 'description'), `${wrapperPath} must declare a description`);
+  assert.equal(getFrontmatterField(content, 'version'), '1.0.0');
+  assert.equal(getFrontmatterField(content, 'workflow_id'), workflowId);
+  assert.equal(name, EXPECTED_SLASH_COMMANDS[workflowId]);
+  assert.equal(wrapperNames.has(name), false, `duplicate wrapper name: ${name}`);
+  assert.equal(wrapperWorkflowIds.has(workflowId), false, `duplicate wrapper workflow: ${workflowId}`);
+  wrapperNames.add(name);
+  wrapperWorkflowIds.add(workflowId);
+  assert.match(content, /adapters\/hermes\/SOURCE-POLICY\.md/);
 }
+assert.equal(wrapperNames.size, Object.keys(EXPECTED_SLASH_COMMANDS).length);
 assert.throws(() => resolveHermesWorkflow('unknown.workflow'), /unknown workflow/);
 assert.throws(
   () => resolveHermesWorkflow('toolkit.execute'),
@@ -88,5 +117,6 @@ for (const wrapperPath of Object.values(WRAPPER_PATHS)) {
     assert.equal(pattern.test(content), false, `${wrapperPath} must not call an external API`);
   }
 }
+assert.equal(fs.existsSync(path.join(root, 'adapters/hermes/SOURCE-POLICY.md')), true);
 
 process.stdout.write('Hermes adapter contracts: ok\n');
