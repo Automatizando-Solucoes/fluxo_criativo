@@ -231,3 +231,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: runtime assumir commands Claude como nativos ou tratar segredo/aprovação de forma incompatível.
 - Possível regressão: nenhuma execução é habilitada.
 - Validação: revisão estática do contexto e testes do adapter no lote final.
+
+## Fase J, lote 2: classificação de skills Hermes
+
+- Commit: `hermes: classify compatible marketing skills`
+- Arquivos: matriz declarativa em `adapters/hermes/`, documentação Hermes e este changelog.
+- Antes: não havia allowlist para distinguir conhecimento portável de superfícies Claude.
+- Depois: seis conhecimentos candidatos têm classificação explícita; somente metodologia local pode ser nativa, e dependências externas/runtime passam por wrapper.
+- Risco mitigado: carregamento indiscriminado de `.claude/skills/` e execução de dependências Claude por Hermes.
+- Possível regressão: skills fora da allowlist não são resolvidas pelo adapter nesta fase.
+- Validação: teste local verifica classificação antes de resolver wrapper.
