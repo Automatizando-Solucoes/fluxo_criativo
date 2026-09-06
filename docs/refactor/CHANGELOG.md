@@ -371,3 +371,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: pesquisa sem rastreabilidade, token no chat/.env, provider real sem boundary e falha de fonte destruindo a pesquisa anterior.
 - Possível regressão: o adapter não executa WebSearch/WebFetch nem o revisor; essas capacidades continuam no runtime Claude quando autorizadas.
 - Validação: `node tests/claude/market-research-workflow.test.js` com fonte/segredo mock e sem rede.
+
+## Fase Claude, lote 4: copy e gates de revisão
+
+- Commit: `claude: standardize copy workflows and review gates`
+- Arquivos: contrato/teste de copy, documentação, cinco commands, status e changelog.
+- Antes: Manual, elementos e revisora eram referenciados por commands, mas não havia gate comum de persistência/saída.
+- Depois: cinco IDs de copy têm output previsível, revisão comum e writes confinados; o contrato bloqueia vícios estáticos antes de salvar e mantém a revisora como autoridade editorial.
+- Risco mitigado: copy persistida sem revisão, caminho inconsistente ou etapa de mídia/publicação confundida com geração de texto.
+- Possível regressão: o gate não tenta reescrever texto nem chamar skill/agent; revisão metodológica completa continua no Claude.
+- Validação: `node tests/claude/copy-workflow.test.js` com fixture local.

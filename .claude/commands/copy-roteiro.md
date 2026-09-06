@@ -7,6 +7,8 @@ description: Criar roteiros de vídeo para os 3 formatos principais. Avatar IA (
 
 Cria roteiros nos 3 formatos principais do marketing VTSD, seguindo Light Copy.
 
+> **Gate comum:** todo roteiro textual passa pelo contrato de revisão em `docs/claude/COPY-WORKFLOW.md` antes de persistência. Renderização local ou provider de vídeo continua uma etapa separada.
+
 ## O Que Fazer
 
 ### 1. Contexto

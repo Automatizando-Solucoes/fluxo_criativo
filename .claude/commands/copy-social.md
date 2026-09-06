@@ -7,6 +7,8 @@ description: Criar conteúdo para redes sociais. Carrossel, roteiro de Reels e l
 
 Cria conteúdo usando Urgências Ocultas como fonte de temas e Light Copy como estilo.
 
+> **Gate comum:** aplique o contrato em `docs/claude/COPY-WORKFLOW.md` antes de salvar uma peça. Ele preserva a autoridade do Manual da Copy, `elementos-literarios` e `revisora`.
+
 ## O Que Fazer
 
 ### 1. Contexto

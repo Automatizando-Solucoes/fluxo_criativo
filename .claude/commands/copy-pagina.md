@@ -7,6 +7,8 @@ description: Criar copy completa e/ou página HTML de vendas, captura ou obrigad
 
 Cria a copy completa da página de vendas e/ou a página HTML profissional com estrutura de conversão baseada na metodologia VTSD.
 
+> **Gate comum:** antes de persistir a copy, aplique `adapters/claude/copy-workflow.js` conforme `docs/claude/COPY-WORKFLOW.md`. O Manual da Copy, `elementos-literarios` e `revisora` continuam sendo a autoridade metodológica.
+
 ## Usage
 
 ```
