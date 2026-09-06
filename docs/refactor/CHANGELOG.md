@@ -271,3 +271,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: converter entrevista/orquestração em subagente ou liberar clonador sem gate.
 - Possível regressão: nenhum agente é invocado pelo adapter nesta fase.
 - Validação: teste local confere mapeamento e que nenhum delegate esteja habilitado.
+
+## Fase J, lote 6: contrato seguro de delegação
+
+- Commit: `hermes: add safe delegation contract`
+- Arquivos: contrato/mock Hermes, arquitetura Hermes e este changelog.
+- Antes: candidatos a delegate não tinham envelope de contexto ou restrição executável.
+- Depois: request valida agente, workflow, produto, paths e capabilities; o resolver retorna apenas descriptor dry-run.
+- Risco mitigado: delegate receber segredo, ampliar capability, encadear delegates ou executar side effect externo.
+- Possível regressão: delegação real permanece indisponível por design.
+- Validação: testes locais de bloqueio de segredo/capability externa e ausência de dispatch.
