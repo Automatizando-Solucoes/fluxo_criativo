@@ -261,3 +261,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: runtime tentar executar command/skill Claude sem wrapper ou liberar toolkit composto por engano.
 - Possível regressão: workflows Hermes fora da primeira allowlist permanecem indisponíveis por design.
 - Validação: teste local de resolução, ID desconhecido e toolkit sem wrapper.
+
+## Fase J, lote 5: mapa de agentes Hermes
+
+- Commit: `hermes: map interactive agents and delegates`
+- Arquivos: mapa declarativo de agentes, documentação Hermes e este changelog.
+- Antes: o plano de agentes não era consumível pelo adapter.
+- Depois: agentes interativos, candidatos a delegate e clonador adiado estão explicitamente classificados e desabilitados.
+- Risco mitigado: converter entrevista/orquestração em subagente ou liberar clonador sem gate.
+- Possível regressão: nenhum agente é invocado pelo adapter nesta fase.
+- Validação: teste local confere mapeamento e que nenhum delegate esteja habilitado.
