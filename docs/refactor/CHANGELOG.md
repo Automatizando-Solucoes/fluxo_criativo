@@ -301,3 +301,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: integração custom prematura, envio acidental e vazamento de segredo em payload.
 - Possível regressão: nenhum canal recebe notificação até adapter/gateway real posterior.
 - Validação: teste local garante `sent: false` e rejeição de payload com token/secret.
+
+## Fase J, lote 9: fronteira 1Password para runtime Hermes
+
+- Commit: `hermes: define 1Password runtime boundary`
+- Arquivos: allowlist documental de operações, adapter 1Password, documentação Hermes e este changelog.
+- Antes: o contrato 1Password não tinha uma enumeração local de operações futuras Hermes.
+- Depois: seis operações são allowlisted apenas como descriptors bloqueados/dry-run; não existe leitura de vault, plaintext ou shell genérico.
+- Risco mitigado: adapter Hermes introduzir `get_secret`, `op read` exposto ao modelo ou execução arbitrária.
+- Possível regressão: integrações externas permanecem intencionalmente indisponíveis.
+- Validação: teste local confirma allowlist, bloqueio e ausência de API plaintext.
