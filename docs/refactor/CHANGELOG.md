@@ -331,3 +331,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: Hermes executar instrução de runtime Claude por referência ou não descobrir wrapper por metadata padrão.
 - Possível regressão: nenhuma execução foi habilitada; wrappers continuam dry-run.
 - Validação: teste local de metadata, unicidade, mapeamento de slash command e referência da política.
+
+## Fase J, ajuste 2: gates de approval e capability no cron Hermes
+
+- Commit: `hermes: enforce approval and capability gates in cron adapter`
+- Arquivos: adapter/documentação de cron, arquitetura, testes e este changelog.
+- Antes: cron só distinguia modes e podia marcar job como agendado sem avaliar escopo, validade, limites ou capability.
+- Depois: `evaluateApproval` recebe contexto separado; descriptor é sempre dry-run/não agendado e só workflow local com standing válida fica elegível.
+- Risco mitigado: policy fora de escopo, expirada, revogada ou sem uso avaliado tornar cron aparentemente permitido; capability externa virar permissão implícita.
+- Possível regressão: chamadores futuros precisam fornecer rede, ação e uso quando a policy os limitar.
+- Validação: testes locais de standing válida/inválida, escopo, limites, manual, disabled e workflows externos.

@@ -73,30 +73,73 @@ assert.equal(resolveDelegateRequest(delegate).dispatched, false);
 assert.throws(() => createDelegateRequest({ ...delegate, allowed_capabilities: ['secrets.read'] }), /forbidden/);
 assert.throws(() => createDelegateRequest({ ...delegate, allowed_capabilities: ['research.fetch'] }), /forbidden/);
 
-function buildJob(approvalPolicy) {
+function buildJob(approvalPolicy, workflowId = 'copy.social') {
   return createScheduledJob({
-    job_id: `hermes-${approvalPolicy.mode}`, workflow_id: 'copy.social', input: { product_slug: 'fixture-product' },
+    job_id: `hermes-${workflowId}-${approvalPolicy.mode}`, workflow_id: workflowId, input: { product_slug: 'fixture-product' },
     schedule: { kind: 'cron', expression: '0 9 * * *' }, timezone: 'America/Manaus',
-    idempotency_key: `idempotency-${approvalPolicy.mode}`, approval_policy: approvalPolicy,
+    idempotency_key: `idempotency-${workflowId}-${approvalPolicy.mode}`, approval_policy: approvalPolicy,
     destination: { kind: 'local' }, enabled: true,
   });
 }
 
+const standingContext = {
+  workflow_id: 'copy.social', product: 'fixture-product', network: 'organic', action_type: 'content',
+  action_id: 'fixture-action', now: '2029-06-01T00:00:00.000Z', usage: { runs: 1 },
+};
 const standingCron = toHermesCronJob(buildJob({
   mode: 'standing', workflow_id: 'copy.social', authorized_by: 'fixture-user',
-}));
+}), standingContext);
 assert.equal(standingCron.timezone, 'America/Manaus');
-assert.equal(standingCron.idempotency_key, 'idempotency-standing');
+assert.equal(standingCron.idempotency_key, 'idempotency-copy.social-standing');
 assert.equal(standingCron.workdir, root);
 assert.equal(standingCron.external_capability_granted, false);
-assert.equal(standingCron.scheduled, true);
+assert.equal(standingCron.eligible_for_schedule, true);
+assert.equal(standingCron.scheduled, false);
 
-const disabledCron = toHermesCronJob(buildJob({ mode: 'disabled', workflow_id: 'copy.social' }));
-assert.equal(disabledCron.scheduled, false);
+const noAuthorizationCron = toHermesCronJob(buildJob({ mode: 'standing', workflow_id: 'copy.social' }), standingContext);
+assert.equal(noAuthorizationCron.eligible_for_schedule, false);
+assert.equal(noAuthorizationCron.reason, 'approval_not_authorized');
+const expiredCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'copy.social', authorized_by: 'fixture-user', expires_at: '2029-01-01T00:00:00.000Z',
+}), standingContext);
+assert.equal(expiredCron.eligible_for_schedule, false);
+assert.equal(expiredCron.reason, 'approval_expired');
+const productMismatchCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'copy.social', product: 'fixture-product', authorized_by: 'fixture-user',
+}), { ...standingContext, product: 'other-product' });
+assert.equal(productMismatchCron.eligible_for_schedule, false);
+assert.equal(productMismatchCron.reason, 'approval_product_mismatch');
+const networkMismatchCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'copy.social', network: 'organic', authorized_by: 'fixture-user',
+}), { ...standingContext, network: 'other-network' });
+assert.equal(networkMismatchCron.eligible_for_schedule, false);
+assert.equal(networkMismatchCron.reason, 'approval_network_mismatch');
+const noUsageCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'copy.social', authorized_by: 'fixture-user', limits: { runs: 1 },
+}), { ...standingContext, usage: {} });
+assert.equal(noUsageCron.eligible_for_schedule, false);
+assert.equal(noUsageCron.reason, 'approval_limits_not_evaluated');
+const exceededLimitCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'copy.social', authorized_by: 'fixture-user', limits: { runs: 1 },
+}), { ...standingContext, usage: { runs: 2 } });
+assert.equal(exceededLimitCron.eligible_for_schedule, false);
+assert.equal(exceededLimitCron.reason, 'approval_limit_exceeded:runs');
+
+const disabledCron = toHermesCronJob(buildJob({ mode: 'disabled', workflow_id: 'copy.social' }), standingContext);
+assert.equal(disabledCron.eligible_for_schedule, false);
 assert.equal(disabledCron.reason, 'approval_disabled');
-const manualCron = toHermesCronJob(buildJob({ mode: 'manual', workflow_id: 'copy.social' }));
-assert.equal(manualCron.scheduled, false);
+const manualCron = toHermesCronJob(buildJob({ mode: 'manual', workflow_id: 'copy.social' }), standingContext);
+assert.equal(manualCron.eligible_for_schedule, false);
 assert.equal(manualCron.reason, 'manual_approval_required');
+const externalCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'research.market', authorized_by: 'fixture-user',
+}, 'research.market'), { ...standingContext, workflow_id: 'research.market' });
+assert.equal(externalCron.eligible_for_schedule, false);
+assert.equal(externalCron.reason, 'external_capability_blocked');
+for (const descriptor of [standingCron, noAuthorizationCron, expiredCron, productMismatchCron, networkMismatchCron, noUsageCron, exceededLimitCron, disabledCron, manualCron, externalCron]) {
+  assert.equal(descriptor.scheduled, false);
+  assert.equal(descriptor.mode, 'dry_run');
+}
 
 const descriptor = createGatewayDescriptor({
   event: 'approval.request', channel: 'telegram', payload: { workflow_id: 'copy.social' },
