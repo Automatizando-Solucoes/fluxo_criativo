@@ -281,3 +281,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: delegate receber segredo, ampliar capability, encadear delegates ou executar side effect externo.
 - Possível regressão: delegação real permanece indisponível por design.
 - Validação: testes locais de bloqueio de segredo/capability externa e ausência de dispatch.
+
+## Fase J, lote 7: tradução de cron Hermes
+
+- Commit: `hermes: add cron job translation adapter`
+- Arquivos: adapter de scheduling Hermes, documentação e este changelog.
+- Antes: o core tinha job neutro, mas não descriptor Hermes para inspecionar a tradução.
+- Depois: job válido vira descriptor `hermes.cron` dry-run, preservando timezone, chave de idempotência, workdir, policy, destino e wrapper necessário.
+- Risco mitigado: cron real ou permissão externa implícita por tradução de scheduler.
+- Possível regressão: jobs sem wrapper Hermes continuam indisponíveis; manual/disabled não são automatizados.
+- Validação: testes locais de timezone, idempotência, policy disabled/manual e ausência de cron real.
