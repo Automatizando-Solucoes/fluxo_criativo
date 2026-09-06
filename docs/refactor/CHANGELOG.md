@@ -251,3 +251,13 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: duplicação de skill, chamada de provider por prompt e execução direta de command Claude.
 - Possível regressão: wrappers não produzem artefato operacional nem executam integração nesta fase.
 - Validação: testes locais conferem caminhos, workflow IDs e ausência de chamadas externas.
+
+## Fase J, lote 4: resolver Hermes para wrappers suportados
+
+- Commit: `hermes: resolve supported workflows to wrappers`
+- Arquivos: resolver Hermes, documentação do adapter e este changelog.
+- Antes: todo workflow Hermes retornava `not_implemented`.
+- Depois: os seis IDs suportados resolvem caminho de wrapper explícito e não executável; qualquer outro ID falha sem fallback.
+- Risco mitigado: runtime tentar executar command/skill Claude sem wrapper ou liberar toolkit composto por engano.
+- Possível regressão: workflows Hermes fora da primeira allowlist permanecem indisponíveis por design.
+- Validação: teste local de resolução, ID desconhecido e toolkit sem wrapper.
