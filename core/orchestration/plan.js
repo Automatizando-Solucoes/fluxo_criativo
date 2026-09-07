@@ -38,16 +38,22 @@ function validateTask(task, registry) {
   return immutableCopy({ ...task, ...risk, approval_status: approval.reason, status: 'pending', reason: null });
 }
 function applyDependencyGates(tasks) {
-  const byId = new Map(tasks.map((task) => [task.task_id, task]));
-  return tasks.map((task) => {
-    if (task.status === 'blocked' || !Array.isArray(task.depends_on)) return task;
-    for (const dependencyId of task.depends_on) {
-      const dependency = byId.get(dependencyId);
-      if (!dependency) return immutableCopy({ ...task, status: 'blocked', reason: 'dependency_not_found' });
-      if (dependency.status === 'blocked' || dependency.status === 'failed') return immutableCopy({ ...task, status: 'blocked', reason: 'dependency_blocked' });
-    }
-    return task;
-  });
+  let gated = tasks;
+  for (let pass = 0; pass < tasks.length; pass += 1) {
+    const byId = new Map(gated.map((task) => [task.task_id, task]));
+    let changed = false;
+    gated = gated.map((task) => {
+      if (task.status === 'blocked' || !Array.isArray(task.depends_on)) return task;
+      for (const dependencyId of task.depends_on) {
+        const dependency = byId.get(dependencyId);
+        if (!dependency) { changed = true; return immutableCopy({ ...task, status: 'blocked', reason: 'dependency_not_found' }); }
+        if (dependency.status === 'blocked' || dependency.status === 'failed') { changed = true; return immutableCopy({ ...task, status: 'blocked', reason: 'dependency_blocked' }); }
+      }
+      return task;
+    });
+    if (!changed) break;
+  }
+  return gated;
 }
 function resolvePlan(tasks, registry) {
   if (!Array.isArray(tasks)) throw new TypeError('tasks must be an array');

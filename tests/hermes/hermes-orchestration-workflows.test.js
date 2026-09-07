@@ -65,6 +65,8 @@ try {
   assert.equal(resolveHermesPlan({ product_slug: productSlug, tasks: [{ task_id: 'composite', workflow_id: 'plan.execute' }] }).result.tasks[0].reason, 'child_tasks_required');
   assert.equal(resolveHermesPlan({ product_slug: productSlug, tasks: [{ task_id: 'composite', workflow_id: 'plan.execute', children: [{ task_id: 'bad-child', workflow_id: 'bad' }] }] }).result.tasks[0].reason, 'child_blocked');
   assert.equal(resolveHermesPlan({ product_slug: productSlug, tasks: [{ task_id: 'composite-scale', workflow_id: 'plan.execute', children: [{ task_id: 'scale-child', workflow_id: 'ads.scale', action_id: 'scale-child' }] }] }).result.tasks[0].reason, 'child_blocked');
+  const chainedDependencies = resolveHermesPlan({ product_slug: productSlug, tasks: [{ task_id: 'blocked-root', workflow_id: 'missing.workflow' }, { task_id: 'middle', workflow_id: 'copy.social', depends_on: ['blocked-root'] }, { task_id: 'leaf', workflow_id: 'copy.page', depends_on: ['middle'] }] }).result.tasks;
+  assert.equal(chainedDependencies[1].reason, 'dependency_blocked'); assert.equal(chainedDependencies[2].reason, 'dependency_blocked');
 
   const toolkit = createHermesToolkit({ projectRoot: fixture, product_slug: productSlug, toolkit_id: 'gates', tasks: [
     { id: 'copy', workflow_id: 'copy.social' }, { id: 'insights', workflow_id: 'ads.insights' },
