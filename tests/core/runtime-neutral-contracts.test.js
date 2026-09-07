@@ -21,7 +21,7 @@ const { resolveHermesWorkflow } = require('../../adapters/hermes/resolver');
 const { resolveCodexWorkflow } = require('../../adapters/codex/resolver');
 
 assert.equal(new Set(workflowRegistry.list().map((workflow) => workflow.id)).size, workflowDefinitions.length);
-assert.equal(workflowRegistry.list().length, 7);
+assert.equal(workflowRegistry.list().length, workflowDefinitions.length);
 assert.throws(() => createWorkflowRegistry([workflowDefinitions[0], workflowDefinitions[0]]), /duplicate workflow id/);
 const immutableWorkflow = workflowRegistry.get('copy.social');
 assert.throws(() => immutableWorkflow.outputs.push('unexpected_output'), TypeError);

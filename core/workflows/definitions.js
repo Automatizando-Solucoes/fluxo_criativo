@@ -1,62 +1,40 @@
 'use strict';
 
+function define({ id, category, inputs, outputs, requires = ['product.profile'], capabilities = ['filesystem.read', 'filesystem.write'], external = false, financial = false, approval = false, kind = 'atomic', risk_from_children = false, source }) {
+  return { id, version: 1, category, inputs, outputs, requires, capabilities, side_effects: { external, financial }, approval: { required: approval }, kind, risk_from_children, source };
+}
+const adapter = (path) => ({ kind: 'claude.adapter', path });
+const command = (path) => ({ kind: 'claude.command', path });
+
 const workflowDefinitions = [
-  {
-    id: 'research.market', version: 1, category: 'research',
-    inputs: { product_slug: { required: true }, research_goal: { required: false } },
-    outputs: ['research_file'], requires: ['product.profile'],
-    capabilities: ['filesystem.read', 'filesystem.write', 'research.fetch'],
-    side_effects: { external: true, financial: false }, kind: 'atomic', risk_from_children: false, approval: { required: false },
-    source: { kind: 'claude.skill', path: '.claude/skills/pesquisa-mercado/SKILL.md' },
-  },
-  {
-    id: 'copy.page', version: 1, category: 'copy',
-    inputs: { product_slug: { required: true }, page_type: { required: true } },
-    outputs: ['copy_file'], requires: ['product.profile', 'product.research'],
-    capabilities: ['filesystem.read', 'filesystem.write'],
-    side_effects: { external: false, financial: false }, kind: 'atomic', risk_from_children: false, approval: { required: false },
-    source: { kind: 'claude.command', path: '.claude/commands/copy-pagina.md' },
-  },
-  {
-    id: 'copy.ad', version: 1, category: 'copy',
-    inputs: { product_slug: { required: true }, offer: { required: true } },
-    outputs: ['ad_copy_file'], requires: ['product.profile', 'product.research'],
-    capabilities: ['filesystem.read', 'filesystem.write'],
-    side_effects: { external: false, financial: false }, kind: 'atomic', risk_from_children: false, approval: { required: false },
-    source: { kind: 'claude.command', path: '.claude/commands/copy-anuncio.md' },
-  },
-  {
-    id: 'copy.social', version: 1, category: 'copy',
-    inputs: { product_slug: { required: true }, platform: { required: true } },
-    outputs: ['content_file'], requires: ['product.profile', 'product.research'],
-    capabilities: ['filesystem.read', 'filesystem.write'],
-    side_effects: { external: false, financial: false }, kind: 'atomic', risk_from_children: false, approval: { required: false },
-    source: { kind: 'claude.command', path: '.claude/commands/copy-social.md' },
-  },
-  {
-    id: 'creative.static', version: 1, category: 'creative',
-    inputs: { product_slug: { required: true }, brief: { required: true } },
-    outputs: ['creative_brief'], requires: ['product.profile', 'product.research'],
-    capabilities: ['filesystem.read', 'filesystem.write', 'image.generate'],
-    side_effects: { external: true, financial: false }, kind: 'atomic', risk_from_children: false, approval: { required: false },
-    source: { kind: 'claude.command', path: '.claude/commands/criativo-estatico.md' },
-  },
-  {
-    id: 'traffic.insights', version: 1, category: 'traffic',
-    inputs: { product_slug: { required: true }, period: { required: false } },
-    outputs: ['traffic_insights_file'], requires: ['product.profile'],
-    capabilities: ['filesystem.read', 'filesystem.write', 'ads.insights'],
-    side_effects: { external: true, financial: false }, kind: 'atomic', risk_from_children: false, approval: { required: false },
-    source: { kind: 'claude.command', path: '.claude/commands/trafego-insights.md' },
-  },
-  {
-    id: 'toolkit.execute', version: 1, category: 'toolkit',
-    inputs: { product_slug: { required: true }, plan: { required: true } },
-    outputs: ['execution_report'], requires: ['product.profile'],
-    capabilities: ['filesystem.read', 'filesystem.write'],
-    side_effects: { external: true, financial: true }, kind: 'composite', risk_from_children: true, approval: { required: true },
-    source: { kind: 'claude.command', path: '.claude/commands/toolkit-executar.md' },
-  },
+  define({ id: 'product.create', category: 'product', inputs: { product_slug: { required: true }, name: { required: true }, type: { required: true } }, outputs: ['product_directory', 'product_manifest'], requires: [], source: adapter('adapters/claude/product-workflow.js') }),
+  define({ id: 'product.select', category: 'product', inputs: { product_slug: { required: true } }, outputs: ['active_product'], requires: [], source: adapter('adapters/claude/product-workflow.js') }),
+  define({ id: 'research.market', category: 'research', inputs: { product_slug: { required: true }, research_goal: { required: false } }, outputs: ['research_file'], capabilities: ['filesystem.read', 'filesystem.write', 'research.fetch'], external: true, source: adapter('adapters/claude/market-research.js') }),
+  define({ id: 'copy.page', category: 'copy', inputs: { product_slug: { required: true }, page_type: { required: true } }, outputs: ['copy_file'], requires: ['product.profile', 'product.research'], source: command('.claude/commands/copy-pagina.md') }),
+  define({ id: 'copy.ad', category: 'copy', inputs: { product_slug: { required: true }, offer: { required: true } }, outputs: ['ad_copy_file'], requires: ['product.profile', 'product.research'], source: command('.claude/commands/copy-anuncio.md') }),
+  define({ id: 'copy.social', category: 'copy', inputs: { product_slug: { required: true }, platform: { required: true } }, outputs: ['content_file'], requires: ['product.profile', 'product.research'], source: command('.claude/commands/copy-social.md') }),
+  define({ id: 'copy.script', category: 'copy', inputs: { product_slug: { required: true }, objective: { required: true } }, outputs: ['script_file'], requires: ['product.profile', 'product.research'], source: command('.claude/commands/copy-roteiro.md') }),
+  define({ id: 'funnel.low_ticket', category: 'funnel', inputs: { product_slug: { required: true }, quiz_required: { required: false } }, outputs: ['low_ticket_plan'], requires: ['product.research', 'product.profile', 'product.consumer'], external: true, approval: true, source: adapter('adapters/claude/low-ticket-workflow.js') }),
+  define({ id: 'funnel.middle_ticket', category: 'funnel', inputs: { product_slug: { required: true } }, outputs: ['middle_ticket_plan'], requires: ['product.research', 'product.profile', 'product.consumer'], external: true, approval: true, source: adapter('adapters/claude/middle-ticket-workflow.js') }),
+  define({ id: 'page.sales', category: 'page', inputs: { product_slug: { required: true }, html: { required: true }, copy_review: { required: true } }, outputs: ['page_html'], requires: ['product.profile', 'copy.review'], source: adapter('adapters/claude/page-workflow.js') }),
+  define({ id: 'carousel.generate', category: 'content', inputs: { product_slug: { required: true }, slug: { required: true }, slides: { required: true } }, outputs: ['carousel_artifact'], source: adapter('adapters/claude/carousel-workflow.js') }),
+  define({ id: 'carousel.schedule', category: 'scheduling', inputs: { product_slug: { required: true }, slug: { required: true }, schedule: { required: true }, timezone: { required: true } }, outputs: ['schedule_descriptor'], requires: ['carousel_artifact'], source: adapter('adapters/claude/carousel-workflow.js') }),
+  define({ id: 'image.generate', category: 'creative', inputs: { product_slug: { required: true }, prompt: { required: true }, provider: { required: true } }, outputs: ['image_artifact'], capabilities: ['filesystem.read', 'filesystem.write', 'image.generate'], external: true, source: adapter('adapters/claude/image-generation.js') }),
+  // Stable Phase I workflow ID retained for the existing Claude/Hermes compatibility surface.
+  define({ id: 'creative.static', category: 'creative', inputs: { product_slug: { required: true }, brief: { required: true } }, outputs: ['creative_brief'], capabilities: ['filesystem.read', 'filesystem.write', 'image.generate'], external: true, source: command('.claude/commands/criativo-estatico.md') }),
+  define({ id: 'video.generate', category: 'creative', inputs: { product_slug: { required: true }, script: { required: true }, renderer: { required: true } }, outputs: ['video_artifact'], capabilities: ['filesystem.read', 'filesystem.write', 'video.generate'], external: true, source: adapter('adapters/claude/video-generation.js') }),
+  define({ id: 'ads.insights', category: 'traffic', inputs: { product_slug: { required: true }, period: { required: false } }, outputs: ['traffic_insights'], capabilities: ['filesystem.read', 'filesystem.write', 'ads.insights'], external: true, source: adapter('adapters/claude/meta-ads.js') }),
+  // Stable Phase I workflow ID retained for the existing Claude/Hermes compatibility surface.
+  define({ id: 'traffic.insights', category: 'traffic', inputs: { product_slug: { required: true }, period: { required: false } }, outputs: ['traffic_insights_file'], capabilities: ['filesystem.read', 'filesystem.write', 'ads.insights'], external: true, source: command('.claude/commands/trafego-insights.md') }),
+  define({ id: 'ads.campaign.create', category: 'traffic', inputs: { product_slug: { required: true }, campaign_plan: { required: true }, action_id: { required: true } }, outputs: ['campaign_draft'], external: true, approval: true, source: adapter('adapters/claude/meta-ads.js') }),
+  define({ id: 'ads.optimize', category: 'traffic', inputs: { product_slug: { required: true }, action_id: { required: true } }, outputs: ['optimization_descriptor'], external: true, approval: true, source: adapter('adapters/claude/meta-ads.js') }),
+  define({ id: 'ads.scale', category: 'traffic', inputs: { product_slug: { required: true }, action_id: { required: true } }, outputs: ['scale_descriptor'], external: true, financial: true, approval: true, source: adapter('adapters/claude/meta-ads.js') }),
+  define({ id: 'ads.report', category: 'traffic', inputs: { product_slug: { required: true }, period: { required: true } }, outputs: ['report_artifact', 'report_result'], capabilities: ['filesystem.read', 'filesystem.write', 'ads.insights'], external: true, source: adapter('adapters/claude/ads-report.js') }),
+  define({ id: 'social.dashboard', category: 'social', inputs: { product_slug: { required: true }, platform: { required: true } }, outputs: ['dashboard_metrics'], capabilities: ['filesystem.read', 'filesystem.write', 'research.fetch'], external: true, source: adapter('adapters/claude/social-dashboard.js') }),
+  define({ id: 'social.publish', category: 'social', inputs: { product_slug: { required: true }, platform: { required: true }, artifact_path: { required: true }, action_id: { required: true } }, outputs: ['publication_result'], capabilities: ['filesystem.read', 'publisher.publish'], external: true, approval: true, source: adapter('adapters/claude/organic-publisher.js') }),
+  define({ id: 'plan.execute', category: 'orchestration', inputs: { product_slug: { required: true }, tasks: { required: true } }, outputs: ['plan_status'], kind: 'composite', risk_from_children: true, source: adapter('adapters/claude/plan-executor.js') }),
+  define({ id: 'toolkit.execute', category: 'toolkit', inputs: { product_slug: { required: true }, plan: { required: true } }, outputs: ['execution_report'], kind: 'composite', risk_from_children: true, source: adapter('adapters/claude/toolkit-workflow.js') }),
+  define({ id: 'commercial.playbook', category: 'commercial', inputs: { product_slug: { required: true }, module: { required: false } }, outputs: ['commercial_plan'], source: adapter('adapters/claude/commercial-workflow.js') }),
 ];
 
 module.exports = { workflowDefinitions };

@@ -48,6 +48,9 @@ function assertWorkflowContract(workflow) {
   if (!workflow.approval || typeof workflow.approval.required !== 'boolean') {
     throw new TypeError('workflow.approval.required must be boolean');
   }
+  if (workflow.side_effects.financial && !workflow.approval.required) {
+    throw new TypeError('financial workflows must require approval');
+  }
   if (!workflow.source || typeof workflow.source.kind !== 'string' || typeof workflow.source.path !== 'string') {
     throw new TypeError('workflow.source must describe the current compatibility source');
   }
