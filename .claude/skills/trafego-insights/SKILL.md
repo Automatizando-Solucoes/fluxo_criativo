@@ -11,7 +11,11 @@ description: >
 user-invocable: false
 ---
 
-> **LEGACY_META_RUNTIME** — Esta skill preserva metodologia e formatos históricos. As instruções de autenticação, `.env`, `curl`, aliases de token e chamadas Graph API nela contidas não são operacionais no runtime atual. Use os descriptors canônicos em `adapters/claude/meta-ads.js` e o command `/trafego-insights`.
+> **CANONICAL_SAFE_META_METHODOLOGY** — Use esta seção para leitura de métricas: declare janela de atribuição, cruze janelas curta/média/longa, calcule métricas derivadas, preserve cache local e tolere falha parcial por campanha. Aquisição usa somente `ads.insights`; `META_ACCESS_TOKEN` é requisito lógico do transport APP e MCP é OAuth externo. Nenhuma credencial, `.env`, query string ou chamada direta pertence à metodologia.
+
+## Limite de runtime
+
+Esta skill define leitura, normalização, cache e interpretação de métricas. A aquisição usa somente o descriptor `ads.insights`: no transport APP ele requer `META_ACCESS_TOKEN` via SecretProvider; no `MCP_CONECTOR`, OAuth é gerenciado externamente. A skill nunca monta requisições, lê arquivos de secrets ou chama ferramentas específicas de runtime.
 
 # Tráfego Insights. Leitura de Métricas Meta Ads
 
@@ -435,39 +439,9 @@ detalhes_tecnicos:
 
 ---
 
-## 10. Como puxar os dados (rota por META_AUTH_MODO)
+## 10. Aquisição canônica por `META_AUTH_MODO`
 
-A skill respeita a preferência de conexão definida em `META_AUTH_MODO` no `.env` (ver `/trafego-conexao`).
-
-### 10.1 Modo `MCP_CONECTOR`
-Usar as tools do MCP da Meta que o aluno adicionou como conector personalizado. Localizar tools com prefixo `mcp__*` cujo sufixo seja relacionado a Meta Ads (ex: `mcp__Meta_Ads__ads_get_ad_entities`, `mcp__Meta_Ads__ads_insights_*`, `mcp__Meta_Ads__ads_get_ad_accounts`).
-
-Mapeamento direto:
-- `list_campaigns` → `mcp__*__ads_get_ad_entities` com filtro de tipo `campaign`
-- `get_insights` → `mcp__*__ads_insights_*`
-- `get_ad_account_info` → `mcp__*__ads_get_ad_accounts`
-
-### 10.2 Modo `APP`
-Ler `FB_ACCESS_TOKEN_PERMANENTE` e `FB_AD_ACCOUNT_ID` do `.env`. Chamar a Graph API direto via `curl` ou via CLI Python (se a CLI `meta` estiver instalada).
-
-Endpoint base: `https://graph.facebook.com/v25.0/`
-
-### 10.2.1 Boas práticas obrigatórias no Modo APP
-
-**URL encoding:** parâmetros que contêm colchetes `[]` DEVEM ser URL-encoded antes de montar a URL do curl. O bash interpreta colchetes literais como globbing e o curl falha silenciosamente (exit code 3). Sempre usar a forma encoded:
-- `effective_status=['ACTIVE']` → `effective_status=%5B%22ACTIVE%22%5D`
-- `time_range={"since":"..."}` → `time_range=%7B%22since%22%3A%22...%22%7D`
-
-**Cadência entre chamadas (rate limit):** o Meta aplica limite de uso por token. Em modo conta completa, nunca encadear mais de 3 chamadas sem pausa. Aguardar 3 segundos entre cada chamada à Graph API. Em Python, usar `time.sleep(3)` antes de cada request. Se a resposta vier com `"code": 4` (rate limit), aplicar backoff: aguardar 30s antes de retentar. Máximo 2 retries.
-
-**Paths de arquivo:** NUNCA salvar arquivos temporários em `/tmp` ou depender de variáveis de ambiente de sessões bash anteriores (`$TEMP`, `$TMPDIR`). Cada chamada bash tem sessão isolada. Salvar sempre em `meus-produtos/{ativo}/trafego/insights/` com path absoluto derivado do diretório de trabalho atual. Para arquivos intermediários de processamento, usar o mesmo diretório do produto.
-
-**Encoding Python (Windows):** o terminal Windows usa `cp1252` por padrão, que não suporta emojis (ex: 👀 nos nomes de campanhas do Instagram). Todo script Python que imprime nomes de campanhas DEVE começar com:
-```python
-import sys
-sys.stdout.reconfigure(encoding='utf-8')
-```
-Alternativa quando se escreve em arquivo: abrir com `open(path, 'w', encoding='utf-8')`. Nunca confiar no encoding padrão do terminal.
+O workflow encaminha `META_AUTH_MODO`, a conta canônica e o período ao adapter Meta. `MCP_CONECTOR` usa OAuth do transport; `APP` usa injeção de runtime para `META_ACCESS_TOKEN`. Ambos retornam o mesmo contrato normalizado de insights. O adapter controla encoding, rate limit, retries e qualquer acesso ao provider; esta skill só recebe o resultado e salva cache em `meus-produtos/{ativo}/trafego/insights/`.
 
 **f-string com lógica condicional:** NUNCA colocar expressão condicional dentro do especificador de formato. Isso gera `ValueError` em runtime. Sempre resolver antes:
 ```python

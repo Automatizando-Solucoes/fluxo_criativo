@@ -7,24 +7,24 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '../..');
 const skillsRoot = path.join(root, '.claude', 'skills');
-const trafficSkills = fs.readdirSync(skillsRoot)
-  .filter((name) => name.startsWith('trafego-'))
-  .map((name) => ({
-    name,
-    text: fs.readFileSync(path.join(skillsRoot, name, 'SKILL.md'), 'utf8'),
-  }));
+const commandsRoot = path.join(root, '.claude', 'commands');
+const canonicalTrafficSkills = [
+  'trafego-insights',
+  'trafego-analise',
+  'trafego-criar-campanha',
+  'trafego-otimizar',
+  'trafego-escalar',
+];
 
 const unsafeRuntime = /(?:access_token\s*=|TOKEN_AQUI|TOKEN_DO_ENV|FB_ACCESS_TOKEN_PERMANENTE|FB_ACCESS_TOKEN_TEMPORARIO|curl\s+.*graph\.facebook\.com)/i;
-let legacyCount = 0;
-for (const skill of trafficSkills) {
-  const legacy = skill.text.includes('LEGACY_META_RUNTIME');
-  if (legacy) {
-    legacyCount += 1;
-    assert.match(skill.text, /user-invocable:\s*false/, `${skill.name} must not be directly invocable`);
-    continue;
-  }
-  assert.equal(unsafeRuntime.test(skill.text), false, `${skill.name} is canonical but contains an unsafe Meta runtime flow`);
+for (const name of canonicalTrafficSkills) {
+  const text = fs.readFileSync(path.join(skillsRoot, name, 'SKILL.md'), 'utf8');
+  assert.match(text, /CANONICAL_SAFE_META_METHODOLOGY/, `${name} must expose canonical methodology`);
+  assert.match(text, /user-invocable:\s*false/, `${name} must not be directly invocable`);
+  assert.equal(unsafeRuntime.test(text), false, `${name} contains an unsafe Meta runtime flow`);
+
+  const command = fs.readFileSync(path.join(commandsRoot, `${name}.md`), 'utf8');
+  assert.match(command, new RegExp(`\\.claude/skills/${name}/SKILL\\.md`), `${name} command must reference its canonical methodology`);
 }
 
-assert.ok(legacyCount >= 5, 'unsafe historical Meta runtime skills must be explicitly quarantined');
-process.stdout.write(`Meta skill secret integrity: ok (${legacyCount} legacy runtime skills quarantined)\n`);
+process.stdout.write('Meta skill secret integrity: ok (5 canonical methodology skills, 0 unsafe Meta runtime flows)\n');

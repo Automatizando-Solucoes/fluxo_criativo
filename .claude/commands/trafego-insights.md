@@ -10,4 +10,4 @@ Use o contrato canônico `ads.insights`. Os inputs não secretos são `META_AD_A
 
 `ads.insights` é uma operação `READ`: ela não altera campanha, status ou orçamento. Nesta fase, gere apenas descriptor ou resultado mock/dry-run e salve o resultado normalizado no diretório do produto quando houver um artefato solicitado.
 
-Não leia `.env`, não use aliases históricos, não monte requisições HTTP e não chame provider diretamente. As skills históricas `trafego-*` permanecem preservadas como metodologia legada, mas suas instruções de runtime não são autoridade operacional.
+Use a metodologia canônica em `.claude/skills/trafego-insights/SKILL.md`. A aquisição usa somente `ads.insights` via adapter. Não leia `.env`, não use aliases históricos, não monte requisições HTTP e não chame provider diretamente.

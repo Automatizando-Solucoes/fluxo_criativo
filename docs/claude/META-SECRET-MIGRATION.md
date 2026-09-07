@@ -12,7 +12,7 @@
 | `trafego-criar-campanha.md` | criação canônica | `META_ACCESS_TOKEN`, `META_AD_ACCOUNT_ID` | CANONICAL_SAFE | `ads.campaign.create`, manual e `PAUSED` |
 | `trafego-otimizar.md` | diagnóstico e mudança tipada | `META_ACCESS_TOKEN`, `META_AD_ACCOUNT_ID` | CANONICAL_SAFE | `ads.insights` ou `ads.optimize`, sem autorização implícita |
 | `trafego-escalar.md` | escala canônica | `META_ACCESS_TOKEN`, `META_AD_ACCOUNT_ID` | CANONICAL_SAFE | `ads.scale`, `FINANCIAL_WRITE`, grant manual |
-| skills `trafego-insights`, `trafego-analise`, `trafego-criar-campanha`, `trafego-otimizar`, `trafego-escalar` | metodologia e runtime histórico | aliases/.env/curl | LEGACY_FLOW | `LEGACY_META_RUNTIME`; não invocáveis nem autoridade operacional |
+| skills `trafego-insights`, `trafego-analise`, `trafego-criar-campanha`, `trafego-otimizar`, `trafego-escalar` | metodologia canônica | operations allowlisted e config não secreta | CANONICAL_SAFE | metodologia é consumida pelos commands; runtime direto foi substituído pelos descriptors canônicos |
 | skill `trafego-pago` | metodologia geral | sem credencial Meta | CANONICAL_SAFE | conhecimento reutilizável, sem runtime de provider |
 | `scripts/relatorio-ads-cli.py` | builder canônico | `META_ACCESS_TOKEN` runtime injected | CANONICAL_SAFE | não conhece delivery |
 | `scripts/relatorio-ads.ps1` | builder legado | aliases Meta | LEGACY_FLOW | sem delivery; Python é preferido |

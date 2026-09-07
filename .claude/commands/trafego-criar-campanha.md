@@ -10,4 +10,4 @@ Transforme o plano aprovado em um draft de campanha. A operação canônica é `
 
 Uma criação requer ApprovalPolicy `manual` vinculada ao `action_id` exato. Sem grant manual válido, retorne `blocked`; nunca infira autorização por conversa, conexão ou análise anterior.
 
-Toda nova campanha deve nascer com `status: PAUSED`. Não há caminho automático para `ACTIVE`. Nesta fase, gere somente draft/descriptor dry-run; não leia `.env`, não use aliases de token e não faça requisição direta.
+Use a metodologia canônica em `.claude/skills/trafego-criar-campanha/SKILL.md`. Toda nova campanha deve nascer com `status: PAUSED`. Não há caminho automático para `ACTIVE`. Nesta fase, gere somente draft/descriptor dry-run; não leia `.env`, não use aliases de token e não faça requisição direta.

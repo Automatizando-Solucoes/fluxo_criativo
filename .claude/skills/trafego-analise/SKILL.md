@@ -13,7 +13,11 @@ description: >
 user-invocable: false
 ---
 
-> **LEGACY_META_RUNTIME** — Esta skill preserva metodologia VTSD e análise histórica. Suas instruções de autenticação, `.env`, `curl`, aliases de token e chamadas Graph API não são operacionais no runtime atual. Use dados normalizados e o command `/trafego-analise`.
+> **CANONICAL_SAFE_META_METHODOLOGY** — Use a Mandala, diagnóstico rápido, performance/funil, criativos/copy, geo/demografia, timing/sazonalidade, investigação profunda, lifecycle, problemas ocultos, orçamento/projeção e comparativos sobre insights normalizados. Diferencie fatos de inferências e gere recomendação antes de qualquer ação. Aquisição, quando necessária, é `ads.insights`; esta skill não autentica nem escreve na conta.
+
+## Limite de runtime
+
+Esta skill preserva menus, fórmulas, critérios e diagnóstico VTSD sobre dados normalizados. Quando dados novos forem necessários, solicita `ads.insights`; ela não configura transport, lê secrets, chama runtime específico nem muda a conta.
 
 # Tráfego Análise. 9 Outputs Narrativos VTSD
 
@@ -31,37 +35,14 @@ Análise narrada de campanhas Meta Ads pela lente da metodologia VTSD (Venda Tod
 
 Ao ser invocada, validar conexão Meta, perguntar a conta de anúncios e apresentar o menu. Aguardar escolha antes de pedir período ou dado.
 
-### Passo 0. Validar conexão Meta
-Ler `META_AUTH_MODO` no `.env`. Se vazio, acionar `/trafego-conexao` antes de qualquer outra ação.
+### Passo 0. Validar disponibilidade
+Usar a configuração não secreta `META_AUTH_MODO` e solicitar `meta.auth.validate` quando precisar conferir o transport. A validação não concede aprovação para escrita.
 
 ### Passo 0.5. Selecionar conta de anúncios
 
-Ler `FB_AD_ACCOUNT_IDS` no `.env` (campo com múltiplas contas separadas por vírgula, ex: `1234,5678,9012`). Também ler `FB_AD_ACCOUNT_ID` (conta padrão).
+Usar `META_AD_ACCOUNT_ID` como conta padrão. Quando houver mais de uma conta disponível, solicitar `meta.accounts.list` e apresentar as opções retornadas.
 
-**Se houver apenas uma conta configurada** (`FB_AD_ACCOUNT_ID` e `FB_AD_ACCOUNT_IDS` idênticos ou `FB_AD_ACCOUNT_IDS` vazio): usar automaticamente essa conta e pular a pergunta.
-
-**Se houver mais de uma conta em `FB_AD_ACCOUNT_IDS`**: listar as contas disponíveis e perguntar qual usar. Para obter o nome de todas as contas **em uma única chamada batch**, fazer **uma chamada `Bash(curl ...)` direta** (sem heredoc Python — ver regra "EXECUÇÃO TÉCNICA DE CHAMADAS GRAPH API" no CLAUDE.md):
-
-Construir a string `act_<id1>,act_<id2>,...` a partir de `FB_AD_ACCOUNT_IDS` e disparar:
-
-```
-curl -s "https://graph.facebook.com/v21.0/?ids=act_1234567890,act_0987654321,act_1122334455,act_5566778899&fields=name&access_token=<TOKEN_DO_ENV>"
-```
-
-A resposta vem em JSON único:
-```json
-{
-  "act_1234567890": {"name": "Conta A", "id": "act_1234567890"},
-  "act_0987654321": {"name": "Conta B", "id": "act_0987654321"},
-  ...
-}
-```
-
-O Claude lê o JSON retornado como texto e monta o menu numerado. **Nunca fazer N chamadas separadas** — uma única chamada batch é o suficiente e conta como 1 contra o rate limit.
-
-**Tratamento de erro:** se a chamada batch falhar, exibir só os IDs sem nome e continuar.
-
-**Ordenação obrigatória:** a conta cujo ID coincide com `FB_AD_ACCOUNT_ID` é a conta padrão e deve sempre aparecer em **primeiro lugar** na lista, com a etiqueta `"padrão"` entre aspas após o nome. As demais contas seguem na ordem em que aparecem em `FB_AD_ACCOUNT_IDS`.
+Se existir uma única conta, use-a. Para múltiplas contas, apresente os IDs e nomes retornados por `meta.accounts.list`, colocando a conta padrão primeiro. Se a aquisição falhar, explique o erro sem perder dados já normalizados.
 
 Montar o menu assim:
 ```
@@ -75,7 +56,7 @@ Digite o número:
 ```
 Se a chamada de nome falhar para alguma conta, exibir só o ID sem nome. A conta padrão ainda recebe a etiqueta `"padrão"` mesmo sem nome.
 
-**Após a escolha:** definir `CONTA_ATIVA_ID` como variável de sessão (ex: `act_1234567890`). Usar esse ID em todas as chamadas subsequentes à Graph API desta sessão, inclusive ao chamar `/trafego-insights`.
+**Após a escolha:** definir `CONTA_ATIVA_ID` como contexto de sessão e encaminhá-lo para `ads.insights` quando for necessário adquirir dados.
 
 ### Passo 0.55. Filtro de status das campanhas
 
@@ -112,7 +93,6 @@ GET /act_{CONTA_ATIVA_ID}/campaigns
   ?fields=id,name,objective,status
   &effective_status={STATUS_FILTRO}
   &limit=200
-  &access_token={token}
 ```
 
 Salvar a lista completa em memória de sessão (`CAMPANHAS_SESSAO`). Não filtrar ainda.
@@ -263,24 +243,11 @@ Qual período da análise?
 [4] customizado (você informa data início e fim)
 ```
 
-### Passo 4. Buscar dados via scripts Python (padrão obrigatório)
+### Passo 4. Adquirir dados com operação canônica
 
-**Nunca usar `curl` diretamente.** O quoting de arrays JSON (`["ACTIVE"]`) é instável no shell (Windows e Mac). O endpoint `/insights` não aceita `effective_status`. Toda chamada à Graph API passa pelo par de scripts abaixo.
+Encaminhar conta, filtro, período e escopo para `ads.insights`. O adapter retorna dados normalizados e controla cache; nenhum script local, shell ou chamada direta é parte deste fluxo.
 
-**Script 1 — fetch (busca e cache):**
-
-```bash
-python3 .claude/skills/trafego-analise/scripts/trafego_fetch.py \
-  --account {CONTA_ATIVA_ID} \
-  --filtro "{ESCOPO_FILTRO_TEXTO}" \
-  --periodo {PERIODO} \
-  --status "{STATUS_FILTRO_LISTA}" \
-  --output {SLUG_OUTPUT} \
-  --project-root . \
-  --cache-dir skill-analise/cache
-```
-
-**Mapeamento de `--status` a partir do `STATUS_FILTRO` escolhido no Passo 0.55:**
+**Mapeamento de status para o pedido de insights:**
 
 | Escolha do Passo 0.55 | Valor de `--status` |
 |---|---|

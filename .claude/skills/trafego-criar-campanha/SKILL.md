@@ -10,27 +10,11 @@ description: >
 user-invocable: false
 ---
 
-> **LEGACY_META_RUNTIME** — Esta skill preserva a metodologia de planejamento de campanhas. Instruções de `.env`, tokens, `curl`, MCP específico e Graph API não são autoridade operacional. Use `/trafego-criar-campanha` e o descriptor `ads.campaign.create`, que sempre cria drafts `PAUSED` com ApprovalPolicy manual.
+> **CANONICAL_SAFE_META_METHODOLOGY** — Preserve a estrutura de campanha, objetivo, evento, pixel, criativos, público, posicionamento e preview do plano. Converta o plano em `ads.campaign.create`, que é WRITE com ApprovalPolicy manual e draft obrigatório `PAUSED`. A metodologia não autoriza ativação, provider direto ou alteração financeira.
 
-## 🛡️ Gate obrigatório antes de qualquer escrita na Graph API
+## Limite de runtime e gate de escrita
 
-Esta skill executa operações que **modificam estado** na conta Meta Ads. Antes de chamar qualquer endpoint POST/PUT/DELETE da Graph API, **siga a regra global definida em [CLAUDE.md](../../../CLAUDE.md)** na seção "GATE EM CAMADA DE CHAT ANTES DE OPERAÇÕES DE ESCRITA NA META GRAPH API":
-
-1. Apresentar o bloco `🛡️ Confirmação necessária antes de tocar na conta Meta` com operação, endpoint humano-legível, o que vai mudar, impacto no aprendizado e reversibilidade.
-2. **Nunca exibir o `curl` completo no chat** — carrega o token.
-3. Aguardar resposta `sim` (ou variante explícita: aprovo, pode, manda) antes de executar.
-4. Em modo lote, mostrar o plano completo antes e pedir confirmação única.
-5. Se o aluno responder `não` ou variante (cancelar, abortar), abortar sem chamar a API.
-6. **NUNCA usar `python3 << 'EOF'` (heredoc) nem `curl | python3 -c`** com o token. Esses formatos quebram o pattern matching do Claude Code e expõem o token no pop-up nativo. Ver regra "EXECUÇÃO TÉCNICA DE CHAMADAS GRAPH API" no CLAUDE.md.
-
-**Operações desta skill que passam pelo gate:**
-
-- POST /act_<id>/campaigns (criar campanha)
-- POST /act_<id>/adsets (criar conjunto)
-- POST /act_<id>/ads (criar anúncio)
-- POST /act_<id>/adimages, /advideos (subir criativo)
-
-**Não passam pelo gate:** chamadas GET para leitura (insights, listagens, fields). Estado não muda.
+Esta skill produz estrutura, preview e draft de campanha. A criação é somente a operação allowlisted `ads.campaign.create`, classificada WRITE. Ela exige `ApprovalPolicy` manual vinculada ao `action_id` e retorna apenas descriptor dry-run com `status: PAUSED`. Leitura de pixels, conversões, interesses, páginas e criativos usa operações de leitura do adapter; a skill não chama provider, não lê secrets nem escolhe transport.
 
 ---
 
@@ -120,35 +104,27 @@ Validar coerência com ticket:
 
 **5.0. Listar todos os pixels da conta antes de pedir qualquer coisa.**
 
-Antes de qualquer pergunta, fazer chamada na Marketing API para puxar a lista de pixels da conta de anúncios:
+Antes de qualquer pergunta, solicitar ao adapter a lista de pixels da conta canônica. `META_PIXEL_ID` é configuração não secreta e pode ser usado como escolha prévia quando estiver disponível no estado do produto.
 
-```
-GET https://graph.facebook.com/v22.0/act_{FB_AD_ACCOUNT_ID}/adspixels?fields=id,name,last_fired_time,is_unavailable&access_token={token}
-```
-
-Onde `{token}` é `META_ACCESS_TOKEN` (modo MCP) ou `FB_ACCESS_TOKEN_PERMANENTE` (modo APP), conforme `META_AUTH_MODO`.
-
-Em paralelo, ler `META_PIXEL_ID` do `.env` (pode estar vazio).
-
-Mostrar a lista em tabela numerada, marcando com `(em uso no .env)` o pixel cujo ID bate com `META_PIXEL_ID`:
+Mostrar a lista em tabela numerada, marcando como `(em uso)` o pixel cujo ID bate com `META_PIXEL_ID`:
 
 ```
 Pixels da conta act_{id}:
 
 | # | Nome                          | ID                | Último disparo       | Status         |
 |---|-------------------------------|-------------------|----------------------|----------------|
-| 1 | Pixel Venda todo santo dia    | 1499690117606075  | 2026-05-04 23:59     | (em uso no .env) |
+| 1 | Pixel Venda todo santo dia    | 1499690117606075  | 2026-05-04 23:59     | (em uso) |
 | 2 | Pixel Light Copy              | 1266479054363571  | 2026-05-04 20:31     |                |
 | 3 | Pixel Stories 10X             | 1998494373936241  | 2026-05-04 20:31     |                |
 | 4 | Pixel de Pico (Geral) CA1     | 1559328780940386  | 2026-05-04 23:59     |                |
 ```
 
-Se houver pixel em uso no `.env`, perguntar:
-> "Você está usando o Pixel `{nome}` (`{id}`) no .env. Continuar com ele ou trocar?
+Se houver pixel em uso, perguntar:
+> "Você está usando o Pixel `{nome}` (`{id}`). Continuar com ele ou trocar?
 > 1. Continuar com o atual.
 > 2. Trocar (digite o número do pixel da lista)."
 
-Se NÃO houver pixel no `.env`, perguntar:
+Se NÃO houver pixel configurado, perguntar:
 > "Qual pixel você quer usar nesta campanha? Digite o número da lista."
 
 Casos especiais:
@@ -157,7 +133,7 @@ Casos especiais:
 
 **5.1. Salvar a escolha.**
 
-Ao confirmar o pixel, **gravar `META_PIXEL_ID` no `.env`** (atualizando a linha existente ou adicionando nova). Esse mesmo valor é reaproveitado por `/pagina-pixel` e por execuções futuras de `/trafego-criar-campanha`.
+Ao confirmar o pixel, persistir `META_PIXEL_ID` somente na configuração não secreta do produto. Esse mesmo valor é reaproveitado por `/pagina-pixel` e por execuções futuras de `/trafego-criar-campanha`.
 
 **5.2. Escolher o evento de otimização da campanha.**
 
@@ -169,7 +145,7 @@ Pergunta única, com duas opções:
 Se o aluno escolher **1. Compra**: definir `optimization_goal = OFFSITE_CONVERSIONS` com evento `Purchase` e seguir para 5.3.
 
 Se o aluno escolher **2. Personalizado**: chamar a Marketing API para listar conversões personalizadas da conta:
-- Tool MCP: `mcp__claude_ai_Meta_Ads__ads_get_ad_entities` filtrando por `level: customconversion` e `ad_account_id` da `META_AD_ACCOUNT_ID`. Caminho alternativo via App: `GET https://graph.facebook.com/v22.0/act_{ad_account_id}/customconversions?fields=id,name,custom_event_type,description&limit=10` usando token salvo em `META_ACCESS_TOKEN` (ou `FB_ACCESS_TOKEN_PERMANENTE` no modo APP).
+- Solicitar ao adapter a lista de conversões personalizadas para a conta canônica. O transport é resolvido internamente por `META_AUTH_MODO`.
 - Mostrar até **10 primeiras** conversões personalizadas, numeradas, com nome e tipo. Se a conta tiver mais que 10, avisar: "Mostrando 10 primeiras de N conversões. Se a desejada não aparecer, digite o nome ou ID."
 - Se a conta não tiver nenhuma conversão personalizada, avisar: "Não encontrei conversões personalizadas nesta conta. Crie uma no Gerenciador de Eventos > Conversões personalizadas, ou volte para a opção 1 (Compra)."
 - Aluno escolhe pelo número, nome ou ID. Salvar `custom_conversion_id` para usar no `promoted_object` do conjunto de anúncios.
@@ -218,13 +194,7 @@ Passo a passo obrigatório:
 **6.2.b. Montar a lista de termos de busca.** De 5 a 8 termos curtos em português, depois traduzir cada um para inglês (a base de interesses do Meta é multilíngue mas indexada melhor em inglês). Exemplo para o produto `leitura-10x`:
 - `leitura`, `livros`, `autodesenvolvimento`, `produtividade`, `hábitos`, `reading`, `books`, `personal development`
 
-**6.2.c. Buscar interesses na Marketing API.** Para cada termo, chamar:
-
-```
-GET https://graph.facebook.com/v22.0/search?type=adinterest&q={termo}&limit=10&locale=pt_BR&access_token={token}
-```
-
-Onde `{token}` é `META_ACCESS_TOKEN` (modo MCP) ou `FB_ACCESS_TOKEN_PERMANENTE` (modo APP).
+**6.2.c. Buscar interesses com a operação canônica.** Encaminhar cada termo ao adapter Meta em modo de leitura; o transport é resolvido internamente.
 
 Cada resposta traz `id`, `name`, `audience_size_lower_bound`, `audience_size_upper_bound`, `topic`.
 
@@ -323,8 +293,8 @@ Instrução ao aluno antes de prosseguir:
 Após confirmação do aluno, ler o conteúdo da pasta `meus-produtos/{ativo}/entregas/criativos/` e listar os arquivos encontrados. Mostrar tabela com nome, formato e tamanho estimado. Se houver mais arquivos do que anúncios previstos na estrutura, perguntar quais usar.
 
 Subir cada arquivo via Marketing API:
-- Imagem: `POST /act_{id}/adimages` com o arquivo em multipart/form-data.
-- Vídeo: `POST /act_{id}/advideos` com o arquivo em multipart/form-data.
+- Imagem: preparar artefato de mídia para o adapter.
+- Vídeo: preparar artefato de mídia para o adapter.
 
 Para gerar imagens novas antes de subir, sugerir os commands:
 - `/criativo-estatico`. Imagem gerada via API ou prompt para colar em ferramenta externa
@@ -398,8 +368,7 @@ Antes de qualquer chamada à Marketing API que modifique a conta:
 **3.2. Mostrar ao aluno apenas um RESUMO EM TEXTO CORRIDO**, em português, organizado em blocos claros (Conta, Campanha, Conjunto, Anúncios, Validações, Próximas ações). Sem YAML, sem chaves, sem códigos, sem indentação técnica. Texto fluido, fácil de entender, com bullets simples e linguagem direta. Se o aluno pedir explicitamente para ver o YAML, abrir o arquivo salvo.
 
 **3.3. Regra de identificação por nome (obrigatória).** Em TODA referência a um ID no resumo de texto (ID de conta, ID de página, ID de Instagram, ID de Pixel, ID de conversão personalizada, ID de público customizado, ID de criativo, ID de campanha existente, qualquer outro), trazer o **nome humano junto do ID**, no formato `Nome (ID)`. Se o nome não estiver disponível em cache, buscar via API antes de mostrar:
-- Page: `GET /{page_id}?fields=name,username&access_token=...`
-- Instagram: `GET /{ig_user_id}?fields=username,name&access_token=...`
+- Page e Instagram: solicitar nomes ao adapter Meta de leitura antes de mostrar o resumo.
 - Pixel: já trazido pela listagem de pixels da Fase 5.
 - Conversão personalizada: já trazido pela listagem da Fase 5.2.
 - Público customizado: já trazido pela listagem.
@@ -497,11 +466,10 @@ Aceitar três tipos de resposta:
 
 Após aprovação, criar em ordem:
 
-1. **Campanha**. `POST /act_{id}/campaigns`
-2. **Para cada conjunto**. `POST /act_{id}/adsets`
+1. **Campanha**. Incluir no descriptor `ads.campaign.create`.
+2. **Para cada conjunto**. Incluir no mesmo descriptor tipado.
 3. **Para cada anúncio:**
-   - Criar AdCreative. `POST /act_{id}/adcreatives`
-   - Criar Ad. `POST /act_{id}/ads`
+   - Incluir criativo e anúncio no draft de campanha.
 
 Tratamento de falhas:
 - **Falha em criar campanha** → parar tudo, retornar erro.
@@ -596,25 +564,15 @@ A Marketing API não rejeita mais por excesso de texto (regra antiga descontinua
 Avisar: "Existe campanha ativa com nome similar criada há X dias. Quer prosseguir mesmo assim, renomear, ou cancelar?"
 
 ### 7.6 Aluno pede para ativar imediatamente após criar
-Aceitar comando "ativa a campanha" como ação separada. Internamente: `POST /campaign/{id}` com `status: ACTIVE`. Sempre confirmar antes: "Vou ativar a campanha agora. Uma vez ativa, começa a gastar. Confirma?"
+Um pedido de ativação é uma ação financeira separada e não é executado por esta skill. Gerar apenas uma solicitação tipada, que exige grant manual para o `action_id` e continua dry-run nesta fase.
 
 ---
 
-## 8. Como subir os dados (rota por META_AUTH_MODO)
+## 8. Operações canônicas por `META_AUTH_MODO`
 
-A skill respeita `META_AUTH_MODO` no `.env`.
+`MCP_CONECTOR` usa OAuth do conector e `APP` usa SecretProvider com `META_ACCESS_TOKEN`; ambos expõem a mesma operação allowlisted, sem ferramentas ou credenciais no contexto da skill.
 
-### 8.1 Modo `MCP_CONECTOR`
-Localizar tools com prefixo `mcp__*` para criação:
-- `mcp__*__ads_create_campaign`
-- `mcp__*__ads_create_ad_set`
-- `mcp__*__ads_create_ad`
-- `mcp__*__ads_get_pages_for_business` (para listar Pages)
-
-### 8.2 Modo `APP`
-Ler `FB_ACCESS_TOKEN_PERMANENTE` e `FB_AD_ACCOUNT_ID` do `.env`. Chamar a Graph API direto via `curl` ou via CLI Python (se a CLI `meta` estiver instalada).
-
-### 8.3 Tool calls equivalentes (camada lógica)
+### 8.1 Operações equivalentes (camada lógica)
 
 ```yaml
 tools_consumidas:
