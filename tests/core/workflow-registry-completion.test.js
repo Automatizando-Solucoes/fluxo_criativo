@@ -33,6 +33,14 @@ for (const workflow of workflows) {
 assert.equal(workflowRegistry.get('ads.scale').side_effects.financial, true);
 assert.equal(workflowRegistry.get('ads.scale').approval.required, true);
 assert.equal(workflowRegistry.get('ads.campaign.create').approval.required, true);
+assert.equal(workflowRegistry.get('ads.insights').capabilities.includes('ads.insights'), true);
+assert.equal(workflowRegistry.get('ads.campaign.create').capabilities.includes('ads.write'), true);
+assert.equal(workflowRegistry.get('ads.optimize').capabilities.includes('ads.write'), true);
+assert.equal(workflowRegistry.get('ads.scale').capabilities.includes('ads.financial_write'), true);
+for (const id of ['ads.campaign.create', 'ads.optimize', 'ads.scale']) {
+  const workflow = workflowRegistry.get(id);
+  assert.equal(workflow.capabilities.some((capability) => !capability.startsWith('filesystem.')), true, `${id} must declare its provider capability`);
+}
 assert.equal(workflowRegistry.get('social.publish').side_effects.external, true);
 assert.equal(workflowRegistry.get('social.publish').approval.required, true);
 assert.equal(workflowRegistry.get('social.publish').capabilities.includes('publisher.publish'), true);

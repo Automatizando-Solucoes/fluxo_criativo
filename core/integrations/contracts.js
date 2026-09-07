@@ -4,6 +4,8 @@ const INTEGRATION_CAPABILITIES = Object.freeze([
   'image.generate',
   'video.generate',
   'ads.insights',
+  'ads.write',
+  'ads.financial_write',
   'research.fetch',
   'notification.send',
   'publisher.publish',
