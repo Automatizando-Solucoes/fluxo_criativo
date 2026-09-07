@@ -543,3 +543,11 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Hermes ganhou wrappers dry-run para criação, otimização, escala e relatório. Criação gera somente draft `PAUSED`; escrita exige approval manual e escala financeira exige grant manual para o `action_id` correto.
 - `traffic.insights` continua alias legado explícito de `ads.insights`, compartilhando o mesmo wrapper sem implementação paralela.
 - A regressão Hermes Meta bloqueia e contabiliza rede, subprocessos e escrita fora da fixture, além de verificar ausência de segredos nos resultados serializados.
+
+## Fase L5: orquestração e scheduling Hermes
+
+- Plan Executor e Toolkit passaram a compartilhar contracts neutros de tarefas tipadas, risco externo e financeiro, ApprovalPolicy, dependências, idempotência, retry explícito e estado persistente.
+- Hermes resolve e persiste planos sem dispatch automático. Tasks desconhecidas, compostos sem filhos, dependências bloqueadas e gates de approval falham fechados.
+- O wrapper de Toolkit deriva seu diretório de `meus-produtos/{slug}/projeto/{toolkit-id}/`; nenhum root fornecido pelo modelo obtém autoridade sobre outro caminho.
+- `carousel.schedule` ganhou wrapper Hermes e persiste descriptor local com timezone IANA, `publication:false`, `relatorio_cron_id:null` e `scheduled:false`.
+- Cron Hermes continua somente descriptor. Financeiro, publisher bloqueado e qualquer execução externa retornam inelegíveis; delegates permanecem dry-run e read/review only.

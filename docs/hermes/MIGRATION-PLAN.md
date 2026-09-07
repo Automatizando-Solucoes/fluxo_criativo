@@ -11,7 +11,7 @@ Um workflow será `HERMES_READY` somente quando resolver pelo registry, tiver wr
 - **L2, locais: concluída.** Produto, copy local, Low/Middle Ticket, página, carrossel e comercial usam o mesmo boundary local do Claude. Low/Middle Ticket persistem somente handoff Meta manual em dry-run, sem provider.
 - **L3, criativos e pesquisa: concluída.** Pesquisa, imagem, criativo estático, vídeo e dashboards usam boundaries compartilhados, SecretProvider mock e artifacts/cache locais. Todos providers continuam em mock/dry-run.
 - **L4, Meta Ads: concluída.** Insights canônico e alias, criação, otimização, escala e relatório usam o mesmo boundary Meta e ReportResult do Claude. APP/MCP só alteram o transporte; `PAUSED`, approval manual e grant financeiro exato continuam obrigatórios. Nenhum provider foi executado.
-- **L5, orquestração:** executor, Toolkit e scheduling de carrossel. Avalia filhos, delegates seguros e somente descriptors `cronjob`.
+- **L5, orquestração: concluída.** Plan Executor e Toolkit compartilham contracts de tarefas tipadas, risco dos filhos, ApprovalPolicy, dependências, retry e idempotência. Scheduling de carrossel persiste somente descriptor local; o cron Hermes continua `scheduled:false` e dry-run.
 - **L6, bloqueados/publisher:** publisher continua bloqueado até adapter oficial; C10X/High Ticket não é inventado.
 - **L7, paridade E2E:** compara Claude e Hermes na mesma fixture, sem rede, secrets, provider, cron ou delegate real.
 
