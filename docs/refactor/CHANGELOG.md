@@ -551,3 +551,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - O wrapper de Toolkit deriva seu diretório de `meus-produtos/{slug}/projeto/{toolkit-id}/`; nenhum root fornecido pelo modelo obtém autoridade sobre outro caminho.
 - `carousel.schedule` ganhou wrapper Hermes e persiste descriptor local com timezone IANA, `publication:false`, `relatorio_cron_id:null` e `scheduled:false`.
 - Cron Hermes continua somente descriptor. Financeiro, publisher bloqueado e qualquer execução externa retornam inelegíveis; delegates permanecem dry-run e read/review only.
+
+## Fase L6: boundaries bloqueados Hermes
+
+- Publisher orgânico e status High Ticket foram extraídos para boundaries neutros compartilhados por Claude e Hermes, sem adapter de provider, secret ou cliente de rede.
+- `social.publish` resolve para wrapper `HERMES_BLOCKED_EXTERNAL`: request e ApprovalPolicy são avaliáveis localmente, mas external ID, data de publicação e side effect permanecem ausentes.
+- Todas as plataformas reconhecidas continuam bloqueadas por `official_publisher_adapter_absent`; `autopublish:true` nunca habilita publicação.
+- High Ticket preserva a detecção da lista completa de dependências C10X `ht-*`, artefatos existentes e condição de retomada. Mesmo com fixture completa, a execução Hermes permanece não implementada.

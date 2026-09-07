@@ -24,11 +24,14 @@ Esta é uma allowlist de avaliação, não uma configuração para carregar toda
 | `trafego-criar-campanha` | `HERMES_WRAPPER` | `.claude/skills/trafego-criar-campanha/SKILL.md` | Estrutura de campanha; criação é manual e `PAUSED`. |
 | `trafego-otimizar` | `HERMES_WRAPPER` | `.claude/skills/trafego-otimizar/SKILL.md` | Recomendações e mudanças tipadas via adapter. |
 | `trafego-escalar` | `HERMES_WRAPPER` | `.claude/skills/trafego-escalar/SKILL.md` | Escala é `FINANCIAL_WRITE` com grant manual. |
+| `social-publish` | `HERMES_BLOCKED_EXTERNAL` | `.claude/commands/copy-social.md` | Conteúdo é metodologia; publicação exige adapter oficial por plataforma. |
+| `estrategista-ht` | `HERMES_BLOCKED_EXTERNAL` | `.claude/agents/estrategista-ht.md` | C10X depende das skills externas `ht-*`; Hermes só diagnostica a dependência. |
 
 ## Classes
 
 - `HERMES_NATIVE`: conhecimento metodológico/procedural que Hermes pode ler por referência, após allowlist explícita.
 - `HERMES_WRAPPER`: conhecimento reaproveitável, mas só exposto por wrapper que conserva limites do core.
+- `HERMES_BLOCKED_EXTERNAL`: fonte contextual cujo fluxo não pode prosseguir sem provider ou dependência externa explícita.
 - `CLAUDE_ONLY_TEMP`: dependência forte de Claude, sem adapter seguro; não cria wrapper executável.
 
 Skills fora desta matriz não estão aprovadas para carregamento Hermes. As cinco skills `trafego-*` acima foram sanitizadas na Fase K e não são Claude-only: seus operations IDs runtime-neutral podem ser consumidos por wrapper, nunca como chamada direta de provider. Qualquer skill que manipule `.env`, peça token, use Bash, `/schedule`, `Skill`/`Agent` Claude, MCP Claude ou API externa continua bloqueada até adapter próprio.
