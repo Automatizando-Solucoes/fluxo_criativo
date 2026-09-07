@@ -503,3 +503,11 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Ads report foi desacoplado de delivery. UAZAPI é o WhatsApp canônico, Telegram é opcional e Z-API ficou legado.
 - Dashboards sociais, publisher dry-run, executor tipado, Toolkit persistente e comercial geral receberam testes locais; publisher permanece bloqueado por provider oficial ausente.
 - A integridade de commands, o registry de workflows canônicos e o E2E com fixture temporária cobrem regressão sem rede, segredo ou side effect real.
+
+## Fase K: gates de risco e metodologia Meta
+
+- Plan Executor e Toolkit agora resolvem capabilities, risco externo/financeiro, approval e risco composto a partir do registry. Tarefas que exigem approval iniciam bloqueadas sem policy válida; `ads.scale` exige grant manual do `action_id` exato.
+- O registry modela `ads.write` e `ads.financial_write`, impedindo que workflows Meta de escrita pareçam filesystem-only.
+- O adapter Meta separa `APP` (SecretProvider com `META_ACCESS_TOKEN`) de `MCP_CONECTOR` (OAuth externo), sem conceder qualquer aprovação de escrita pelo transport.
+- As cinco skills de tráfego voltaram a expor metodologia canônica sem `.env`, token, request direta ou runtime específico; leitura e ações usam operations allowlisted.
+- O E2E instala guards reais para rede, child processes e writes fora da fixture, todos restaurados ao término do teste.

@@ -42,7 +42,7 @@ Data: 2026-09-07. O estado de negócio permanece em `meus-produtos/{slug}/`; os 
 
 | Workflow | Status | Evidência |
 | --- | --- | --- |
-| Connection | READY_EXTERNAL | `META_AUTH_MODO` separa MCP OAuth de APP via SecretProvider. |
+| Connection | READY_EXTERNAL | `META_AUTH_MODO` separa MCP OAuth de APP via SecretProvider; conexão não concede escrita. |
 | Insights | READY_EXTERNAL | `ads.insights` é READ e mockado. |
 | Analysis | READY | Consome insights normalizados sem autenticação própria. |
 | Create campaign | READY_EXTERNAL | WRITE manual; draft sempre `PAUSED`. |
@@ -73,11 +73,13 @@ Data: 2026-09-07. O estado de negócio permanece em `meus-produtos/{slug}/`; os 
 
 | Workflow | Status | Evidência |
 | --- | --- | --- |
-| Executor | READY | Aceita somente workflow registrado e bloqueia shell, desconhecidos e risco não resolvido. |
-| Toolkit | READY | Estado persistente, idempotência e dependências bloqueadas; rejeita workflow desconhecido. |
+| Executor | READY | Aceita somente workflow registrado, propaga risco externo/financeiro e bloqueia shell, desconhecidos ou approval ausente. |
+| Toolkit | READY | Estado persistente, idempotência e dependências bloqueadas; reutiliza o gate do executor e reavalia approval sem concluir automaticamente. |
 | Comercial | READY | Módulo geral funciona; somente módulo HT fica bloqueado e preserva artefatos. |
 
 ## READY_EXTERNAL: contrato operacional
+
+`READY_EXTERNAL` não significa que o provider live foi validado. Significa que o contrato canônico, a fronteira de segurança e o mock/dry-run foram concluídos; a ativação real ainda exige runtime autorizado, credencial provisionada e os gates de approval aplicáveis.
 
 | Workflow | Provider / capability | Secret lógico | Approval | Mock test | Command | Inputs / outputs |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -100,5 +102,5 @@ Data: 2026-09-07. O estado de negócio permanece em `meus-produtos/{slug}/`; os 
 | `FB_ACCESS_TOKEN_*`, `ACCESS_TOKEN` | `LEGACY_ALIAS` para `META_ACCESS_TOKEN`. |
 | `FB_AD_ACCOUNT_ID`, `AD_ACCOUNT_ID` | `LEGACY_ALIAS` para `META_AD_ACCOUNT_ID`. |
 | `meta-conexao`, `gerar-token-facebook-ads` | aliases para commands canônicos. |
-| `LEGACY_META_RUNTIME` skills | metodologia preservada; runtime direto não autorizado. |
+| aliases e scripts Meta históricos | Compatibilidade preservada fora do caminho canônico; as skills de tráfego usam metodologia canônica e operations allowlisted. |
 | `relatorio-ads.ps1` | builder legado sem delivery; Python é o caminho preferido. |

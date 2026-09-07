@@ -10,4 +10,4 @@ O relatório é emitido pelo próprio teste e inclui total de commands, referên
 
 ## Última execução aprovada
 
-`113` commands auditados, `121` referências válidas, `15` referências legadas, `0` externas bloqueadas e `0` ausentes. Os testes de migração confirmam `0` fluxos canônicos Z-API e `0` fluxos canônicos Meta com secret inseguro. Reexecute os testes para atualizar estes números quando commands forem adicionados.
+`113` commands auditados, `126` referências válidas, `15` referências legadas, `0` externas bloqueadas e `0` ausentes. Os testes de migração confirmam `0` fluxos canônicos Z-API e `0` fluxos canônicos Meta com secret inseguro. Reexecute os testes para atualizar estes números quando commands forem adicionados.
