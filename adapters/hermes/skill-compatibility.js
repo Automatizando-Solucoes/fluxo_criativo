@@ -2,7 +2,7 @@
 
 const { immutableCopy } = require('../../core/contracts/immutable');
 
-const SKILL_CLASSES = Object.freeze(['HERMES_NATIVE', 'HERMES_WRAPPER', 'CLAUDE_ONLY_TEMP']);
+const SKILL_CLASSES = Object.freeze(['HERMES_NATIVE', 'HERMES_WRAPPER', 'HERMES_BLOCKED_EXTERNAL', 'CLAUDE_ONLY_TEMP']);
 
 const skillCompatibility = immutableCopy([
   {
@@ -88,6 +88,16 @@ const skillCompatibility = immutableCopy([
     id: 'trafego-escalar', classification: 'HERMES_WRAPPER',
     source: '.claude/skills/trafego-escalar/SKILL.md',
     reason: 'Metodologia de escala segura, mas ads.scale é FINANCIAL_WRITE com grant manual.',
+  },
+  {
+    id: 'social-publish', classification: 'HERMES_BLOCKED_EXTERNAL',
+    source: '.claude/commands/copy-social.md',
+    reason: 'Geração de conteúdo é reutilizável, mas publicação orgânica exige adapter oficial por plataforma.',
+  },
+  {
+    id: 'estrategista-ht', classification: 'HERMES_BLOCKED_EXTERNAL',
+    source: '.claude/agents/estrategista-ht.md',
+    reason: 'C10X depende das skills ht-* externas; Hermes preserva somente o diagnóstico de dependência.',
   },
 ]);
 

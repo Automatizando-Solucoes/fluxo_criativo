@@ -5,6 +5,7 @@ const { requiresChildRiskResolution } = require('../../core/contracts/workflow')
 const { LOCAL_WORKFLOW_SUPPORT } = require('./local-workflows');
 const { EXTERNAL_DRY_RUN_WORKFLOWS } = require('./external-workflows');
 const { ORCHESTRATION_WORKFLOW_SUPPORT } = require('./orchestration-workflows');
+const { HERMES_PUBLISHER_SUPPORT } = require('./publisher-workflow');
 
 const WRAPPER_PATHS = Object.freeze({
   'research.market': 'adapters/hermes/skills/research-market/SKILL.md',
@@ -24,6 +25,7 @@ const WRAPPER_PATHS = Object.freeze({
   'image.generate': 'adapters/hermes/skills/image-generate/SKILL.md',
   'video.generate': 'adapters/hermes/skills/video-generate/SKILL.md',
   'social.dashboard': 'adapters/hermes/skills/social-dashboard/SKILL.md',
+  'social.publish': 'adapters/hermes/skills/social-publish/SKILL.md',
   'ads.campaign.create': 'adapters/hermes/skills/ads-campaign-create/SKILL.md',
   'ads.optimize': 'adapters/hermes/skills/ads-optimize/SKILL.md',
   'ads.scale': 'adapters/hermes/skills/ads-scale/SKILL.md',
@@ -52,7 +54,7 @@ function resolveHermesWorkflow(workflowId) {
   const workflow = workflowRegistry.get(canonicalWorkflowId);
   const wrapperPath = WRAPPER_PATHS[workflow.id];
   if (!wrapperPath) throw new HermesWorkflowNotSupportedError(workflow);
-  const localSupport = LOCAL_WORKFLOW_SUPPORT[workflow.id] || ORCHESTRATION_WORKFLOW_SUPPORT[workflow.id] || null;
+  const localSupport = LOCAL_WORKFLOW_SUPPORT[workflow.id] || ORCHESTRATION_WORKFLOW_SUPPORT[workflow.id] || HERMES_PUBLISHER_SUPPORT[workflow.id] || null;
   const externalDryRunSupport = EXTERNAL_DRY_RUN_WORKFLOWS.includes(workflow.id) || ['ads.insights', 'ads.campaign.create', 'ads.optimize', 'ads.scale', 'ads.report'].includes(workflow.id);
   return Object.freeze({
     requested_workflow_id: requestedWorkflow.id,
