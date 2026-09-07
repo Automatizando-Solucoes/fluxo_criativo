@@ -16,7 +16,6 @@
 | skill `trafego-pago` | metodologia geral | sem credencial Meta | CANONICAL_SAFE | conhecimento reutilizável, sem runtime de provider |
 | `scripts/relatorio-ads-cli.py` | builder canônico | `META_ACCESS_TOKEN` runtime injected | CANONICAL_SAFE | não conhece delivery |
 | `scripts/relatorio-ads.ps1` | builder legado | aliases Meta | LEGACY_FLOW | sem delivery; Python é preferido |
-| skills `trafego-*` | metodologia/runtime antigo | aliases/.env | LEGACY_FLOW | preservar até migração individual |
 
 Aliases `FB_ACCESS_TOKEN_PERMANENTE`, `FB_ACCESS_TOKEN_TEMPORARIO`, `ACCESS_TOKEN`, `FB_AD_ACCOUNT_ID` e `AD_ACCOUNT_ID` são somente `LEGACY_ALIAS`. `META_AUTH_MODO` é a configuração não secreta de compatibilidade (`MCP_CONECTOR` ou `APP`); no primeiro caso o OAuth pertence ao conector e, no segundo, o adapter requer apenas o nome lógico `META_ACCESS_TOKEN`. `RELATORIO_AUTH_MODO` é `LEGACY_CONFIG` após o desacoplamento do report builder.
 

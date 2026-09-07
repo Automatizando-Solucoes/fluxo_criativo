@@ -494,3 +494,12 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - `META_ACCESS_TOKEN` é o único segredo lógico canônico; `META_AD_ACCOUNT_ID` e `META_AUTH_MODO` são configuração não secreta. `RELATORIO_AUTH_MODO` permanece somente como `LEGACY_CONFIG`.
 - Skills de tráfego com runtime histórico foram preservadas, marcadas `LEGACY_META_RUNTIME` e retiradas da invocação direta; a metodologia não foi apagada.
 - A criação continua `PAUSED`; escala é `FINANCIAL_WRITE` e exige grant manual ligado ao `action_id`.
+
+## Fase K: conclusão funcional Claude
+
+- VTSD/produto, pesquisa, copy e revisão passaram a ter contracts e fixtures locais; Low/Middle Ticket persistem planos e High Ticket bloqueia explicitamente a ausência de C10X.
+- Página, carrossel, imagem e vídeo foram separados de deploy/publicação/providers reais; imagens, vídeo e pesquisa autenticada usam mocks e SecretProvider.
+- Meta Ads foi sanitizado para `META_ACCESS_TOKEN`/`META_AD_ACCOUNT_ID`; leitura, escrita e escrita financeira possuem operations allowlisted, campanhas `PAUSED` e approval manual onde aplicável.
+- Ads report foi desacoplado de delivery. UAZAPI é o WhatsApp canônico, Telegram é opcional e Z-API ficou legado.
+- Dashboards sociais, publisher dry-run, executor tipado, Toolkit persistente e comercial geral receberam testes locais; publisher permanece bloqueado por provider oficial ausente.
+- A integridade de commands, o registry de workflows canônicos e o E2E com fixture temporária cobrem regressão sem rede, segredo ou side effect real.
