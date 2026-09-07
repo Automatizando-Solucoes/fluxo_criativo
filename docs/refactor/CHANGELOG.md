@@ -467,3 +467,8 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Arquivos: contrato/teste publisher, status e changelog.
 - Depois: request usa `autopublish:false`, ApprovalPolicy por plataforma/ação e resultado dry-run sem ID externo; todas plataformas permanecem bloqueadas até adapter oficial comprovado.
 - Validação: `node tests/claude/organic-publisher-workflow.test.js` sem publicação.
+
+## Fase Claude, lote 16: executor de plano
+
+- Commit: `claude: harden plan executor workflow`
+- Depois: plano aceita tarefas tipadas/registradas e bloqueia workflow desconhecido, risco composto não resolvido e shell arbitrário.

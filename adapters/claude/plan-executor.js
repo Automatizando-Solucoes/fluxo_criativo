@@ -1,0 +1,5 @@
+'use strict'; const { immutableCopy } = require('../../core/contracts/immutable');
+const VALID_STATUS = Object.freeze(['pending','running','completed','failed','blocked']);
+function validateTask(task, registry) { if (!task || !task.task_id || !task.workflow_id) throw new TypeError('typed task_id and workflow_id are required'); if (task.command || task.shell) throw new Error('arbitrary command execution is forbidden'); let workflow; try { workflow = registry.get(task.workflow_id); } catch { return immutableCopy({ ...task, status: 'blocked', reason: 'unknown_workflow' }); } if (workflow.kind === 'composite' && !workflow.risk_from_children) return immutableCopy({ ...task, status: 'blocked', reason: 'child_risk_unresolved' }); return immutableCopy({ ...task, status: task.status || 'pending', capabilities: workflow.capabilities }); }
+function resolvePlan(tasks, registry) { const resolved = tasks.map((task) => validateTask(task, registry)); return immutableCopy({ tasks: resolved, status: resolved.some((task) => task.status === 'blocked') ? 'blocked' : 'pending' }); }
+module.exports = { VALID_STATUS, validateTask, resolvePlan };
