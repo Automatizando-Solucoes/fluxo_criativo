@@ -10,7 +10,10 @@ description: >
   Lê dados via /trafego-insights (com cache local em arquivo .md). Use quando o aluno pedir
   análise narrada, ranking, comparativo, diagnóstico, mapa do funil, ou quiser ensinar tráfego
   pelo método.
+user-invocable: false
 ---
+
+> **LEGACY_META_RUNTIME** — Esta skill preserva metodologia VTSD e análise histórica. Suas instruções de autenticação, `.env`, `curl`, aliases de token e chamadas Graph API não são operacionais no runtime atual. Use dados normalizados e o command `/trafego-analise`.
 
 # Tráfego Análise. 9 Outputs Narrativos VTSD
 

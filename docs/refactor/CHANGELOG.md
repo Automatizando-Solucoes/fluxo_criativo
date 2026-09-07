@@ -487,3 +487,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 
 - Commit: `claude: migrate WhatsApp delivery from Z-API to UAZAPI`
 - Depois: UAZAPI é o provider canônico `notification.send`; Z-API e scripts acoplados ficam documentados como legado, sem fluxo novo canônico.
+
+## Fase Claude, boundary canônico Meta Ads
+
+- Commands de conexão, token, insights, análise, criação, otimização, escala e relatório passaram a usar operações Meta allowlisted em vez de `.env`, aliases ou requisições construídas no Markdown.
+- `META_ACCESS_TOKEN` é o único segredo lógico canônico; `META_AD_ACCOUNT_ID` e `META_AUTH_MODO` são configuração não secreta. `RELATORIO_AUTH_MODO` permanece somente como `LEGACY_CONFIG`.
+- Skills de tráfego com runtime histórico foram preservadas, marcadas `LEGACY_META_RUNTIME` e retiradas da invocação direta; a metodologia não foi apagada.
+- A criação continua `PAUSED`; escala é `FINANCIAL_WRITE` e exige grant manual ligado ao `action_id`.

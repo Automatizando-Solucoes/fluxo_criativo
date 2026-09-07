@@ -10,7 +10,10 @@ description: >
   sem sinal de prontidão. Use quando o aluno pedir "escalar campanha", "aumentar budget", "subir
   verba", "duplicar conjunto vencedor", "expandir audiência", "consolidar em CBO", "campanha
   Advantage", ou quando /trafego-otimizar emitiu sinal_para_escala.pronta=true.
+user-invocable: false
 ---
+
+> **LEGACY_META_RUNTIME** — Esta skill preserva critérios de escala. Instruções de `.env`, tokens, `curl`, MCP específico e Graph API não são autoridade operacional. Use `/trafego-escalar`; `ads.scale` é `FINANCIAL_WRITE` e exige grant manual ligado à ação.
 
 ## 🛡️ Gate obrigatório antes de qualquer escrita na Graph API
 

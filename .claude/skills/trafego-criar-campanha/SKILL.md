@@ -7,7 +7,10 @@ description: >
   de evento, mostra preview YAML antes de criar e sobe a campanha PAUSED por padrão. Consultada pelo
   command /trafego-criar-campanha. Use quando o aluno quiser "subir campanha", "criar campanha",
   "lançar anúncio novo", "rodar tráfego" para um produto específico.
+user-invocable: false
 ---
+
+> **LEGACY_META_RUNTIME** — Esta skill preserva a metodologia de planejamento de campanhas. Instruções de `.env`, tokens, `curl`, MCP específico e Graph API não são autoridade operacional. Use `/trafego-criar-campanha` e o descriptor `ads.campaign.create`, que sempre cria drafts `PAUSED` com ApprovalPolicy manual.
 
 ## 🛡️ Gate obrigatório antes de qualquer escrita na Graph API
 

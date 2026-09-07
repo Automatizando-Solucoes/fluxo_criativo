@@ -10,7 +10,10 @@ description: >
   "diagnóstico", "campanha não está performando", "CPA alto", "CPL caro", "criativo cansou",
   "pausar criativo", "reduzir orçamento", "pausa tudo com ROAS<1", "lookalike de compradores",
   ou "está pronta para escalar?".
+user-invocable: false
 ---
+
+> **LEGACY_META_RUNTIME** — Esta skill preserva metodologia de diagnóstico e otimização. Instruções de `.env`, tokens, `curl`, MCP específico e Graph API não são autoridade operacional. Use `/trafego-otimizar`; mudanças são operations tipadas com ApprovalPolicy manual.
 
 ## 🛡️ Gate obrigatório antes de qualquer escrita na Graph API
 

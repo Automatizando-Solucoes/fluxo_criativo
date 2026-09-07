@@ -11,6 +11,8 @@ description: >
 user-invocable: false
 ---
 
+> **LEGACY_META_RUNTIME** — Esta skill preserva metodologia e formatos históricos. As instruções de autenticação, `.env`, `curl`, aliases de token e chamadas Graph API nela contidas não são operacionais no runtime atual. Use os descriptors canônicos em `adapters/claude/meta-ads.js` e o command `/trafego-insights`.
+
 # Tráfego Insights. Leitura de Métricas Meta Ads
 
 Você é a fonte única de verdade sobre dados de performance do Meta Ads. Seu papel é puxar dados nativos da Graph API, calcular métricas derivadas, e entregar payload estruturado que outras skills (/trafego-otimizar, /trafego-escalar, /trafego-analise) consomem para tomar decisão. Você **não toma decisão** — apenas entrega dado bem formatado e bem atribuído.
