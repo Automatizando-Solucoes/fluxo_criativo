@@ -21,7 +21,9 @@ assert.equal(new Set(matrix.map((entry) => entry.workflow_id)).size, matrix.leng
 for (const entry of matrix) {
   assert.ok(HERMES_SUPPORT_STATUSES.includes(entry.hermes_current_support), `${entry.workflow_id} has an invalid current Hermes status`);
   assert.ok(HERMES_SUPPORT_STATUSES.includes(entry.hermes_target_support), `${entry.workflow_id} has an invalid target Hermes status`);
-  assert.notEqual(entry.hermes_current_support, 'HERMES_READY', `${entry.workflow_id} must not claim live Hermes parity during L1`);
+  if (entry.hermes_current_support === 'HERMES_READY') {
+    assert.equal(entry.external, false, `${entry.workflow_id} cannot claim local Hermes parity with an external provider`);
+  }
   assert.match(entry.hermes_current_support, /^HERMES_/, `${entry.workflow_id} must have an explicit Hermes classification`);
   assert.equal(/PARTIAL|UNKNOWN/.test(entry.hermes_current_support), false);
   assert.equal(fs.existsSync(path.join(root, entry.core_source.path)), true, `core source missing for ${entry.workflow_id}`);
@@ -54,8 +56,16 @@ for (const workflowId of ['plan.execute', 'toolkit.execute']) {
   assert.equal(entry.risk_from_children, true);
 }
 
+for (const workflowId of ['product.create', 'product.select', 'copy.page', 'copy.ad', 'copy.social', 'copy.script', 'page.sales', 'carousel.generate', 'commercial.playbook']) {
+  assert.equal(matrix.find((entry) => entry.workflow_id === workflowId).hermes_current_support, 'HERMES_READY');
+}
+for (const workflowId of ['funnel.low_ticket', 'funnel.middle_ticket']) {
+  assert.equal(matrix.find((entry) => entry.workflow_id === workflowId).hermes_current_support, 'HERMES_EXTERNAL_DRY_RUN');
+}
+
 for (const skillId of [
   'revisora', 'elementos-literarios', 'manual-copy', 'pesquisa-mercado', 'anuncios', 'paginas',
+  'vtsd-completo', 'criacao-produto-low-ticket', 'carrossel',
   'trafego-pago', 'trafego-insights', 'trafego-analise', 'trafego-criar-campanha', 'trafego-otimizar', 'trafego-escalar',
 ]) {
   const skill = getSkillCompatibility(skillId);

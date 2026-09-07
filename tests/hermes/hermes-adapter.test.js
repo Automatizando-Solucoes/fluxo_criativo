@@ -9,6 +9,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '../..');
 const { createScheduledJob } = require('../../core/scheduling/job');
 const { HermesWorkflowNotSupportedError, WORKFLOW_ALIASES, WRAPPER_PATHS, resolveHermesWorkflow } = require('../../adapters/hermes/resolver');
+const { LOCAL_WORKFLOW_SUPPORT } = require('../../adapters/hermes/local-workflows');
 const { getSkillCompatibility, isHermesWrapperCandidate } = require('../../adapters/hermes/skill-compatibility');
 const { createDelegateRequest, resolveDelegateRequest } = require('../../adapters/hermes/delegation');
 const { toHermesCronJob } = require('../../adapters/hermes/scheduling/cron');
@@ -20,6 +21,14 @@ const EXPECTED_SLASH_COMMANDS = Object.freeze({
   'copy.page': 'copy-pagina',
   'copy.ad': 'copy-anuncio',
   'copy.social': 'copy-social',
+  'copy.script': 'copy-roteiro',
+  'product.create': 'produto-novo',
+  'product.select': 'produto-trocar',
+  'funnel.low_ticket': 'lt-funil',
+  'funnel.middle_ticket': 'mt-funil',
+  'page.sales': 'pagina-vendas',
+  'carousel.generate': 'carrossel',
+  'commercial.playbook': 'comercial-playbook',
   'creative.static': 'criativo-estatico',
   'ads.insights': 'trafego-insights',
 });
@@ -36,8 +45,8 @@ const wrapperWorkflowIds = new Set();
 for (const [workflowId, wrapperPath] of Object.entries(WRAPPER_PATHS)) {
   const resolution = resolveHermesWorkflow(workflowId);
   assert.equal(resolution.target.path, wrapperPath);
-  assert.equal(resolution.executable, false);
-  assert.equal(resolution.mode, 'dry_run');
+  assert.equal(resolution.executable, Boolean(LOCAL_WORKFLOW_SUPPORT[workflowId]));
+  assert.equal(resolution.external_executable, false);
   assert.equal(fs.existsSync(path.join(root, wrapperPath)), true, `wrapper missing: ${wrapperPath}`);
   const content = fs.readFileSync(path.join(root, wrapperPath), 'utf8');
   const name = getFrontmatterField(content, 'name');
@@ -70,7 +79,7 @@ assert.equal(getSkillCompatibility('revisora').classification, 'HERMES_NATIVE');
 assert.equal(getSkillCompatibility('pesquisa-mercado').classification, 'HERMES_WRAPPER');
 assert.equal(getSkillCompatibility('trafego-insights').classification, 'HERMES_WRAPPER');
 assert.equal(isHermesWrapperCandidate({ classification: 'CLAUDE_ONLY_TEMP' }), false);
-assert.equal(resolveHermesWorkflow('copy.social').executable, false);
+assert.equal(resolveHermesWorkflow('copy.social').executable, true);
 
 const delegate = createDelegateRequest({
   delegate_id: 'delegate-fixture', agent: 'revisor-pesquisa', workflow_id: 'research.market',
