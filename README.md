@@ -1,5 +1,11 @@
 # Workshop Inteligente. Assistente de Marketing IA
 
+> Arquitetura atual: `agents/` contém metodologia e políticas compartilhadas,
+> `core/` contém contratos de negócio e `adapters/claude`, `adapters/hermes` e
+> `adapters/codex` são integrações de runtime. Claude, Hermes e Codex não
+> importam adapters entre si. `.claude/` continua como UX do Claude, não como
+> fonte canônica compartilhada.
+
 Toolkit completo de marketing digital, copy e infoprodutos baseado nas metodologias **VTSD (Venda Todo Santo Dia)**, **Light Copy**, **C10X (High Ticket)** e **Low Ticket**. Roda dentro do **Claude Code** (VS Code) ou no **Cursor**, transformando o chat em um consultor especialista que entrega materiais prontos para uso.
 
 Não é software tradicional: é um sistema de prompts estruturados (CLAUDE.md, regras, comandos, agentes, skills e scripts) que orquestra o assistente do início ao fim de um funil. A distribuição desktop Electron é opcional e legada, não faz parte do core e não é pré-requisito para a inteligência do projeto.
