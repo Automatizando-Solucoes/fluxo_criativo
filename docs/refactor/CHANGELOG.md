@@ -482,3 +482,8 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 
 - Commit: `claude: complete commercial workflow`
 - Depois: comercial geral permanece disponível; módulo High Ticket bloqueia somente a dependência C10X e preserva artefatos.
+
+## Fase Claude, ajuste de secrets e WhatsApp
+
+- Commit: `claude: migrate WhatsApp delivery from Z-API to UAZAPI`
+- Depois: UAZAPI é o provider canônico `notification.send`; Z-API e scripts acoplados ficam documentados como legado, sem fluxo novo canônico.

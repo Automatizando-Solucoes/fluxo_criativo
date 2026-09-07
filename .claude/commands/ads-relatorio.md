@@ -220,7 +220,7 @@ Leia `.env`.
 
 **Se `RELATORIO_CANAL=TELEGRAM`:** verifique `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`.
 
-**Se `RELATORIO_CANAL=WHATSAPP`:** verifique `ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, `ZAPI_CLIENT_TOKEN`, `RELATORIO_WHATSAPP_NUMERO`.
+**Se `RELATORIO_CANAL=WHATSAPP`:** verifique `UAZAPI_BASE_URL`, disponibilidade lógica de `UAZAPI_TOKEN` via SecretProvider e `RELATORIO_WHATSAPP_NUMERO`. O adapter UAZAPI retorna somente descriptor dry-run nesta fase.
 
 Se todas as chaves do canal estiverem presentes, pule para o **Passo 2**.
 
@@ -230,52 +230,7 @@ Se todas as chaves do canal estiverem presentes, pule para o **Passo 2**.
 
 ### 1.1 Credenciais do Canal de Envio
 
-**Se `RELATORIO_CANAL=TELEGRAM`:**
-
-Verifique se `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID` existem no `.env`.
-
-Se existirem, avance sem imprimir o token no terminal. Para testar, execute a skill `configurar-telegram`.
-
-Se nao existirem: **execute a skill `configurar-telegram`**
-
----
-
-**Se `RELATORIO_CANAL=WHATSAPP`:**
-
-```
-Agora as credenciais do Z-API para enviar no WhatsApp.
-
-Voce tem conta na Z-API com instancia e WhatsApp conectado?
-
-1. Sim, ja tenho
-2. Nao tenho ainda
-```
-
-**Se nao tiver (opcao 2):** execute a skill `configurar-zapi`
-
-Pergunte um por vez:
-
-```
-Cole o Instance ID da Z-API:
-```
-
-```
-Cole o Token da Z-API:
-```
-
-```
-Cole o Client-Token (Security Token):
-```
-
-Salve os tres no `.env`.
-
-**Teste de conexao Z-API:**
-
-```bash
-python scripts/relatorio-ads-cli.py 1
-```
-
-Se o envio concluir sem erro, WhatsApp conectado.
+Use somente a configuração 1Password documentada em `docs/security/ONEPASSWORD.md`. O modelo pede apenas confirmação de que as referências `op://` para `TELEGRAM_BOT_TOKEN` ou `UAZAPI_TOKEN` foram provisionadas no host. Nunca lê `.env`, recebe token no chat, chama `op read` ou testa envio. O adapter de relatório gera apenas descriptor `sent: false`; envio real continua uma operação aprovada posterior.
 
 ### 1.2 Numero de destino (somente para WhatsApp)
 

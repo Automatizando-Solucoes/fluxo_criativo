@@ -11,7 +11,7 @@
 | Imagem e vídeo | `OPENROUTER_API_KEY`, `HEYGEN_API_KEY`, `REPLICATE_API_TOKEN` | Commands de configuração receberam política externa; integrações permanecem. |
 | Pesquisa e dados | `APIFY_API_TOKEN` e credenciais de dashboards sociais | Provisionamento externo obrigatório; scripts não foram reescritos nesta fase. |
 | Meta Ads | tokens Meta/Facebook, Pixel/CAPI e IDs de conta | Fluxos `trafego-*`, `ads-relatorio` e geração de token precisam de revisão por adapter/gate. |
-| Notificações | `TELEGRAM_BOT_TOKEN`, Z-API e WhatsApp | Provisionamento externo obrigatório; envio real não é executado nesta fase. |
+| Notificações | `TELEGRAM_BOT_TOKEN`, `UAZAPI_TOKEN` | Provisionamento externo obrigatório; envio real não é executado nesta fase. Z-API é legado e não usado pelo caminho canônico. |
 | Página e publicação | Vercel, Lovable, ActiveCampaign, checkout e providers | Integrações preservadas; configuração por chat será revisada por fluxo antes de uso. |
 
 ## Commands cobertos diretamente
