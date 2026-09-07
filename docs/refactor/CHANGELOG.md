@@ -529,3 +529,9 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Produto, copy, página, carrossel e comercial passaram a compartilhar contracts locais runtime-neutral entre Claude e Hermes, sem importar adapters Claude pelo runtime Hermes.
 - Hermes passou a resolver wrappers locais testados para produto, copy, roteiro, página, carrossel e comercial. Low/Middle Ticket geram somente planos e handoff Meta manual em dry-run.
 - A regressão Hermes usa fixture temporária com guards reais para rede, child process e escrita fora da fixture; nenhum provider, secret, cron, delegate, deploy ou publicação foi ativado.
+
+## Fase L3: boundaries externos Hermes
+
+- Pesquisa, imagem, vídeo e dashboards passaram a compartilhar contracts externos entre Claude e Hermes: allowlists, secrets lógicos, descriptors dry-run, mocks e preservação de artefato/cache em erro.
+- Hermes ganhou wrappers externos para imagem, vídeo e dashboard; pesquisa e criativo estático agora persistem somente artefatos locais/mockados e nunca acionam provider.
+- Todas as integrações L3 permanecem `HERMES_EXTERNAL_DRY_RUN`, com guards de rede, subprocesso e filesystem na regressão local.

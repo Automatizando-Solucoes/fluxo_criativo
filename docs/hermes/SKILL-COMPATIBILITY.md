@@ -8,6 +8,11 @@ Esta é uma allowlist de avaliação, não uma configuração para carregar toda
 | `elementos-literarios` | `HERMES_NATIVE` | `.claude/skills/elementos-literarios/SKILL.md` | Conhecimento procedural de Light Copy. |
 | `manual-copy` | `HERMES_NATIVE` | `revisora/references/manual-copy.md` | Referência local metodológica. |
 | `pesquisa-mercado` | `HERMES_WRAPPER` | `.claude/skills/pesquisa-mercado/SKILL.md` | Depende de pesquisa externa; precisa de adapter e gate. |
+| `video-avancado` | `HERMES_WRAPPER` | `.claude/skills/video-avancado/SKILL.md` | Metodologia reutilizável; render continua dry-run. |
+| `instagram-dashboard` | `HERMES_WRAPPER` | `.claude/skills/instagram-dashboard/SKILL.md` | Apify permanece em boundary externo dry-run. |
+| `tiktok-dashboard` | `HERMES_WRAPPER` | `.claude/skills/tiktok-dashboard/SKILL.md` | Apify permanece em boundary externo dry-run. |
+| `youtube-dashboard` | `HERMES_WRAPPER` | `.claude/skills/youtube-dashboard/SKILL.md` | Apify permanece em boundary externo dry-run. |
+| `linkedin-dashboard` | `HERMES_WRAPPER` | `.claude/skills/linkedin-dashboard/SKILL.md` | Apify permanece em boundary externo dry-run. |
 | `anuncios` | `HERMES_WRAPPER` | `.claude/skills/anuncios/SKILL.md` | Conhecimento reaproveitável, mas ligado declarativamente a command Claude. |
 | `paginas` | `HERMES_WRAPPER` | `.claude/skills/paginas/SKILL.md` | Pressupõe commands, scripts e escrita de artefatos. |
 | `vtsd-completo` | `HERMES_NATIVE` | `.claude/skills/vtsd-completo/SKILL.md` | Metodologia local de produto usada pelo wrapper Hermes. |

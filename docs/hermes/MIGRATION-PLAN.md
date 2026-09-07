@@ -9,7 +9,7 @@ Um workflow será `HERMES_READY` somente quando resolver pelo registry, tiver wr
 ## Lotes
 
 - **L2, locais: concluída.** Produto, copy local, Low/Middle Ticket, página, carrossel e comercial usam o mesmo boundary local do Claude. Low/Middle Ticket persistem somente handoff Meta manual em dry-run, sem provider.
-- **L3, criativos e pesquisa:** pesquisa, imagem, criativo estático, vídeo e dashboard. Mantém SecretProvider e providers em mock/dry-run.
+- **L3, criativos e pesquisa: concluída.** Pesquisa, imagem, criativo estático, vídeo e dashboards usam boundaries compartilhados, SecretProvider mock e artifacts/cache locais. Todos providers continuam em mock/dry-run.
 - **L4, Meta Ads:** insights canônico e alias, criação, otimização, escala e relatório. Preserva APP/MCP, `PAUSED`, manual e grant financeiro.
 - **L5, orquestração:** executor, Toolkit e scheduling de carrossel. Avalia filhos, delegates seguros e somente descriptors `cronjob`.
 - **L6, bloqueados/publisher:** publisher continua bloqueado até adapter oficial; C10X/High Ticket não é inventado.
