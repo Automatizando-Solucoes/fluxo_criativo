@@ -10,4 +10,4 @@ Consuma primeiro insights já normalizados, artefatos do produto ou fixtures. A 
 
 Quando a aquisição de dados for necessária, solicite o descriptor `ads.insights` com `META_AD_ACCOUNT_ID`, período, campos e breakdown. A aquisição é separada da análise; `META_ACCESS_TOKEN` é requisito lógico exclusivo do adapter.
 
-Use a metodologia canônica em `.claude/skills/trafego-analise/SKILL.md`. Recomendações não executam mudanças. Qualquer alteração posterior deve ser uma operação tipada, com ApprovalPolicy própria. Não leia `.env`, não use aliases legados e não construa chamadas diretas à Graph API.
+Use a metodologia canônica em `agents/skills/trafego-analise/SKILL.md`. Recomendações não executam mudanças. Qualquer alteração posterior deve ser uma operação tipada, com ApprovalPolicy própria. Não leia `.env`, não use aliases legados e não construa chamadas diretas à Graph API.

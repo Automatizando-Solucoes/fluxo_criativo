@@ -12,7 +12,7 @@ Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fo
 
 1. Resolva `ads.insights` e exija `product_slug`; `period` é opcional. `traffic.insights` é somente um alias de compatibilidade que resolve para esta intenção canônica.
 2. Consulte somente contexto local de produto quando existir.
-3. Use `.claude/commands/trafego-insights.md` como fonte de compatibilidade.
+3. Use `agents/skills/trafego-insights/SKILL.md` como fonte de compatibilidade.
 4. Respeite capabilities e `ApprovalPolicy`.
 
 `ads.insights` é externo. Não consulte Ads, não leia segredo e não modifique campanha. Retorne `external_capability_required` com `dry_run`.

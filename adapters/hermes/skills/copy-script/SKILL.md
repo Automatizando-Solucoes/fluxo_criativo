@@ -10,4 +10,4 @@ mode: local
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md`. Use Manual da Copy, elementos literários e revisora como fontes metodológicas. Receba conteúdo já elaborado, aplique o gate comum de revisão e persista somente o artefato aprovado no produto. Não publique, não chame provider e não execute command Claude.
 
-Fonte metodológica de compatibilidade: `.claude/commands/copy-roteiro.md`.
+Fonte metodológica de compatibilidade: `agents/methodology/copy/manual-copy.md`.

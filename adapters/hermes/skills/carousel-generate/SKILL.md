@@ -10,4 +10,4 @@ mode: local
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md`. Receba slides, legenda, CTA e prompts visuais. Persista o artefato com `publication.autopublish:false` e `publication.status:not_requested`. Agendamento e publicação não fazem parte deste workflow.
 
-Fonte metodológica de compatibilidade: `.claude/commands/carrossel.md`.
+Fonte metodológica de compatibilidade: `agents/skills/carrossel/SKILL.md`.

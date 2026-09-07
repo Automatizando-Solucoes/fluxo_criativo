@@ -10,4 +10,4 @@ mode: local_with_external_dry_run
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md`. Exija pesquisa, perfil e identidade do consumidor. Gere o plano local e persista o handoff Meta apenas como descriptor `dry_run`, `manual` e `PAUSED`. Não cria campanha, não chama Meta e não lê secrets.
 
-Fonte metodológica de compatibilidade: `.claude/commands/lt-funil.md`.
+Fonte metodológica de compatibilidade: `agents/skills/criacao-produto-low-ticket/SKILL.md`.

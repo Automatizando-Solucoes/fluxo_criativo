@@ -10,4 +10,4 @@ allowed-tools: Read, Write
 
 Sem grant, ou com grant de outra ação, retorne `blocked`. Frases como “pode escalar” ou “continua” não constituem standing approval financeira. A conexão Meta não autoriza gasto.
 
-Use a metodologia canônica em `.claude/skills/trafego-escalar/SKILL.md`. Nesta fase, produza apenas um plano ou descriptor dry-run. `META_ACCESS_TOKEN` é requisito lógico exclusivo do adapter; não leia `.env`, não use aliases, não monte requisições diretas e não altere orçamento.
+Use a metodologia canônica em `agents/skills/trafego-escalar/SKILL.md`. Nesta fase, produza apenas um plano ou descriptor dry-run. `META_ACCESS_TOKEN` é requisito lógico exclusivo do adapter; não leia `.env`, não use aliases, não monte requisições diretas e não altere orçamento.

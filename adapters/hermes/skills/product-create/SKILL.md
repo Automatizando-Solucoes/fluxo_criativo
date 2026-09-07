@@ -12,4 +12,4 @@ Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar fontes Clau
 
 Receba `product_slug`, `name`, `type` e `price`. Use somente o contrato local Hermes para validar slug e tipo, impedir sobrescrita, criar a estrutura em `meus-produtos/{slug}/`, atualizar `.ativo` e regenerar o manifest local. Não execute command Claude, não leia secrets e não escreva fora de `meus-produtos/`.
 
-Fonte metodológica de compatibilidade: `.claude/commands/produto-novo.md`.
+Fonte metodológica de compatibilidade: `agents/methodology/product/lifecycle.md`.

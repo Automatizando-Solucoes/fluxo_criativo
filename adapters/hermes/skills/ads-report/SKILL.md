@@ -6,4 +6,4 @@ workflow_id: ads.report
 mode: dry_run
 ---
 
-Leia `adapters/hermes/SOURCE-POLICY.md`. Use `.claude/commands/ads-relatorio.md` somente como metodologia para preservar a cadeia Ads read, report build e delivery opcional. O relatório local mantém `delivery:null`; Telegram, WhatsApp ou local recebem apenas descriptor com `sent:false` e `dry_run:true`. Nenhum sender é chamado.
+Leia `adapters/hermes/SOURCE-POLICY.md`. Use `agents/methodology/traffic/ads-report.md` somente como metodologia para preservar a cadeia Ads read, report build e delivery opcional. O relatório local mantém `delivery:null`; Telegram, WhatsApp ou local recebem apenas descriptor com `sent:false` e `dry_run:true`. Nenhum sender é chamado.
