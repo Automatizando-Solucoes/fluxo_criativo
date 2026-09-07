@@ -460,3 +460,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Arquivos: adapter/teste de dashboards, status e changelog.
 - Depois: Instagram, TikTok, YouTube e LinkedIn têm descriptors individuais Apify, SecretProvider mock, normalização e preservação de cache em erro.
 - Validação: `node tests/claude/social-dashboard-workflow.test.js` sem rede.
+
+## Fase Claude, lote 15: publisher orgânico
+
+- Commit: `claude: add approval-gated organic publishing workflow`
+- Arquivos: contrato/teste publisher, status e changelog.
+- Depois: request usa `autopublish:false`, ApprovalPolicy por plataforma/ação e resultado dry-run sem ID externo; todas plataformas permanecem bloqueadas até adapter oficial comprovado.
+- Validação: `node tests/claude/organic-publisher-workflow.test.js` sem publicação.
