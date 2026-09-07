@@ -26,6 +26,15 @@ const skillCompatibility = immutableCopy([
     reason: 'Método reutilizável, mas a coleta requer pesquisa externa e adapter/gate.',
   },
   {
+    id: 'video-avancado', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/video-avancado/SKILL.md',
+    reason: 'Metodologia de vídeo reutilizável; renderers locais e externos permanecem dry-run.',
+  },
+  ...['instagram-dashboard', 'tiktok-dashboard', 'youtube-dashboard', 'linkedin-dashboard'].map((id) => ({
+    id, classification: 'HERMES_WRAPPER', source: `.claude/skills/${id}/SKILL.md`,
+    reason: 'Metodologia de dashboard reutilizável; Apify permanece no boundary externo dry-run.',
+  })),
+  {
     id: 'anuncios', classification: 'HERMES_WRAPPER',
     source: '.claude/skills/anuncios/SKILL.md',
     reason: 'Conhecimento reutilizável, com acoplamento declarativo ao command Claude.',
