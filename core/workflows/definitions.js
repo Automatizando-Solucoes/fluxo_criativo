@@ -7,7 +7,7 @@ const adapter = (path) => ({ kind: 'claude.adapter', path });
 const command = (path) => ({ kind: 'claude.command', path });
 
 const workflowDefinitions = [
-  define({ id: 'product.create', category: 'product', inputs: { product_slug: { required: true }, name: { required: true }, type: { required: true } }, outputs: ['product_directory', 'product_manifest'], requires: [], source: adapter('adapters/claude/product-workflow.js') }),
+  define({ id: 'product.create', category: 'product', inputs: { product_slug: { required: true }, name: { required: true }, type: { required: true }, price: { required: true } }, outputs: ['product_directory', 'product_manifest'], requires: [], source: adapter('adapters/claude/product-workflow.js') }),
   define({ id: 'product.select', category: 'product', inputs: { product_slug: { required: true } }, outputs: ['active_product'], requires: [], source: adapter('adapters/claude/product-workflow.js') }),
   define({ id: 'research.market', category: 'research', inputs: { product_slug: { required: true }, research_goal: { required: false } }, outputs: ['research_file'], capabilities: ['filesystem.read', 'filesystem.write', 'research.fetch'], external: true, source: adapter('adapters/claude/market-research.js') }),
   define({ id: 'copy.page', category: 'copy', inputs: { product_slug: { required: true }, page_type: { required: true } }, outputs: ['copy_file'], requires: ['product.profile', 'product.research'], source: command('.claude/commands/copy-pagina.md') }),

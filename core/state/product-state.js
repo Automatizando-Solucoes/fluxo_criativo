@@ -63,6 +63,7 @@ function getArtifactPath(slug, artifactType, projectRoot = PROJECT_ROOT) {
 module.exports = {
   PROJECT_ROOT,
   ARTIFACT_PATHS,
+  assertProjectRoot,
   assertProductSlug,
   getActiveProduct,
   getProductPath,

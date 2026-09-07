@@ -7,6 +7,7 @@ O diretório `core/` contém contratos pequenos e testáveis entre a inteligênc
 - identificadores e metadados de workflow;
 - política de aprovação serializável;
 - contratos para segredos, scheduling, integrações e estado de produto;
+- operações locais compartilhadas em `core/local/` quando a regra de negócio não pertence a um runtime;
 - limites explícitos que adapters de Claude, Hermes e Codex poderão implementar.
 
 ## O que não é
@@ -15,7 +16,7 @@ Não é um executor de agentes, publisher, scheduler real, banco de dados, servi
 
 ## Uso pelos runtimes
 
-Um runtime resolve um `workflow_id` no registry e traduz sua origem atual para a superfície compatível. Nesta fase os adapters apenas descrevem a resolução; não acionam commands, skills ou agents.
+Um runtime resolve um `workflow_id` no registry e traduz sua origem atual para a superfície compatível. Operações locais estabilizadas podem ser compartilhadas pelos adapters sem executar commands, skills ou agents. Providers e side effects externos continuam atrás de adapters e gates próprios.
 
 ## Estado, approvals e segredos
 
