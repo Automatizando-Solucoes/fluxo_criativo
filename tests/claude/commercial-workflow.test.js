@@ -1,0 +1,2 @@
+#!/usr/bin/env node
+'use strict'; const assert=require('node:assert/strict');const {planCommercial}=require('../../adapters/claude/commercial-workflow');assert.equal(planCommercial({product_slug:'p'}).status,'READY');const ht=planCommercial({module:'COMMERCIAL_HT',product_slug:'p',existing_artifacts:['a.md']});assert.equal(ht.status,'BLOCKED_EXTERNAL');assert.deepEqual(ht.existing_artifacts,['a.md']);process.stdout.write('Claude commercial workflow: ok\n');

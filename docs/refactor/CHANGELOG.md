@@ -477,3 +477,8 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 
 - Commit: `claude: complete persistent toolkit workflow`
 - Depois: roteiro, plano e estado persistem tarefas tipadas; completed não reexecuta e dependência failed/blocked impede filho.
+
+## Fase Claude, lote 18: comercial
+
+- Commit: `claude: complete commercial workflow`
+- Depois: comercial geral permanece disponível; módulo High Ticket bloqueia somente a dependência C10X e preserva artefatos.

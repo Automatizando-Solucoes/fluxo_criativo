@@ -39,7 +39,7 @@ Nesta auditoria, existência de Markdown não prova `READY`.
 | Publisher orgânico | adapter `organic-publisher`; handoff manual | artefato aprovado → PublicationRequest/resultado dry-run | Instagram, Facebook, LinkedIn, TikTok e YouTube sem adapter oficial local | `BLOCKED_EXTERNAL`: request/gate fail-closed existem, mas cada plataforma exige adapter oficial futuro; nenhum endpoint, browser ou publicação é inventado. |
 | Executor de plano | agent `executor-de-plano-de-acao`; registry | plano → tarefas tipadas/saídas | capabilities vêm do registry; shell é proibido | `READY`: tarefas desconhecidas ou risco composto não resolvido bloqueiam; não há execução arbitrária. |
 | Toolkit | `toolkit-novo`, `planejar`, `executar`, `progresso`, `pausar`, `retomar`, `verificar`, `anotar` | `roteiro.md`, `plano.md`, `estado.md` em `projeto/{slug}/` | ações filhas exigem gates próprios | `READY`: estado persistente por etapa, tentativa/idempotência e bloqueio de dependência são cobertos por fixture; não executa texto arbitrário. |
-| Comercial | `comercial-playbook`, `estrategia-funil`, `estrategia-lancamento`; consultor | contexto → playbook/material comercial | HT depende de C10X; outputs locais | `PARTIAL`: precisa isolar etapa HT bloqueada do comercial Low/Middle funcional. |
+| Comercial | `comercial-playbook`, `estrategia-funil`, `estrategia-lancamento`; consultor | contexto → playbook/material comercial | módulo geral local; HT depende C10X | `READY`: playbook/funil/lançamento geral permanecem disponíveis; somente módulo HT retorna `BLOCKED_EXTERNAL` e preserva artefatos. |
 
 ## Lacunas transversais encontradas
 
