@@ -453,3 +453,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Arquivos: adapter/teste de relatório, status e changelog.
 - Depois: período, métricas e análise persistem artefato local; Telegram/WhatsApp/local recebem apenas descriptor `sent:false`; cron de relatório não se mistura com carrossel.
 - Validação: `node tests/claude/ads-report.test.js` sem envio.
+
+## Fase Claude, lote 14: dashboards sociais
+
+- Commit: `claude: complete social dashboard workflows`
+- Arquivos: adapter/teste de dashboards, status e changelog.
+- Depois: Instagram, TikTok, YouTube e LinkedIn têm descriptors individuais Apify, SecretProvider mock, normalização e preservação de cache em erro.
+- Validação: `node tests/claude/social-dashboard-workflow.test.js` sem rede.
