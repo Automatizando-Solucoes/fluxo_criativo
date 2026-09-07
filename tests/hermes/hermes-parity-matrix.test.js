@@ -15,6 +15,8 @@ const { getSkillCompatibility } = require('../../adapters/hermes/skill-compatibi
 const matrix = buildHermesParityMatrix();
 const registryWorkflows = workflowRegistry.list();
 
+assert.equal(fs.existsSync(path.join(root, 'docs/hermes/PARITY-REPORT.md')), true, 'final Hermes parity report must exist');
+
 assert.equal(matrix.length, registryWorkflows.length, 'every registry workflow must have a Hermes decision');
 assert.equal(new Set(matrix.map((entry) => entry.workflow_id)).size, matrix.length, 'Hermes matrix IDs must be unique');
 
@@ -86,6 +88,8 @@ const terminalStatuses = new Set(['HERMES_READY', 'HERMES_EXTERNAL_DRY_RUN', 'HE
 for (const entry of matrix) {
   assert.equal(terminalStatuses.has(entry.hermes_current_support), true, `${entry.workflow_id} must not retain a transitional Hermes status`);
 }
+const distribution = Object.fromEntries(matrix.reduce((counts, entry) => counts.set(entry.hermes_current_support, (counts.get(entry.hermes_current_support) || 0) + 1), new Map()));
+assert.deepEqual(distribution, { HERMES_READY: 12, HERMES_EXTERNAL_DRY_RUN: 12, HERMES_LEGACY: 1, HERMES_BLOCKED_EXTERNAL: 1 });
 assert.equal(getSkillCompatibility('social-publish').classification, 'HERMES_BLOCKED_EXTERNAL');
 assert.equal(getSkillCompatibility('estrategista-ht').classification, 'HERMES_BLOCKED_EXTERNAL');
 
