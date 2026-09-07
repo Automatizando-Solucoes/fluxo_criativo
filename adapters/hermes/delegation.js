@@ -6,6 +6,10 @@ const { assertProductSlug } = require('../../core/state/product-state');
 const { getAgentMapping } = require('./agents');
 
 const DELEGATE_SAFE_CAPABILITIES = Object.freeze(['filesystem.read', 'filesystem.write']);
+const DELEGATE_FORBIDDEN_CAPABILITIES = Object.freeze([
+  'ads.write', 'ads.financial_write', 'publisher.publish', 'notification.send',
+  'research.fetch', 'image.generate', 'video.generate',
+]);
 
 function assertString(value, field) {
   if (typeof value !== 'string' || value.length === 0) throw new TypeError(`${field} is required`);
@@ -24,7 +28,7 @@ function createDelegateRequest(input) {
   assertProductSlug(input.product_slug);
   if (!Array.isArray(input.allowed_capabilities)) throw new TypeError('allowed_capabilities must be an array');
   for (const capability of input.allowed_capabilities) {
-    if (!DELEGATE_SAFE_CAPABILITIES.includes(capability)) {
+    if (DELEGATE_FORBIDDEN_CAPABILITIES.includes(capability) || !DELEGATE_SAFE_CAPABILITIES.includes(capability)) {
       throw new TypeError(`delegate capability is forbidden: ${capability}`);
     }
     if (!workflow.capabilities.includes(capability)) {
@@ -62,4 +66,4 @@ function resolveDelegateRequest(request) {
   });
 }
 
-module.exports = { DELEGATE_SAFE_CAPABILITIES, createDelegateRequest, resolveDelegateRequest };
+module.exports = { DELEGATE_SAFE_CAPABILITIES, DELEGATE_FORBIDDEN_CAPABILITIES, createDelegateRequest, resolveDelegateRequest };

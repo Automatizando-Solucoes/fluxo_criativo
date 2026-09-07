@@ -1,0 +1,64 @@
+'use strict';
+
+const { immutableCopy } = require('../../core/contracts/immutable');
+const { workflowRegistry } = require('../../core/workflows/registry');
+
+const HERMES_SUPPORT_STATUSES = Object.freeze([
+  'HERMES_READY',
+  'HERMES_WRAPPER_REQUIRED',
+  'HERMES_NATIVE_CANDIDATE',
+  'HERMES_EXTERNAL_DRY_RUN',
+  'HERMES_BLOCKED_EXTERNAL',
+  'HERMES_COMPOSITE_REQUIRED',
+  'HERMES_LEGACY',
+]);
+
+const PARITY_DECISIONS = Object.freeze({
+  'product.create': { claude_status: 'READY', hermes_current_support: 'HERMES_NATIVE_CANDIDATE', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/commands/produto-novo.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Estado deve permanecer em meus-produtos.' },
+  'product.select': { claude_status: 'READY', hermes_current_support: 'HERMES_NATIVE_CANDIDATE', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/commands/produto-trocar.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Atualiza somente produto ativo local.' },
+  'research.market': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_EXTERNAL_DRY_RUN', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', wrapper: 'adapters/hermes/skills/research-market/SKILL.md', methodology_source: '.claude/skills/pesquisa-mercado/SKILL.md', runtime_capability: 'research.fetch', secret: 'APIFY_API_TOKEN', approval_strategy: 'standing_or_manual', migration_batch: 'L3', notes: 'Wrapper existe; provider permanece bloqueado em dry-run.' },
+  'copy.page': { claude_status: 'READY', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_READY', wrapper: 'adapters/hermes/skills/copy-page/SKILL.md', methodology_source: '.claude/skills/paginas/SKILL.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Wrapper existe, mas ainda não escreve artefato Hermes.' },
+  'copy.ad': { claude_status: 'READY', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_READY', wrapper: 'adapters/hermes/skills/copy-ad/SKILL.md', methodology_source: '.claude/skills/anuncios/SKILL.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Wrapper existe, mas ainda não produz artefato Hermes.' },
+  'copy.social': { claude_status: 'READY', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_READY', wrapper: 'adapters/hermes/skills/copy-social/SKILL.md', methodology_source: '.claude/skills/revisora/SKILL.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Geração local não autoriza publicação.' },
+  'copy.script': { claude_status: 'READY', hermes_current_support: 'HERMES_NATIVE_CANDIDATE', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/commands/copy-roteiro.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Requer wrapper Hermes novo e revisão compartilhada.' },
+  'funnel.low_ticket': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/commands/lt-funil.md', runtime_capability: 'ads.write', secret: 'META_ACCESS_TOKEN', approval_strategy: 'manual', migration_batch: 'L2', notes: 'Plano local e handoff Meta devem permanecer separados.' },
+  'funnel.middle_ticket': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/agents/estrategista-middle-ticket.md', runtime_capability: 'ads.write', secret: 'META_ACCESS_TOKEN', approval_strategy: 'manual', migration_batch: 'L2', notes: 'Plano 8D local; handoff Meta continua dry-run.' },
+  'page.sales': { claude_status: 'READY', hermes_current_support: 'HERMES_NATIVE_CANDIDATE', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/skills/paginas/SKILL.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Build e validação local; deploy permanece fora do escopo.' },
+  'carousel.generate': { claude_status: 'READY', hermes_current_support: 'HERMES_NATIVE_CANDIDATE', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/commands/carrossel.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Geração não implica agendamento nem publicação.' },
+  'carousel.schedule': { claude_status: 'READY', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/commands/programar-carrossel-noticia.md', runtime_capability: 'scheduler', secret: null, approval_strategy: 'standing_or_manual', migration_batch: 'L5', notes: 'Somente descriptor cron nesta etapa; scheduled permanece false.' },
+  'image.generate': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/commands/criativo-estatico.md', runtime_capability: 'image.generate', secret: 'provider_logical_secret', approval_strategy: 'provider_gate', migration_batch: 'L3', notes: 'Não duplicar provider; usar boundary de imagem existente.' },
+  'creative.static': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_EXTERNAL_DRY_RUN', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', wrapper: 'adapters/hermes/skills/creative-static/SKILL.md', methodology_source: '.claude/commands/criativo-estatico.md', runtime_capability: 'image.generate', secret: 'provider_logical_secret', approval_strategy: 'provider_gate', migration_batch: 'L3', notes: 'ID estável; wrapper retorna briefing e boundary externo.' },
+  'video.generate': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/commands/video-heygen.md', runtime_capability: 'video.generate', secret: 'HEYGEN_API_KEY_or_REPLICATE_API_TOKEN', approval_strategy: 'provider_gate', migration_batch: 'L3', notes: 'Render local e externo permanecem contratos separados.' },
+  'ads.insights': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_EXTERNAL_DRY_RUN', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', wrapper: 'adapters/hermes/skills/traffic-insights/SKILL.md', methodology_source: '.claude/skills/trafego-insights/SKILL.md', runtime_capability: 'ads.insights', secret: 'META_ACCESS_TOKEN', approval_strategy: 'read_policy', migration_batch: 'L4', notes: 'ID canônico; APP/MCP são transports do adapter.' },
+  'traffic.insights': { claude_status: 'LEGACY', hermes_current_support: 'HERMES_LEGACY', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', wrapper: 'adapters/hermes/skills/traffic-insights/SKILL.md', methodology_source: '.claude/skills/trafego-insights/SKILL.md', runtime_capability: 'ads.insights', secret: 'META_ACCESS_TOKEN', approval_strategy: 'read_policy', migration_batch: 'L4', notes: 'Alias de compatibilidade que resolve para ads.insights; não recebe implementação própria.' },
+  'ads.campaign.create': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/skills/trafego-criar-campanha/SKILL.md', runtime_capability: 'ads.write', secret: 'META_ACCESS_TOKEN', approval_strategy: 'manual', migration_batch: 'L4', notes: 'Criação futura permanece PAUSED e manual.' },
+  'ads.optimize': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/skills/trafego-otimizar/SKILL.md', runtime_capability: 'ads.write', secret: 'META_ACCESS_TOKEN', approval_strategy: 'manual', migration_batch: 'L4', notes: 'Análise e alteração tipada permanecem separadas.' },
+  'ads.scale': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/skills/trafego-escalar/SKILL.md', runtime_capability: 'ads.financial_write', secret: 'META_ACCESS_TOKEN', approval_strategy: 'manual_action_grant', migration_batch: 'L4', notes: 'Financeiro: grant manual exato por action_id.' },
+  'ads.report': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/commands/ads-relatorio.md', runtime_capability: 'ads.insights', secret: 'META_ACCESS_TOKEN', approval_strategy: 'read_policy', migration_batch: 'L4', notes: 'ReportResult é separado de notification.send.' },
+  'social.dashboard': { claude_status: 'READY_EXTERNAL', hermes_current_support: 'HERMES_WRAPPER_REQUIRED', hermes_target_support: 'HERMES_EXTERNAL_DRY_RUN', methodology_source: '.claude/commands/dados-instagram.md', runtime_capability: 'research.fetch', secret: 'APIFY_API_TOKEN', approval_strategy: 'standing_or_manual', migration_batch: 'L3', notes: 'Providers e cache permanecem mockados.' },
+  'social.publish': { claude_status: 'BLOCKED_EXTERNAL', hermes_current_support: 'HERMES_BLOCKED_EXTERNAL', hermes_target_support: 'HERMES_BLOCKED_EXTERNAL', methodology_source: '.claude/commands/copy-social.md', runtime_capability: 'publisher.publish', secret: 'platform_provider_secret', approval_strategy: 'manual_or_scoped_standing', migration_batch: 'L6', notes: 'Nenhum adapter oficial de publisher existe; autopublish permanece false.' },
+  'plan.execute': { claude_status: 'READY', hermes_current_support: 'HERMES_COMPOSITE_REQUIRED', hermes_target_support: 'HERMES_COMPOSITE_REQUIRED', methodology_source: '.claude/agents/executor-de-plano-de-acao.md', runtime_capability: 'child_capabilities', secret: null, approval_strategy: 'child_policy', migration_batch: 'L5', notes: 'Resolver cada filho e seu risco antes de dispatch.' },
+  'toolkit.execute': { claude_status: 'READY', hermes_current_support: 'HERMES_COMPOSITE_REQUIRED', hermes_target_support: 'HERMES_COMPOSITE_REQUIRED', methodology_source: '.claude/commands/toolkit-executar.md', runtime_capability: 'child_capabilities', secret: null, approval_strategy: 'child_policy', migration_batch: 'L5', notes: 'Estado persistente; não executar workflow desconhecido.' },
+  'commercial.playbook': { claude_status: 'READY', hermes_current_support: 'HERMES_NATIVE_CANDIDATE', hermes_target_support: 'HERMES_READY', methodology_source: '.claude/commands/comercial-playbook.md', runtime_capability: 'filesystem', secret: null, approval_strategy: 'not_required', migration_batch: 'L2', notes: 'Módulo HT continua bloqueado por C10X.' },
+});
+
+function buildHermesParityMatrix(registry = workflowRegistry) {
+  return immutableCopy(registry.list().map((workflow) => {
+    const decision = PARITY_DECISIONS[workflow.id];
+    if (!decision) throw new Error(`missing Hermes parity decision: ${workflow.id}`);
+    return {
+      workflow_id: workflow.id,
+      category: workflow.category,
+      core_source: workflow.source,
+      external: workflow.side_effects.external,
+      financial: workflow.side_effects.financial,
+      approval_required: workflow.approval.required,
+      kind: workflow.kind,
+      risk_from_children: workflow.risk_from_children,
+      wrapper: decision.wrapper || null,
+      ...decision,
+    };
+  }));
+}
+
+module.exports = { HERMES_SUPPORT_STATUSES, PARITY_DECISIONS, buildHermesParityMatrix };

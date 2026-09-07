@@ -2,7 +2,7 @@
 name: trafego-insights
 description: Estrutura uma solicitação de insights de tráfego em modo seguro.
 version: 1.0.0
-workflow_id: traffic.insights
+workflow_id: ads.insights
 mode: dry_run
 ---
 
@@ -10,7 +10,7 @@ mode: dry_run
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fonte Claude.
 
-1. Resolva `traffic.insights` e exija `product_slug`; `period` é opcional.
+1. Resolva `ads.insights` e exija `product_slug`; `period` é opcional. `traffic.insights` é somente um alias de compatibilidade que resolve para esta intenção canônica.
 2. Consulte somente contexto local de produto quando existir.
 3. Use `.claude/commands/trafego-insights.md` como fonte de compatibilidade.
 4. Respeite capabilities e `ApprovalPolicy`.

@@ -35,6 +35,36 @@ const skillCompatibility = immutableCopy([
     source: '.claude/skills/paginas/SKILL.md',
     reason: 'Conhecimento reutilizável, mas orienta commands, scripts e escrita de artefatos.',
   },
+  {
+    id: 'trafego-pago', classification: 'HERMES_NATIVE',
+    source: '.claude/skills/trafego-pago/SKILL.md',
+    reason: 'Conhecimento metodológico de estrutura, métricas e decisões de tráfego sem transport de provider.',
+  },
+  {
+    id: 'trafego-insights', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/trafego-insights/SKILL.md',
+    reason: 'Metodologia segura; ads.insights continua capability externa via adapter.',
+  },
+  {
+    id: 'trafego-analise', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/trafego-analise/SKILL.md',
+    reason: 'Diagnóstico VTSD reutilizável, com aquisição delegada a ads.insights.',
+  },
+  {
+    id: 'trafego-criar-campanha', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/trafego-criar-campanha/SKILL.md',
+    reason: 'Estrutura de campanha segura, mas ads.campaign.create exige manual e PAUSED.',
+  },
+  {
+    id: 'trafego-otimizar', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/trafego-otimizar/SKILL.md',
+    reason: 'Diagnóstico e decisões reutilizáveis; mudanças externas ficam em operations tipadas.',
+  },
+  {
+    id: 'trafego-escalar', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/trafego-escalar/SKILL.md',
+    reason: 'Metodologia de escala segura, mas ads.scale é FINANCIAL_WRITE com grant manual.',
+  },
 ]);
 
 function getSkillCompatibility(id) {

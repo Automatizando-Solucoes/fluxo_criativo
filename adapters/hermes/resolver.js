@@ -9,7 +9,11 @@ const WRAPPER_PATHS = Object.freeze({
   'copy.ad': 'adapters/hermes/skills/copy-ad/SKILL.md',
   'copy.social': 'adapters/hermes/skills/copy-social/SKILL.md',
   'creative.static': 'adapters/hermes/skills/creative-static/SKILL.md',
-  'traffic.insights': 'adapters/hermes/skills/traffic-insights/SKILL.md',
+  'ads.insights': 'adapters/hermes/skills/traffic-insights/SKILL.md',
+});
+
+const WORKFLOW_ALIASES = Object.freeze({
+  'traffic.insights': 'ads.insights',
 });
 
 class HermesWorkflowNotSupportedError extends Error {
@@ -22,11 +26,15 @@ class HermesWorkflowNotSupportedError extends Error {
 }
 
 function resolveHermesWorkflow(workflowId) {
-  const workflow = workflowRegistry.get(workflowId);
+  const requestedWorkflow = workflowRegistry.get(workflowId);
+  const canonicalWorkflowId = WORKFLOW_ALIASES[requestedWorkflow.id] || requestedWorkflow.id;
+  const workflow = workflowRegistry.get(canonicalWorkflowId);
   const wrapperPath = WRAPPER_PATHS[workflow.id];
   if (!wrapperPath) throw new HermesWorkflowNotSupportedError(workflow);
   return Object.freeze({
+    requested_workflow_id: requestedWorkflow.id,
     workflow_id: workflow.id,
+    compatibility_alias_of: requestedWorkflow.id === workflow.id ? null : workflow.id,
     runtime: 'hermes',
     target: Object.freeze({ kind: 'hermes.skill', path: wrapperPath }),
     requires_child_risk_resolution: requiresChildRiskResolution(workflow),
@@ -35,4 +43,4 @@ function resolveHermesWorkflow(workflowId) {
   });
 }
 
-module.exports = { WRAPPER_PATHS, HermesWorkflowNotSupportedError, resolveHermesWorkflow };
+module.exports = { WRAPPER_PATHS, WORKFLOW_ALIASES, HermesWorkflowNotSupportedError, resolveHermesWorkflow };
