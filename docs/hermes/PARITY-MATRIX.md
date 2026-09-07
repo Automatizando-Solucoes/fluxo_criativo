@@ -1,6 +1,6 @@
 # Matriz de paridade Hermes
 
-Baseline: `main` em `88a26628cbfc87981d46bdad0bb7134038ee24e1`. Claude Code é a referência funcional. Esta matriz cobre todos os workflows do registry e descreve somente resolução, wrapper e gates dry-run: ela não habilita providers, cron, delegates ou publicação.
+Baseline: `main` em `88a26628cbfc87981d46bdad0bb7134038ee24e1`. Claude Code é a referência funcional. A Fase L está concluída: esta matriz cobre todos os workflows do registry e descreve resolução, wrapper e gates dry-run, sem habilitar providers, cron, delegates ou publicação. O teste `claude-hermes-e2e-parity.test.js` compara as duas fixtures isoladas.
 
 | Workflow | Categoria | Core source | Ext. | Financ. | Approval | Kind / child risk | Claude | Hermes atual → alvo | Wrapper | Metodologia | Capability | Secret lógico | Estratégia | Lote | Nota |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -35,12 +35,11 @@ Baseline: `main` em `88a26628cbfc87981d46bdad0bb7134038ee24e1`. Claude Code é a
 
 `ads.insights` é a intenção canônica. `traffic.insights` é compatibilidade histórica e o resolver Hermes a redireciona explicitamente para `ads.insights` e para o mesmo wrapper `traffic-insights`. Não há duas implementações Hermes para a mesma leitura de Ads.
 
-## Significado dos estados
+## Significado dos estados finais
 
-- `HERMES_READY`: paridade testada, sem provider live em teste.
-- `HERMES_WRAPPER_REQUIRED`: ainda precisa de wrapper com entrada e saída equivalentes.
-- `HERMES_NATIVE_CANDIDATE`: metodologia/localidade permite avaliação para wrapper nativo no lote indicado.
-- `HERMES_EXTERNAL_DRY_RUN`: contrato, segurança e mock/dry-run são alvo ou cobertura atual; provider live não é validado.
+- `HERMES_READY`: paridade local ou de orquestração completa e testada. Não implica provider live.
+- `HERMES_EXTERNAL_DRY_RUN`: contrato, metodologia, security boundary e mock/dry-run completos. Provider live não é validado.
 - `HERMES_BLOCKED_EXTERNAL`: dependência externa indisponível.
-- `HERMES_COMPOSITE_REQUIRED`: risco e approval precisam ser resolvidos por filho.
 - `HERMES_LEGACY`: superfície de compatibilidade explícita, não implementação própria.
+
+Estados transitórios (`HERMES_WRAPPER_REQUIRED`, `HERMES_NATIVE_CANDIDATE` e `HERMES_COMPOSITE_REQUIRED`) não permanecem na matriz final.

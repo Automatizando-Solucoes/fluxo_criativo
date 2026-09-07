@@ -2,7 +2,7 @@
 
 ## Identidade
 
-Fluxo Criativo é uma plataforma de marketing com VTSD, Light Copy, pesquisa, copy, criativos, vídeo, tráfego e workflows persistentes. Claude Code é o runtime funcional de referência. Hermes é o runtime alvo em adaptação: um workflow Hermes só será suportado após alcançar paridade testada, sem alterar a metodologia nem substituir a compatibilidade Claude.
+Fluxo Criativo é uma plataforma de marketing com VTSD, Light Copy, pesquisa, copy, criativos, vídeo, tráfego e workflows persistentes. Claude Code permanece o runtime funcional de referência. Hermes possui paridade contratual para os workflows classificados como `HERMES_READY` e boundaries seguros para `HERMES_EXTERNAL_DRY_RUN`. Provider live continua dependente de ativação e validação específicas.
 
 ## Fonte de verdade
 

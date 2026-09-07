@@ -13,7 +13,11 @@ Um workflow será `HERMES_READY` somente quando resolver pelo registry, tiver wr
 - **L4, Meta Ads: concluída.** Insights canônico e alias, criação, otimização, escala e relatório usam o mesmo boundary Meta e ReportResult do Claude. APP/MCP só alteram o transporte; `PAUSED`, approval manual e grant financeiro exato continuam obrigatórios. Nenhum provider foi executado.
 - **L5, orquestração: concluída.** Plan Executor e Toolkit compartilham contracts de tarefas tipadas, risco dos filhos, ApprovalPolicy, dependências, retry e idempotência. Scheduling de carrossel persiste somente descriptor local; o cron Hermes continua `scheduled:false` e dry-run.
 - **L6, bloqueados/publisher: concluída.** `social.publish` possui wrapper para criar e avaliar request, mas permanece `HERMES_BLOCKED_EXTERNAL` até adapter oficial por plataforma. C10X/High Ticket compartilha apenas detecção de dependência; ausência de `ht-*` preserva artefatos e bloqueia sem inventar execução.
-- **L7, paridade E2E:** compara Claude e Hermes na mesma fixture, sem rede, secrets, provider, cron ou delegate real.
+- **L7, paridade E2E: concluída.** Duas fixtures isoladas com os mesmos inputs comparam contratos de negócio, gates, artifacts e bloqueios de todos os workflows do registry. Guards reais bloqueiam rede, subprocesso e writes fora da fixture.
+
+## Fase L concluída
+
+A Fase L terminou com 26 decisões Hermes terminais no registry. A paridade é contratual: workflows locais e de orquestração estão testados como `HERMES_READY`; boundaries externos continuam `HERMES_EXTERNAL_DRY_RUN`; publisher e C10X falham fechados como `HERMES_BLOCKED_EXTERNAL`; `traffic.insights` continua alias `HERMES_LEGACY` de `ads.insights`.
 
 ## Regras externas
 
