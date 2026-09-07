@@ -62,10 +62,14 @@ for (const workflowId of ['product.create', 'product.select', 'copy.page', 'copy
 for (const workflowId of ['funnel.low_ticket', 'funnel.middle_ticket']) {
   assert.equal(matrix.find((entry) => entry.workflow_id === workflowId).hermes_current_support, 'HERMES_EXTERNAL_DRY_RUN');
 }
+for (const workflowId of ['research.market', 'image.generate', 'creative.static', 'video.generate', 'social.dashboard']) {
+  assert.equal(matrix.find((entry) => entry.workflow_id === workflowId).hermes_current_support, 'HERMES_EXTERNAL_DRY_RUN');
+}
 
 for (const skillId of [
   'revisora', 'elementos-literarios', 'manual-copy', 'pesquisa-mercado', 'anuncios', 'paginas',
   'vtsd-completo', 'criacao-produto-low-ticket', 'carrossel',
+  'video-avancado', 'instagram-dashboard', 'tiktok-dashboard', 'youtube-dashboard', 'linkedin-dashboard',
   'trafego-pago', 'trafego-insights', 'trafego-analise', 'trafego-criar-campanha', 'trafego-otimizar', 'trafego-escalar',
 ]) {
   const skill = getSkillCompatibility(skillId);

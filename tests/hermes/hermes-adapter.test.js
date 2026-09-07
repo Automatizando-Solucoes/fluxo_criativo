@@ -10,6 +10,7 @@ const root = path.resolve(__dirname, '../..');
 const { createScheduledJob } = require('../../core/scheduling/job');
 const { HermesWorkflowNotSupportedError, WORKFLOW_ALIASES, WRAPPER_PATHS, resolveHermesWorkflow } = require('../../adapters/hermes/resolver');
 const { LOCAL_WORKFLOW_SUPPORT } = require('../../adapters/hermes/local-workflows');
+const { EXTERNAL_DRY_RUN_WORKFLOWS } = require('../../adapters/hermes/external-workflows');
 const { getSkillCompatibility, isHermesWrapperCandidate } = require('../../adapters/hermes/skill-compatibility');
 const { createDelegateRequest, resolveDelegateRequest } = require('../../adapters/hermes/delegation');
 const { toHermesCronJob } = require('../../adapters/hermes/scheduling/cron');
@@ -30,6 +31,9 @@ const EXPECTED_SLASH_COMMANDS = Object.freeze({
   'carousel.generate': 'carrossel',
   'commercial.playbook': 'comercial-playbook',
   'creative.static': 'criativo-estatico',
+  'image.generate': 'imagem-gerar',
+  'video.generate': 'video-gerar',
+  'social.dashboard': 'social-dashboard',
   'ads.insights': 'trafego-insights',
 });
 
@@ -45,7 +49,7 @@ const wrapperWorkflowIds = new Set();
 for (const [workflowId, wrapperPath] of Object.entries(WRAPPER_PATHS)) {
   const resolution = resolveHermesWorkflow(workflowId);
   assert.equal(resolution.target.path, wrapperPath);
-  assert.equal(resolution.executable, Boolean(LOCAL_WORKFLOW_SUPPORT[workflowId]));
+  assert.equal(resolution.executable, Boolean(LOCAL_WORKFLOW_SUPPORT[workflowId]) || EXTERNAL_DRY_RUN_WORKFLOWS.includes(workflowId));
   assert.equal(resolution.external_executable, false);
   assert.equal(fs.existsSync(path.join(root, wrapperPath)), true, `wrapper missing: ${wrapperPath}`);
   const content = fs.readFileSync(path.join(root, wrapperPath), 'utf8');
