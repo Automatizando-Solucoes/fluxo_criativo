@@ -55,9 +55,10 @@ for (const workflowId of ['ads.insights', 'ads.campaign.create', 'ads.optimize',
 }
 for (const workflowId of ['plan.execute', 'toolkit.execute']) {
   const entry = matrix.find((candidate) => candidate.workflow_id === workflowId);
-  assert.equal(entry.hermes_current_support, 'HERMES_COMPOSITE_REQUIRED');
+  assert.equal(entry.hermes_current_support, 'HERMES_READY');
   assert.equal(entry.risk_from_children, true);
 }
+assert.equal(matrix.find((entry) => entry.workflow_id === 'carousel.schedule').hermes_current_support, 'HERMES_READY');
 
 for (const workflowId of ['product.create', 'product.select', 'copy.page', 'copy.ad', 'copy.social', 'copy.script', 'page.sales', 'carousel.generate', 'commercial.playbook']) {
   assert.equal(matrix.find((entry) => entry.workflow_id === workflowId).hermes_current_support, 'HERMES_READY');
