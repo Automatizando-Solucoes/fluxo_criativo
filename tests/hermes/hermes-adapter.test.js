@@ -8,7 +8,7 @@ const path = require('node:path');
 
 const root = path.resolve(__dirname, '../..');
 const { createScheduledJob } = require('../../core/scheduling/job');
-const { HermesWorkflowNotSupportedError, WRAPPER_PATHS, resolveHermesWorkflow } = require('../../adapters/hermes/resolver');
+const { HermesWorkflowNotSupportedError, WORKFLOW_ALIASES, WRAPPER_PATHS, resolveHermesWorkflow } = require('../../adapters/hermes/resolver');
 const { getSkillCompatibility, isHermesWrapperCandidate } = require('../../adapters/hermes/skill-compatibility');
 const { createDelegateRequest, resolveDelegateRequest } = require('../../adapters/hermes/delegation');
 const { toHermesCronJob } = require('../../adapters/hermes/scheduling/cron');
@@ -21,7 +21,7 @@ const EXPECTED_SLASH_COMMANDS = Object.freeze({
   'copy.ad': 'copy-anuncio',
   'copy.social': 'copy-social',
   'creative.static': 'criativo-estatico',
-  'traffic.insights': 'trafego-insights',
+  'ads.insights': 'trafego-insights',
 });
 
 function getFrontmatterField(content, field) {
@@ -53,6 +53,13 @@ for (const [workflowId, wrapperPath] of Object.entries(WRAPPER_PATHS)) {
   assert.match(content, /adapters\/hermes\/SOURCE-POLICY\.md/);
 }
 assert.equal(wrapperNames.size, Object.keys(EXPECTED_SLASH_COMMANDS).length);
+assert.deepEqual(WORKFLOW_ALIASES, { 'traffic.insights': 'ads.insights' });
+const canonicalInsights = resolveHermesWorkflow('ads.insights');
+const compatibilityInsights = resolveHermesWorkflow('traffic.insights');
+assert.equal(compatibilityInsights.requested_workflow_id, 'traffic.insights');
+assert.equal(compatibilityInsights.workflow_id, 'ads.insights');
+assert.equal(compatibilityInsights.compatibility_alias_of, 'ads.insights');
+assert.equal(compatibilityInsights.target.path, canonicalInsights.target.path);
 assert.throws(() => resolveHermesWorkflow('unknown.workflow'), /unknown workflow/);
 assert.throws(
   () => resolveHermesWorkflow('toolkit.execute'),
@@ -61,6 +68,7 @@ assert.throws(
 
 assert.equal(getSkillCompatibility('revisora').classification, 'HERMES_NATIVE');
 assert.equal(getSkillCompatibility('pesquisa-mercado').classification, 'HERMES_WRAPPER');
+assert.equal(getSkillCompatibility('trafego-insights').classification, 'HERMES_WRAPPER');
 assert.equal(isHermesWrapperCandidate({ classification: 'CLAUDE_ONLY_TEMP' }), false);
 assert.equal(resolveHermesWorkflow('copy.social').executable, false);
 
@@ -95,6 +103,8 @@ assert.equal(standingCron.workdir, root);
 assert.equal(standingCron.external_capability_granted, false);
 assert.equal(standingCron.eligible_for_schedule, true);
 assert.equal(standingCron.scheduled, false);
+assert.equal(standingCron.tool, 'cronjob');
+assert.equal(standingCron.action, 'create');
 
 const noAuthorizationCron = toHermesCronJob(buildJob({ mode: 'standing', workflow_id: 'copy.social' }), standingContext);
 assert.equal(noAuthorizationCron.eligible_for_schedule, false);
@@ -136,7 +146,12 @@ const externalCron = toHermesCronJob(buildJob({
 }, 'research.market'), { ...standingContext, workflow_id: 'research.market' });
 assert.equal(externalCron.eligible_for_schedule, false);
 assert.equal(externalCron.reason, 'external_capability_blocked');
-for (const descriptor of [standingCron, noAuthorizationCron, expiredCron, productMismatchCron, networkMismatchCron, noUsageCron, exceededLimitCron, disabledCron, manualCron, externalCron]) {
+const financialCron = toHermesCronJob(buildJob({
+  mode: 'standing', workflow_id: 'ads.scale', authorized_by: 'fixture-user',
+}, 'ads.scale'), { ...standingContext, workflow_id: 'ads.scale' });
+assert.equal(financialCron.eligible_for_schedule, false);
+assert.equal(financialCron.reason, 'financial_workflow_blocked');
+for (const descriptor of [standingCron, noAuthorizationCron, expiredCron, productMismatchCron, networkMismatchCron, noUsageCron, exceededLimitCron, disabledCron, manualCron, externalCron, financialCron]) {
   assert.equal(descriptor.scheduled, false);
   assert.equal(descriptor.mode, 'dry_run');
 }
