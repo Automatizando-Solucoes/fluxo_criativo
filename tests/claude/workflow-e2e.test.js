@@ -5,6 +5,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const http = require('node:http');
+const https = require('node:https');
+const net = require('node:net');
+const childProcess = require('node:child_process');
 const { MockSecretProvider } = require('../../core/secrets/provider');
 const { createApprovalPolicy } = require('../../core/approvals/policy');
 const { workflowRegistry } = require('../../core/workflows/registry');
@@ -37,6 +41,32 @@ const mockSecrets = new MockSecretProvider({
   APIFY_API_TOKEN: 'op://fixture/apify/token',
   UAZAPI_TOKEN: 'op://fixture/uazapi/token',
 });
+const counters = { network_calls: 0, child_process_calls: 0, writes_outside_fixture: 0 };
+const originals = {
+  fetch: global.fetch,
+  httpRequest: http.request, httpGet: http.get, httpsRequest: https.request, httpsGet: https.get,
+  netConnect: net.connect,
+  child: Object.fromEntries(['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync', 'fork'].map((name) => [name, childProcess[name]])),
+  fs: Object.fromEntries(['writeFileSync', 'appendFileSync', 'renameSync', 'mkdirSync', 'rmSync'].map((name) => [name, fs[name]])),
+};
+function blockNetwork() { counters.network_calls += 1; throw new Error('network is forbidden in E2E'); }
+function blockChildProcess() { counters.child_process_calls += 1; throw new Error('child process is forbidden in E2E'); }
+function assertFixtureWrite(target) { if (typeof target === 'number') return; const resolved = path.resolve(String(target)); if (resolved !== fixture && !resolved.startsWith(`${fixture}${path.sep}`)) { counters.writes_outside_fixture += 1; throw new Error(`write outside fixture: ${resolved}`); } }
+function installGuards() {
+  if (typeof global.fetch === 'function') global.fetch = blockNetwork;
+  http.request = blockNetwork; http.get = blockNetwork; https.request = blockNetwork; https.get = blockNetwork; net.connect = blockNetwork;
+  for (const name of Object.keys(originals.child)) childProcess[name] = blockChildProcess;
+  fs.writeFileSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.writeFileSync(target, ...args); };
+  fs.appendFileSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.appendFileSync(target, ...args); };
+  fs.mkdirSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.mkdirSync(target, ...args); };
+  fs.rmSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.rmSync(target, ...args); };
+  fs.renameSync = (from, to, ...args) => { assertFixtureWrite(from); assertFixtureWrite(to); return originals.fs.renameSync(from, to, ...args); };
+}
+function restoreGuards() {
+  global.fetch = originals.fetch; http.request = originals.httpRequest; http.get = originals.httpGet; https.request = originals.httpsRequest; https.get = originals.httpsGet; net.connect = originals.netConnect;
+  for (const [name, value] of Object.entries(originals.child)) childProcess[name] = value;
+  for (const [name, value] of Object.entries(originals.fs)) fs[name] = value;
+}
 
 function assertProductWrite(file) {
   assert.equal(file.startsWith(`${productPath}${path.sep}`), true, `business write escaped fixture product: ${file}`);
@@ -46,6 +76,7 @@ function makePageCopy() {
   return Array.from({ length: 16 }, (_, index) => `## Bloco ${String(index + 1).padStart(2, '0')}\nTexto específico validado.`).join('\n\n');
 }
 
+installGuards();
 try {
   const product = createProduct({ projectRoot: fixture, slug, name: 'Produto Fixture', type: 'Low Ticket', price: 'R$47' });
   assert.equal(product.slug, slug);
@@ -89,7 +120,8 @@ try {
   const campaign = prepareMetaOperation({ operation: 'ads.campaign.create', policy: createPolicy, context: { workflow_id: 'ads.campaign.create', action_id: 'campaign-fixture' }, secretProvider: mockSecrets });
   const draft = createPausedCampaignDraft({ name: 'Fixture campaign', action_id: 'campaign-fixture' });
   const scale = prepareMetaOperation({ operation: 'ads.scale', policy: createApprovalPolicy({ mode: 'manual', workflow_id: 'ads.scale' }), context: { workflow_id: 'ads.scale', action_id: 'scale-fixture' }, secretProvider: mockSecrets });
-  assert.equal(campaign.status, 'dry_run'); assert.equal(draft.status, 'PAUSED'); assert.equal(scale.status, 'blocked');
+  const mcpInsights = prepareMetaOperation({ operation: 'ads.insights', auth_mode: 'MCP_CONECTOR' });
+  assert.equal(campaign.status, 'dry_run'); assert.equal(draft.status, 'PAUSED'); assert.equal(scale.status, 'blocked'); assert.equal(mcpInsights.status, 'dry_run'); assert.equal(mcpInsights.secret_name, null);
 
   const report = createAdsReport({ projectRoot: fixture, product_slug: slug, period: '2026-09', metrics: { spend: 0, impressions: 0 }, analysis: 'Mock sem rede.' });
   const reportDelivery = createReportDelivery({ channel: 'telegram', artifact_path: report.artifact_path });
@@ -102,12 +134,12 @@ try {
   const publicationResult = evaluatePublication(publish, {});
   assert.equal(publish.autopublish, false); assert.equal(publicationResult.status, 'blocked'); assert.equal(publicationResult.external_id, null); assert.equal(publicationResult.dry_run, true);
 
-  const plan = resolvePlan([{ task_id: 'known', workflow_id: 'copy.social' }, { task_id: 'unknown', workflow_id: 'unknown.workflow' }], workflowRegistry);
-  assert.equal(plan.status, 'blocked'); assert.equal(plan.tasks[1].reason, 'unknown_workflow');
-  const toolkit = createToolkit(productPath, 'fixture-toolkit', [{ id: 'copy', workflow_id: 'copy.social' }, { id: 'page', workflow_id: 'page.sales', depends_on: ['copy'] }]);
+  const plan = resolvePlan([{ task_id: 'known', workflow_id: 'copy.social' }, { task_id: 'scale-no-grant', workflow_id: 'ads.scale', action_id: 'scale-fixture' }, { task_id: 'unknown', workflow_id: 'unknown.workflow' }], workflowRegistry);
+  assert.equal(plan.status, 'blocked'); assert.equal(plan.tasks[1].reason, 'approval_required'); assert.equal(plan.tasks[2].reason, 'unknown_workflow');
+  const toolkit = createToolkit(productPath, 'fixture-toolkit', [{ id: 'copy', workflow_id: 'copy.social' }, { id: 'scale', workflow_id: 'ads.scale', action_id: 'scale-fixture' }, { id: 'page', workflow_id: 'page.sales', depends_on: ['copy'] }]);
   transition(productPath, 'fixture-toolkit', 'copy', 'running');
   const completed = transition(productPath, 'fixture-toolkit', 'copy', 'completed');
-  assert.equal(completed.tasks[0].status, 'completed'); assert.throws(() => createToolkit(productPath, 'unknown-toolkit', [{ id: 'bad', workflow_id: 'unknown.workflow' }]), /unknown workflow/);
+  assert.equal(completed.tasks[0].status, 'completed'); assert.equal(completed.tasks.find((task) => task.id === 'scale').reason, 'approval_required'); assert.throws(() => createToolkit(productPath, 'unknown-toolkit', [{ id: 'bad', workflow_id: 'unknown.workflow' }]), /unknown workflow/);
   assertProductWrite(toolkit.dir);
 
   assert.equal(planCommercial({ product_slug: slug }).status, 'READY');
@@ -115,9 +147,10 @@ try {
 
   const serialized = JSON.stringify({ research, low, middle, page, carousel, scheduled, image, imageArtifact, video, videoArtifact, campaign, draft, scale, report, reportDelivery, whatsapp, dashboard, publicationResult, plan, toolkit });
   assert.equal(/Bearer ey|EAA[A-Za-z0-9]{10,}|sk-[A-Za-z0-9]|access_token=|password=|api_key=/i.test(serialized), false, 'fixture output contains a plausible plaintext secret');
-  assert.deepEqual({ network_calls: 0, real_secrets: 0, real_publications: 0, real_ads_mutations: 0, financial_spend: 0, real_messages: 0, deploys: 0, real_cron: 0 }, { network_calls: 0, real_secrets: 0, real_publications: 0, real_ads_mutations: 0, financial_spend: 0, real_messages: 0, deploys: 0, real_cron: 0 });
+  assert.equal(counters.network_calls, 0); assert.equal(counters.child_process_calls, 0); assert.equal(counters.writes_outside_fixture, 0);
 } finally {
   fs.rmSync(fixture, { recursive: true, force: true });
+  restoreGuards();
 }
 
 assert.equal(fs.existsSync(fixture), false, 'temporary fixture must be removed');
