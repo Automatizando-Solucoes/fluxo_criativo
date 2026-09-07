@@ -84,18 +84,7 @@ if (-not $FB_AD_ACCOUNT_ID) {
     exit 1
 }
 
-# --- Canal de envio ---
-$RELATORIO_CANAL = (Get-Config "RELATORIO_CANAL" $Config "TELEGRAM").ToUpperInvariant()
-
-# --- Credenciais Telegram (usado se RELATORIO_CANAL = TELEGRAM) ---
-$TELEGRAM_BOT_TOKEN = Get-Config "TELEGRAM_BOT_TOKEN" $Config
-$TELEGRAM_CHAT_ID   = Get-Config "TELEGRAM_CHAT_ID" $Config
-
-# --- Credenciais Z-API / WhatsApp (usado se RELATORIO_CANAL = WHATSAPP) ---
-$ZAPI_INSTANCE_ID   = Get-Config "ZAPI_INSTANCE_ID" $Config
-$ZAPI_TOKEN         = Get-Config "ZAPI_TOKEN" $Config
-$ZAPI_CLIENT_TOKEN  = Get-Config "ZAPI_CLIENT_TOKEN" $Config
-$WHATSAPP_NUMERO    = Get-Config "RELATORIO_WHATSAPP_NUMERO" $Config
+# LEGACY REPORT BUILDER: produces Meta report only. Notification delivery is external.
 
 Log "=== Iniciando relatorio Meta Ads ==="
 
@@ -164,43 +153,4 @@ if (-not $dados -or $dados.Count -eq 0) {
 
 Log "Mensagem montada."
 
-# --- Enviar ---
-if ($RELATORIO_CANAL -eq "TELEGRAM") {
-    if (-not $TELEGRAM_BOT_TOKEN -or -not $TELEGRAM_CHAT_ID) {
-        Log "ERRO: Configure TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID no .env."
-        exit 1
-    }
-
-    $urlTelegram     = "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage"
-    $payloadTelegram = @{
-        chat_id    = $TELEGRAM_CHAT_ID
-        text       = $mensagem
-        parse_mode = "Markdown"
-    } | ConvertTo-Json
-    try {
-        Log "Enviando via Telegram..."
-        $resultado = Invoke-RestMethod -Uri $urlTelegram -Method POST -ContentType "application/json" -Body $payloadTelegram -TimeoutSec 30
-        Log "=== Relatorio enviado com sucesso ==="
-    } catch {
-        Log "ERRO ao enviar Telegram: $(Redact-Secrets $_)"
-        exit 1
-    }
-} else {
-    if (-not $ZAPI_INSTANCE_ID -or -not $ZAPI_TOKEN -or -not $ZAPI_CLIENT_TOKEN -or -not $WHATSAPP_NUMERO) {
-        Log "ERRO: Configure ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN e RELATORIO_WHATSAPP_NUMERO no .env."
-        exit 1
-    }
-
-    $urlZapi  = "https://api.z-api.io/instances/$ZAPI_INSTANCE_ID/token/$ZAPI_TOKEN/send-text"
-    $headers  = @{ "Content-Type" = "application/json"; "Client-Token" = $ZAPI_CLIENT_TOKEN }
-    $payload  = @{ phone = $WHATSAPP_NUMERO; message = $mensagem } | ConvertTo-Json
-    try {
-        Log "Enviando via Z-API..."
-        $resultado = Invoke-RestMethod -Uri $urlZapi -Method POST -Headers $headers -Body $payload -TimeoutSec 30
-        Log "Z-API resposta: $($resultado | ConvertTo-Json -Compress)"
-        Log "=== Relatorio enviado com sucesso ==="
-    } catch {
-        Log "ERRO ao enviar Z-API: $(Redact-Secrets $_)"
-        exit 1
-    }
-}
+@{ status = "ok"; period = $ontemISO; metrics = $dados; analysis = $mensagem; delivery = $null } | ConvertTo-Json -Depth 8

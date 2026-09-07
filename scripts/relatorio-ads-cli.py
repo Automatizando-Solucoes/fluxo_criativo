@@ -249,51 +249,16 @@ def montar_mensagem(dados, label_periodo, nivel="2"):
 
 
 # ---------------------------------------------------------------------------
-# Envio
-# ---------------------------------------------------------------------------
-
-def enviar_telegram(mensagem, bot_token, chat_id):
-    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    payload = json.dumps({
-        "chat_id": chat_id,
-        "text": mensagem,
-        "parse_mode": "Markdown",
-    }).encode("utf-8")
-    req = urllib.request.Request(
-        url, data=payload, headers={"Content-Type": "application/json"}
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read())
-
-
-def enviar_whatsapp(mensagem, instance_id, token, client_token, numero):
-    url = f"https://api.z-api.io/instances/{instance_id}/token/{token}/send-text"
-    payload = json.dumps({"phone": numero, "message": mensagem}).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={"Content-Type": "application/json", "Client-Token": client_token},
-    )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.loads(resp.read())
-
-
-# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def main():
     config = carregar_env()
 
-    # Token: prioriza ACCESS_TOKEN (CLI), depois FB_ACCESS_TOKEN_PERMANENTE, depois temporário
-    access_token = (
-        config.get("ACCESS_TOKEN")
-        or config.get("FB_ACCESS_TOKEN_PERMANENTE")
-        or config.get("FB_ACCESS_TOKEN_TEMPORARIO")
-    )
+    # Canonical runtime boundary: META_ACCESS_TOKEN is injected by SecretProvider.
+    access_token = config.get("META_ACCESS_TOKEN")
     if not access_token:
-        print("ERRO: Nenhum token encontrado no .env. "
-              "Configure ACCESS_TOKEN ou FB_ACCESS_TOKEN_PERMANENTE.")
+        print("ERRO: META_ACCESS_TOKEN indisponível no runtime.")
         sys.exit(1)
 
     # ID da conta: prioriza AD_ACCOUNT_ID (CLI), depois FB_AD_ACCOUNT_ID
@@ -305,7 +270,6 @@ def main():
     # Remove prefixo act_ para a API direta; o CLI lida internamente
     ad_account_id_num = ad_account_id.replace("act_", "")
 
-    canal = config.get("RELATORIO_CANAL", "TELEGRAM").upper()
     nivel = config.get("RELATORIO_METRICAS", "2")
 
     # Período via argumento
@@ -326,34 +290,7 @@ def main():
     mensagem = montar_mensagem(dados, label, nivel)
     print("Mensagem montada.")
 
-    if canal == "TELEGRAM":
-        bot_token = config.get("TELEGRAM_BOT_TOKEN")
-        chat_id = config.get("TELEGRAM_CHAT_ID")
-        if not bot_token or not chat_id:
-            print("ERRO: TELEGRAM_BOT_TOKEN ou TELEGRAM_CHAT_ID não encontrados no .env.")
-            sys.exit(1)
-        try:
-            enviar_telegram(mensagem, bot_token, chat_id)
-            print("Relatório enviado via Telegram.")
-        except Exception as e:
-            print(f"ERRO ao enviar Telegram: {e}")
-            sys.exit(1)
-    else:
-        instance_id = config.get("ZAPI_INSTANCE_ID")
-        token = config.get("ZAPI_TOKEN")
-        client_token = config.get("ZAPI_CLIENT_TOKEN")
-        numero = config.get("RELATORIO_WHATSAPP_NUMERO")
-        if not all([instance_id, token, client_token, numero]):
-            print("ERRO: Credenciais Z-API incompletas no .env "
-                  "(ZAPI_INSTANCE_ID, ZAPI_TOKEN, ZAPI_CLIENT_TOKEN, RELATORIO_WHATSAPP_NUMERO).")
-            sys.exit(1)
-        try:
-            enviar_whatsapp(mensagem, instance_id, token, client_token, numero)
-            num_mascarado = numero[:4] + "****" + numero[-4:]
-            print(f"Relatório enviado via WhatsApp para {num_mascarado}.")
-        except Exception as e:
-            print(f"ERRO ao enviar WhatsApp: {e}")
-            sys.exit(1)
+    print(json.dumps({"status": "ok", "period": {"start": inicio_iso, "end": fim_iso, "label": label}, "metrics": dados, "analysis": mensagem, "artifact_path": None, "delivery": None}, ensure_ascii=False))
 
 
 if __name__ == "__main__":
