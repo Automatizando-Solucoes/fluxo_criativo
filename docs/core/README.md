@@ -8,6 +8,7 @@ O diretório `core/` contém contratos pequenos e testáveis entre a inteligênc
 - política de aprovação serializável;
 - contratos para segredos, scheduling, integrações e estado de produto;
 - operações locais compartilhadas em `core/local/` quando a regra de negócio não pertence a um runtime;
+- boundaries externos por domínio em `core/external/`, limitados a allowlists, secrets lógicos, descriptors e mocks;
 - limites explícitos que adapters de Claude, Hermes e Codex poderão implementar.
 
 ## O que não é
