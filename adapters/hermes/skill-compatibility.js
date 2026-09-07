@@ -36,6 +36,21 @@ const skillCompatibility = immutableCopy([
     reason: 'Conhecimento reutilizável, mas orienta commands, scripts e escrita de artefatos.',
   },
   {
+    id: 'vtsd-completo', classification: 'HERMES_NATIVE',
+    source: '.claude/skills/vtsd-completo/SKILL.md',
+    reason: 'Metodologia de produto local reutilizável pelo wrapper Hermes de produto.',
+  },
+  {
+    id: 'criacao-produto-low-ticket', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/criacao-produto-low-ticket/SKILL.md',
+    reason: 'Estrutura de Low Ticket reutilizável; o handoff Meta continua externo em dry-run.',
+  },
+  {
+    id: 'carrossel', classification: 'HERMES_WRAPPER',
+    source: '.claude/skills/carrossel/SKILL.md',
+    reason: 'Metodologia de conteúdo local; publicação e scheduling não são autorizados pela skill.',
+  },
+  {
     id: 'trafego-pago', classification: 'HERMES_NATIVE',
     source: '.claude/skills/trafego-pago/SKILL.md',
     reason: 'Conhecimento metodológico de estrutura, métricas e decisões de tráfego sem transport de provider.',
