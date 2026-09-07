@@ -50,6 +50,9 @@ assert.equal(resolveHermesWorkflow('traffic.insights').target.path, resolveHerme
 assert.equal(matrix.find((entry) => entry.workflow_id === 'social.publish').hermes_current_support, 'HERMES_BLOCKED_EXTERNAL');
 assert.equal(matrix.find((entry) => entry.workflow_id === 'ads.scale').financial, true);
 assert.equal(matrix.find((entry) => entry.workflow_id === 'ads.scale').approval_required, true);
+for (const workflowId of ['ads.insights', 'ads.campaign.create', 'ads.optimize', 'ads.scale', 'ads.report']) {
+  assert.equal(matrix.find((entry) => entry.workflow_id === workflowId).hermes_current_support, 'HERMES_EXTERNAL_DRY_RUN');
+}
 for (const workflowId of ['plan.execute', 'toolkit.execute']) {
   const entry = matrix.find((candidate) => candidate.workflow_id === workflowId);
   assert.equal(entry.hermes_current_support, 'HERMES_COMPOSITE_REQUIRED');
