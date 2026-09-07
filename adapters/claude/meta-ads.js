@@ -38,20 +38,29 @@ const META_AUTH_OPERATIONS = Object.freeze({
   'meta.auth.validate': 'meta.auth.validate',
   'meta.accounts.list': 'meta.accounts.list',
 });
+const META_AUTH_MODES = Object.freeze(['APP', 'MCP_CONECTOR']);
 
 function resolveMetaOperation(operation) {
   const id = META_OPERATION_DESCRIPTORS[operation] ? operation : LEGACY_OPERATION_IDS[operation];
   return id ? { id, ...META_OPERATION_DESCRIPTORS[id] } : null;
 }
 
-function createMetaOperationDescriptor(operation) {
+function assertAuthMode(authMode) {
+  if (!META_AUTH_MODES.includes(authMode)) throw new TypeError('unsupported Meta auth mode');
+  return authMode;
+}
+function createMetaOperationDescriptor(operation, { auth_mode: authMode = 'APP' } = {}) {
+  assertAuthMode(authMode);
   const definition = resolveMetaOperation(operation);
   if (!definition) return immutableCopy({ status: 'blocked', reason: 'operation_not_allowlisted', operation });
   return immutableCopy({
     id: definition.id,
     provider: 'meta',
     class: definition.class,
-    required_secret: META_ACCESS_TOKEN,
+    required_secret: authMode === 'APP' ? META_ACCESS_TOKEN : null,
+    auth_mode: authMode,
+    transport: authMode === 'MCP_CONECTOR' ? 'mcp' : 'app',
+    oauth_managed_externally: authMode === 'MCP_CONECTOR',
     external: true,
     financial: definition.financial,
     approval: definition.approval ? 'manual' : null,
@@ -59,22 +68,22 @@ function createMetaOperationDescriptor(operation) {
   });
 }
 
-function createMetaAuthDescriptor(operation) {
-  const descriptor = createMetaOperationDescriptor(operation);
+function createMetaAuthDescriptor(operation, options) {
+  const descriptor = createMetaOperationDescriptor(operation, options);
   if (descriptor.status === 'blocked' || !Object.hasOwn(META_AUTH_OPERATIONS, descriptor.id)) {
     throw new Error('Meta auth operation is not allowlisted');
   }
   return descriptor;
 }
 
-function prepareMetaOperation({ operation, policy, context, secretProvider }) {
-  const descriptor = createMetaOperationDescriptor(operation);
+function prepareMetaOperation({ operation, policy, context, secretProvider, auth_mode: authMode = 'APP' }) {
+  const descriptor = createMetaOperationDescriptor(operation, { auth_mode: authMode });
   if (descriptor.status === 'blocked') return descriptor;
-  if (!secretProvider || !secretProvider.has_secret(META_ACCESS_TOKEN)) {
+  if (authMode === 'APP' && (!secretProvider || !secretProvider.has_secret(META_ACCESS_TOKEN))) {
     return immutableCopy({ status: 'blocked', reason: 'secret_unavailable', operation: descriptor.id, category: descriptor.class });
   }
   if (!descriptor.approval) {
-    return immutableCopy({ status: 'dry_run', operation: descriptor.id, category: descriptor.class, secret_name: META_ACCESS_TOKEN });
+    return immutableCopy({ status: 'dry_run', operation: descriptor.id, category: descriptor.class, secret_name: descriptor.required_secret, auth_mode: authMode, transport: descriptor.transport, oauth_managed_externally: descriptor.oauth_managed_externally });
   }
   const approval = evaluateApproval(policy, context);
   if (!approval.allowed) {
@@ -83,7 +92,7 @@ function prepareMetaOperation({ operation, policy, context, secretProvider }) {
   if (policy.mode !== 'manual') {
     return immutableCopy({ status: 'blocked', reason: 'manual_approval_required', operation: descriptor.id, category: descriptor.class });
   }
-  return immutableCopy({ status: 'dry_run', operation: descriptor.id, category: descriptor.class, secret_name: META_ACCESS_TOKEN, approval });
+  return immutableCopy({ status: 'dry_run', operation: descriptor.id, category: descriptor.class, secret_name: descriptor.required_secret, approval, auth_mode: authMode, transport: descriptor.transport, oauth_managed_externally: descriptor.oauth_managed_externally });
 }
 
 function createPausedCampaignDraft({ name, action_id }) {
@@ -96,6 +105,7 @@ module.exports = {
   META_SECRET_ALIASES,
   META_OPERATIONS,
   META_AUTH_OPERATIONS,
+  META_AUTH_MODES,
   META_OPERATION_DESCRIPTORS,
   createMetaOperationDescriptor,
   createMetaAuthDescriptor,
