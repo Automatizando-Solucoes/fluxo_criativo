@@ -10,6 +10,9 @@ Esta é uma allowlist de avaliação, não uma configuração para carregar toda
 | `pesquisa-mercado` | `HERMES_WRAPPER` | `.claude/skills/pesquisa-mercado/SKILL.md` | Depende de pesquisa externa; precisa de adapter e gate. |
 | `anuncios` | `HERMES_WRAPPER` | `.claude/skills/anuncios/SKILL.md` | Conhecimento reaproveitável, mas ligado declarativamente a command Claude. |
 | `paginas` | `HERMES_WRAPPER` | `.claude/skills/paginas/SKILL.md` | Pressupõe commands, scripts e escrita de artefatos. |
+| `vtsd-completo` | `HERMES_NATIVE` | `.claude/skills/vtsd-completo/SKILL.md` | Metodologia local de produto usada pelo wrapper Hermes. |
+| `criacao-produto-low-ticket` | `HERMES_WRAPPER` | `.claude/skills/criacao-produto-low-ticket/SKILL.md` | Estrutura LT; handoff Meta permanece dry-run. |
+| `carrossel` | `HERMES_WRAPPER` | `.claude/skills/carrossel/SKILL.md` | Geração local, sem agendamento ou publicação. |
 | `trafego-pago` | `HERMES_NATIVE` | `.claude/skills/trafego-pago/SKILL.md` | Conhecimento metodológico de campanhas, métricas e decisão. |
 | `trafego-insights` | `HERMES_WRAPPER` | `.claude/skills/trafego-insights/SKILL.md` | Metodologia segura; aquisição usa `ads.insights` via adapter. |
 | `trafego-analise` | `HERMES_WRAPPER` | `.claude/skills/trafego-analise/SKILL.md` | Diagnóstico VTSD sobre insights normalizados. |

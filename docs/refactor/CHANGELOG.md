@@ -523,3 +523,9 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - A matriz de paridade cobre todos os workflows do registry, inclusive risco, approval, capability, fonte metodológica, wrapper e lote futuro. `ads.insights` é canônico e `traffic.insights` ficou alias explícito para o mesmo wrapper.
 - O adapter Hermes continua estritamente dry-run: cron descreve `cronjob create`, mas mantém `scheduled:false`; delegates não recebem capabilities externas, financeiras, de publicação, notificação ou secrets; gateway Hermes não substitui `notification.send`/UAZAPI.
 - A política de fonte permite metodologia Claude segura e operations IDs runtime-neutral, mas continua bloqueando comandos Claude, Bash, secrets, provider direto, publicação e deploy.
+
+## Fase L2: paridade local Hermes
+
+- Produto, copy, página, carrossel e comercial passaram a compartilhar contracts locais runtime-neutral entre Claude e Hermes, sem importar adapters Claude pelo runtime Hermes.
+- Hermes passou a resolver wrappers locais testados para produto, copy, roteiro, página, carrossel e comercial. Low/Middle Ticket geram somente planos e handoff Meta manual em dry-run.
+- A regressão Hermes usa fixture temporária com guards reais para rede, child process e escrita fora da fixture; nenhum provider, secret, cron, delegate, deploy ou publicação foi ativado.
