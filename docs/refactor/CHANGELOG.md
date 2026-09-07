@@ -511,3 +511,8 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - O adapter Meta separa `APP` (SecretProvider com `META_ACCESS_TOKEN`) de `MCP_CONECTOR` (OAuth externo), sem conceder qualquer aprovação de escrita pelo transport.
 - As cinco skills de tráfego voltaram a expor metodologia canônica sem `.env`, token, request direta ou runtime específico; leitura e ações usam operations allowlisted.
 - O E2E instala guards reais para rede, child processes e writes fora da fixture, todos restaurados ao término do teste.
+
+## Fase K: runtime Meta removido das skills canônicas
+
+- `trafego-insights`, `trafego-analise`, `trafego-criar-campanha`, `trafego-otimizar` e `trafego-escalar` passaram a solicitar exclusivamente operações Meta allowlisted; endpoints, verbos HTTP e aliases `FB_AD_ACCOUNT_*`/`AD_ACCOUNT_ID` saíram da metodologia canônica.
+- As leituras necessárias à metodologia foram modeladas no adapter Meta como descriptors dry-run: conta, campanhas, pixels, conversões, audiências, interesses e validação de criativos.

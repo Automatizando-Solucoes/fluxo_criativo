@@ -145,13 +145,13 @@ Pergunta única, com duas opções:
 Se o aluno escolher **1. Compra**: definir `optimization_goal = OFFSITE_CONVERSIONS` com evento `Purchase` e seguir para 5.3.
 
 Se o aluno escolher **2. Personalizado**: chamar a Marketing API para listar conversões personalizadas da conta:
-- Solicitar ao adapter a lista de conversões personalizadas para a conta canônica. O transport é resolvido internamente por `META_AUTH_MODO`.
+- Solicitar `ads.conversions.list` para a conta canônica. O transport é resolvido internamente por `META_AUTH_MODO`.
 - Mostrar até **10 primeiras** conversões personalizadas, numeradas, com nome e tipo. Se a conta tiver mais que 10, avisar: "Mostrando 10 primeiras de N conversões. Se a desejada não aparecer, digite o nome ou ID."
 - Se a conta não tiver nenhuma conversão personalizada, avisar: "Não encontrei conversões personalizadas nesta conta. Crie uma no Gerenciador de Eventos > Conversões personalizadas, ou volte para a opção 1 (Compra)."
 - Aluno escolhe pelo número, nome ou ID. Salvar `custom_conversion_id` para usar no `promoted_object` do conjunto de anúncios.
 
 **5.3. Validações na Marketing API antes de prosseguir:**
-- Pixel existe na conta (chamada `GET /act_{id}/adspixels`).
+- Pixel existe na conta (`ads.pixels.list`).
 - Evento escolhido (Purchase ou conversão personalizada) está recebendo dados nos últimos 7 dias.
 
 Se qualquer validação falhar:
@@ -244,11 +244,11 @@ Pergunta de abertura:
 
 Para cada item escolhido, conduzir o sub-fluxo correspondente:
 
-**6.3.1. Públicos customizados.** Listar via `GET /act_{id}/customaudiences?fields=id,name,subtype,approximate_count_lower_bound,approximate_count_upper_bound&limit=25`. Mostrar tabela numerada. Aluno escolhe por número ou nome.
+**6.3.1. Públicos customizados.** Solicitar `ads.audiences.list`, mostrar a tabela normalizada e deixar o aluno escolher por número ou nome.
 
-**6.3.2. Lookalikes.** Mesma chamada de customaudiences, filtrar `subtype = LOOKALIKE`. Se aluno pedir "criar lookalike de X", parar e instruir: "Criação de lookalike é feita no Gerenciador. Crie o público lá e volte aqui." Não criar lookalike automaticamente.
+**6.3.2. Lookalikes.** Usar `ads.audiences.list` e filtrar `subtype = LOOKALIKE`. Se aluno pedir "criar lookalike de X", parar e instruir: "Criação de lookalike é feita no Gerenciador. Crie o público lá e volte aqui." Não criar lookalike automaticamente.
 
-**6.3.3. Interesses específicos.** Se aluno declarar nomes ("interesse em yoga e meditação"), buscar via `GET /search?type=adinterest&q={nome}&limit=5` e confirmar match. Se aluno pedir "busca interesses sobre X", rodar a busca e mostrar 5 a 10 opções.
+**6.3.3. Interesses específicos.** Se aluno declarar nomes ("interesse em yoga e meditação"), usar `ads.interests.search` e confirmar match. Se aluno pedir "busca interesses sobre X", solicitar a busca e mostrar 5 a 10 opções.
 
 **6.3.4. Restrições demográficas.** Pergunta a pergunta:
 - Idade mínima e máxima
@@ -306,8 +306,8 @@ Seguir para as próximas fases e montar o preview YAML com o campo `media_id: nu
 > "Criativos pendentes. Antes de ativar a campanha, adicione os arquivos em `meus-produtos/{ativo}/entregas/criativos/` e me peça para fazer o upload e vincular aos anúncios."
 
 **7.3. Criativos existentes na biblioteca (opção 3)**
-- Se aluno declarar IDs: confirmar via `GET /{ad_id}` que existem.
-- Se aluno pedir "lista os criativos disponíveis": chamar Graph API e listar últimos 20 com nomes/IDs.
+- Se aluno declarar IDs: confirmar por `ads.creatives.validate` que existem.
+- Se aluno pedir "lista os criativos disponíveis": solicitar `ads.creatives.validate` e listar os últimos 20 nomes/IDs retornados.
 
 **7.3. Copy do anúncio**
 Para cada anúncio, pedir:
@@ -372,7 +372,7 @@ Antes de qualquer chamada à Marketing API que modifique a conta:
 - Pixel: já trazido pela listagem de pixels da Fase 5.
 - Conversão personalizada: já trazido pela listagem da Fase 5.2.
 - Público customizado: já trazido pela listagem.
-- Criativo/Campanha existente: `GET /{id}?fields=name`.
+- Criativo/Campanha existente: solicitar a identificação pelo adapter Meta de leitura.
 
 Nunca mostrar apenas "Page ID 106712754455284" ou "Instagram conectado a ela". Sempre `Leandro Ladeira (106712754455284)` e `@leandroladeiran (17841404558465898)`.
 
@@ -381,7 +381,7 @@ Esquema do YAML salvo:
 ```yaml
 preview_campanha:
   conta:
-    ad_account_id: "act_1234567890"
+    account_id: "act_1234567890"
     page_id: "..."
     instagram_user_id: "..."
 
@@ -488,7 +488,7 @@ campanha:
   id: "120203456789"
   nome: "Perpétuo - Curso X - 1-1-3 - 2026-05-04"
   status: PAUSED
-  ad_account_id: "act_1234567890"
+  account_id: "act_1234567890"
   url_gerenciador: "https://business.facebook.com/adsmanager/manage/campaigns?act=1234567890&selected_campaign_ids=120203456789"
 
 conjuntos_criados:

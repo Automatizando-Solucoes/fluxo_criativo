@@ -54,7 +54,7 @@ Qual conta de anúncios deseja analisar?
 
 Digite o número:
 ```
-Se a chamada de nome falhar para alguma conta, exibir só o ID sem nome. A conta padrão ainda recebe a etiqueta `"padrão"` mesmo sem nome.
+Se `meta.accounts.list` não retornar nome para alguma conta, exibir só o ID. A conta padrão ainda recebe a etiqueta `"padrão"` mesmo sem nome.
 
 **Após a escolha:** definir `CONTA_ATIVA_ID` como contexto de sessão e encaminhá-lo para `ads.insights` quando for necessário adquirir dados.
 
@@ -86,14 +86,7 @@ Salvar como `STATUS_FILTRO` (variável de sessão) e usar em todas as chamadas s
 
 ### Passo 0.6. Identificar escopo de análise
 
-Após definir `CONTA_ATIVA_ID` e `STATUS_FILTRO`, **sempre buscar todas as campanhas da conta** com o status escolhido — sem pré-filtrar por nome:
-
-```
-GET /act_{CONTA_ATIVA_ID}/campaigns
-  ?fields=id,name,objective,status
-  &effective_status={STATUS_FILTRO}
-  &limit=200
-```
+Após definir `CONTA_ATIVA_ID` e `STATUS_FILTRO`, **sempre solicitar `ads.campaigns.list`** com o status escolhido — sem pré-filtrar por nome.
 
 Salvar a lista completa em memória de sessão (`CAMPANHAS_SESSAO`). Não filtrar ainda.
 
@@ -328,7 +321,7 @@ Cada escolha do menu carrega um sub-skill específico. Dependências de breakdow
 | [5] Timing & Sazonalidade | `sub-skills/5-timing-sazonalidade.md` | `hourly_stats_aggregated_by_advertiser_time_zone` + base por dia |
 | [6] Investigação Profunda | `sub-skills/6-investigacao-profunda.md` | `device_platform`, `impression_device`, `publisher_platform` |
 | [7] Lifecycle & Histórico | `sub-skills/7-lifecycle-historico.md` | base por mês x 6 meses (`historico_mensal`) |
-| [8] Problemas Ocultos | `sub-skills/8-problemas-ocultos.md` | base + diagnóstico de pixel (endpoint `/adspixels` direto) |
+| [8] Problemas Ocultos | `sub-skills/8-problemas-ocultos.md` | base + diagnóstico de pixel por `ads.pixels.list` |
 | [9] Orçamento & Projeção | `sub-skills/9-orcamento-projecao.md` | base |
 | [10] Comparativo A x B | `sub-skills/10-comparativo.md` | base por campanha + métricas de vídeo (`video_p25/p50/p75/p95_watched_actions`) |
 | [11] Livre | usa o sub-skill mais próximo da intenção identificada | conforme necessidade |

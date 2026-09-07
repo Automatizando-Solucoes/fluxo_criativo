@@ -42,14 +42,11 @@ Ao ser invocada, a skill guia o aluno por 4 passos antes de rodar qualquer anál
 
 Usar `META_AD_ACCOUNT_ID` como conta padrão. Para múltiplas contas, solicitar `meta.accounts.list` e apresentar as opções retornadas.
 
-**Se houver apenas uma conta configurada** (`FB_AD_ACCOUNT_IDS` vazio ou igual a `FB_AD_ACCOUNT_ID`): usar automaticamente e pular a pergunta.
+**Se houver apenas `META_AD_ACCOUNT_ID` disponível**: usar automaticamente e pular a pergunta.
 
-**Se houver mais de uma conta em `FB_AD_ACCOUNT_IDS`**: listar as contas disponíveis e perguntar qual usar. Para obter o nome de cada conta:
-```
-`meta.accounts.list`
-```
+**Se houver várias contas**: usar `meta.accounts.list`, listar as opções e perguntar qual usar.
 
-**Ordenação obrigatória:** a conta cujo ID coincide com `FB_AD_ACCOUNT_ID` é a conta padrão e deve sempre aparecer em **primeiro lugar**, com a etiqueta `"padrão"` após o nome. As demais seguem na ordem de `FB_AD_ACCOUNT_IDS`.
+**Ordenação obrigatória:** a conta cujo ID coincide com `META_AD_ACCOUNT_ID` é a conta padrão e deve sempre aparecer em **primeiro lugar**, com a etiqueta `"padrão"` após o nome.
 
 ```
 Qual conta de anúncios deseja otimizar?
@@ -90,14 +87,7 @@ Salvar como `STATUS_FILTRO` (variável de sessão).
 
 ### Passo 0.6. Identificar escopo de análise
 
-Buscar todas as campanhas da conta com o status escolhido:
-
-```
-GET /act_{CONTA_ATIVA_ID}/campaigns
-  ?fields=id,name,objective,status
-  &effective_status={STATUS_FILTRO}
-  &limit=200
-```
+Solicitar `ads.campaigns.list` para a conta com o status escolhido.
 
 Salvar a lista em `CAMPANHAS_SESSAO`. Em seguida, perguntar o escopo:
 

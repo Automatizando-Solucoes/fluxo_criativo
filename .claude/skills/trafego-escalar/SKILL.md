@@ -53,7 +53,7 @@ Mesma lógica do Passo 0.5 de `/trafego-otimizar`: `META_AD_ACCOUNT_ID` é a con
 
 **Se houver apenas uma conta configurada**: usar automaticamente e pular a pergunta.
 
-**Se houver mais de uma conta**: listar nomes (via `GET /{act_ID}?fields=name`) com a conta padrão em primeiro lugar e etiqueta `"padrão"`. Demais seguem na ordem de `FB_AD_ACCOUNT_IDS`.
+**Se houver mais de uma conta**: usar `meta.accounts.list`, listar nomes com a conta padrão em primeiro lugar e etiqueta `"padrão"`.
 
 ```
 Qual conta de anúncios deseja escalar?
@@ -70,14 +70,7 @@ Salvar como `CONTA_ATIVA_ID`. **Filtro de status fica fixo em `effective_status=
 
 ### Passo 0.6. Identificar escopo
 
-Buscar todas as campanhas ativas da conta:
-
-```
-GET /act_{CONTA_ATIVA_ID}/campaigns
-  ?fields=id,name,objective,status
-  &effective_status=["ACTIVE"]
-  &limit=200
-```
+Solicitar `ads.campaigns.list` com filtro de campanhas ativas para a conta selecionada.
 
 Salvar lista em `CAMPANHAS_SESSAO`. Em seguida perguntar:
 

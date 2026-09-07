@@ -57,11 +57,7 @@ Você é a fonte única de verdade sobre dados de performance do Meta Ads. Seu p
 A janela de atribuição é o que define **quais conversões contam** para cada anúncio. Sem declarar, número não tem significado.
 
 ### 2.1 Detecção automática
-A skill primeiro tenta ler a janela de atribuição padrão da ad account via Graph API:
-
-```
-GET /act_{ad_account_id}?fields=attribution_spec
-```
+A skill primeiro solicita ao adapter a configuração de atribuição da conta por `ads.account.read`.
 
 Se a conta tem atribuição configurada, usar essa.
 
@@ -99,10 +95,9 @@ Se o gestor pedir janela explícita (`data_inicio` + `data_fim`), puxar essa jan
 
 ## 4. Métricas que a skill puxa
 
-### 4.1 Métricas nativas da Graph API
-Endpoint: `GET /{object_id}/insights`
+### 4.1 Métricas nativas normalizadas por `ads.insights`
 
-Campos obrigatórios na requisição:
+Campos obrigatórios do resultado normalizado:
 ```
 spend, impressions, reach, frequency, clicks, cpc, cpm, ctr,
 inline_link_clicks, inline_link_click_ctr,
@@ -181,7 +176,7 @@ Se denominador for menor que 50 (ex: 30 link clicks), calcular mas marcar `confi
 Quando `escopo: conta_completa`, a skill executa em duas fases:
 
 ### 6.1 Fase de listagem
-1. `GET /act_{id}/campaigns?fields=id,name,status,objective,daily_budget,lifetime_budget&limit=200&effective_status=%5B%22ACTIVE%22%5D`
+1. Solicitar `ads.campaigns.list` com o filtro de status escolhido.
 2. Para cada campanha ativa, puxar insights da janela média da trilha (ex: 7d para perpétuo low).
 3. Calcular métrica-norte (CPA ou CPL) por campanha.
 4. Ranquear por urgência:
@@ -210,7 +205,7 @@ Quando a chamada vem com `escopo: conta_completa` **e** `nivel: ad` explicitamen
 
 ```yaml
 status: ok
-ad_account_id: act_<id>
+account_id: act_<id>
 escopo: conta_completa
 nivel: ad
 total_ads_ativos: 64
@@ -258,7 +253,7 @@ A skill mantém dois níveis de cache, complementares:
 3. Graph API → busca, salva no arquivo .md e na memória.
 
 ### 7.4 Invalidação automática
-Ambos os caches da `ad_account_id` (memória + todos os arquivos da pasta) são invalidados **imediatamente** quando:
+Ambos os caches da `account_id` (memória + todos os arquivos da pasta) são invalidados **imediatamente** quando:
 - Qualquer skill de edição executa write (`/trafego-otimizar`, `/trafego-escalar`, `/trafego-criar-campanha`, Gerenciador (Regras automáticas), Gerenciador de Audiences, Duplicar entidade no Gerenciador (variando 1 dimensão)).
 - Gestor pede explicitamente "atualizar dados" ou "puxar de novo sem cache".
 - TTL expirou.
@@ -295,7 +290,7 @@ Mesmo em sucesso total, o campo `erros[]` aparece no output como lista vazia. Qu
 
 ```yaml
 status: ok | erro_fatal
-ad_account_id: "act_1234567890"
+account_id: "act_1234567890"
 campaign_id: "120203456789"
 trilha: perpetuo_low | perpetuo_mid | perpetuo_high | lancamento_low | lancamento_mid | lancamento_high
 moeda: BRL
@@ -379,7 +374,7 @@ erros: []
 
 ```yaml
 status: ok | erro_fatal
-ad_account_id: "act_1234567890"
+account_id: "act_1234567890"
 escopo: conta_completa
 moeda: BRL
 

@@ -21,4 +21,4 @@ Aliases `FB_ACCESS_TOKEN_PERMANENTE`, `FB_ACCESS_TOKEN_TEMPORARIO`, `ACCESS_TOKE
 
 ## Operações canônicas
 
-`meta.auth.validate`, `meta.accounts.list`, `ads.insights`, `ads.campaign.create`, `ads.campaign.update_status`, `ads.optimize` e `ads.scale` são allowlisted em `adapters/claude/meta-ads.js`. Todas produzem descriptors `dry_run`; nenhuma expõe segredo. `ads.scale` é `FINANCIAL_WRITE` e requer grant manual da ação exata.
+`meta.auth.validate`, `meta.accounts.list`, `ads.account.read`, `ads.campaigns.list`, `ads.insights`, `ads.pixels.list`, `ads.conversions.list`, `ads.audiences.list`, `ads.interests.search`, `ads.creatives.validate`, `ads.campaign.create`, `ads.campaign.update_status`, `ads.optimize` e `ads.scale` são allowlisted em `adapters/claude/meta-ads.js`. Todas produzem descriptors `dry_run`; nenhuma expõe segredo ou aceita endpoint arbitrário. `ads.scale` é `FINANCIAL_WRITE` e requer grant manual da ação exata.
