@@ -139,7 +139,7 @@ try {
   const toolkit = createToolkit(productPath, 'fixture-toolkit', [{ id: 'copy', workflow_id: 'copy.social' }, { id: 'scale', workflow_id: 'ads.scale', action_id: 'scale-fixture' }, { id: 'page', workflow_id: 'page.sales', depends_on: ['copy'] }]);
   transition(productPath, 'fixture-toolkit', 'copy', 'running');
   const completed = transition(productPath, 'fixture-toolkit', 'copy', 'completed');
-  assert.equal(completed.tasks[0].status, 'completed'); assert.equal(completed.tasks.find((task) => task.id === 'scale').reason, 'approval_required'); assert.throws(() => createToolkit(productPath, 'unknown-toolkit', [{ id: 'bad', workflow_id: 'unknown.workflow' }]), /unknown workflow/);
+  assert.equal(completed.tasks[0].status, 'completed'); assert.equal(completed.tasks.find((task) => task.id === 'scale').reason, 'approval_required'); const unknownToolkit = createToolkit(productPath, 'unknown-toolkit', [{ id: 'bad', workflow_id: 'unknown.workflow' }]); assert.equal(unknownToolkit.state.tasks[0].reason, 'unknown_workflow');
   assertProductWrite(toolkit.dir);
 
   assert.equal(planCommercial({ product_slug: slug }).status, 'READY');

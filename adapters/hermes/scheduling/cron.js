@@ -22,7 +22,12 @@ function buildApprovalContext(job, approvalContext = {}) {
 function toHermesCronJob(jobInput, approvalContext) {
   const job = createScheduledJob(jobInput);
   const workflow = workflowRegistry.get(job.workflow_id);
-  const resolution = resolveHermesWorkflow(job.workflow_id);
+  let resolution = null;
+  try {
+    resolution = resolveHermesWorkflow(job.workflow_id);
+  } catch {
+    resolution = null;
+  }
   const context = buildApprovalContext(job, approvalContext);
   const approvalResult = evaluateApproval(job.approval_policy, context);
   let eligibleForSchedule = false;
@@ -35,14 +40,20 @@ function toHermesCronJob(jobInput, approvalContext) {
     reason = 'job_disabled';
   } else if (!approvalResult.allowed) {
     reason = `approval_${approvalResult.reason}`;
+  } else if (workflow.side_effects.financial) {
+    reason = 'financial_workflow_blocked';
   } else if (workflow.side_effects.external) {
-    reason = 'external_capability_blocked';
+    reason = 'external_execution_unavailable';
+  } else if (!resolution) {
+    reason = 'hermes_wrapper_required';
   } else {
     eligibleForSchedule = true;
     reason = 'eligible_dry_run';
   }
   return immutableCopy({
     kind: 'hermes.cron',
+    tool: 'cronjob',
+    action: 'create',
     job_id: job.job_id,
     workflow_id: job.workflow_id,
     input: job.input,
@@ -51,9 +62,10 @@ function toHermesCronJob(jobInput, approvalContext) {
     idempotency_key: job.idempotency_key,
     approval_policy: job.approval_policy,
     destination: job.destination,
+    delivery: job.destination,
     workdir: PROJECT_ROOT,
-    skills: [resolution.target.path],
-    requires_child_risk_resolution: resolution.requires_child_risk_resolution,
+    skills: resolution ? [resolution.target.path] : [],
+    requires_child_risk_resolution: resolution?.requires_child_risk_resolution || workflow.risk_from_children,
     external_capability_granted: false,
     external_interaction_declared: workflow.side_effects.external,
     approval_context: context,

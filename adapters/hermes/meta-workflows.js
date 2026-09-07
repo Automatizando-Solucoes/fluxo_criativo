@@ -1,0 +1,11 @@
+'use strict';
+const { immutableCopy } = require('../../core/contracts/immutable');
+const { workflowRegistry } = require('../../core/workflows/registry');
+const meta = require('../../core/external/meta-ads'); const report = require('../../core/external/ads-report');
+const HERMES_META_WORKFLOWS = Object.freeze(['ads.insights', 'ads.campaign.create', 'ads.optimize', 'ads.scale', 'ads.report']);
+function prepareHermesMetaOperation(input) { if (!input || typeof input !== 'object') throw new TypeError('Meta workflow input required'); const prepared = meta.prepareMetaOperation(input); return immutableCopy({ workflow_id: input.workflow_id || prepared.operation, runtime: 'hermes', support_status: 'HERMES_EXTERNAL_DRY_RUN', local_executable: true, external_executable: false, external: true, financial: prepared.financial || false, approval_required: prepared.approval_required || false, result: prepared }); }
+function prepareHermesMetaWorkflow(input) { if (!HERMES_META_WORKFLOWS.includes(input.workflow_id)) throw new TypeError(`unsupported Hermes Meta workflow: ${input.workflow_id}`); if (input.workflow_id === 'ads.report') return immutableCopy({ workflow_id: 'ads.report', runtime: 'hermes', support_status: 'HERMES_EXTERNAL_DRY_RUN', local_executable: true, external_executable: false, external: true, financial: false, approval_required: false, result: meta.prepareMetaOperation({ operation: 'ads.insights', auth_mode: input.auth_mode, secretProvider: input.secretProvider }) }); return prepareHermesMetaOperation({ ...input, operation: input.workflow_id }); }
+function createHermesCampaignDraft(input) { return immutableCopy({ workflow_id: 'ads.campaign.create', runtime: 'hermes', support_status: 'HERMES_EXTERNAL_DRY_RUN', local_executable: true, external_executable: false, draft: meta.createPausedCampaignDraft(input) }); }
+function buildHermesAdsReport(input) { const result = report.createAdsReport(input); return immutableCopy({ workflow_id: 'ads.report', runtime: 'hermes', support_status: 'HERMES_EXTERNAL_DRY_RUN', local_executable: true, external_executable: false, result }); }
+function createHermesReportDelivery(input) { return report.createReportDelivery(input); }
+module.exports = { HERMES_META_WORKFLOWS, prepareHermesMetaOperation, prepareHermesMetaWorkflow, createHermesCampaignDraft, buildHermesAdsReport, createHermesReportDelivery };

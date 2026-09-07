@@ -18,7 +18,8 @@ try {
   let state = transition(root, 'x', 'a', 'running'); assert.equal(state.tasks[0].attempts, 1); state = transition(root, 'x', 'a', 'failed', { error: 'x' }); assert.throws(() => transition(root, 'x', 'b', 'running'), /blocked dependency/); assert.throws(() => transition(root, 'x', 'a', 'completed'), /explicit retry/);
   const updated = reevaluateTask(root, 'gates', 'create', { action_id: 'create-1', approval_policy: createApprovalPolicy({ mode: 'manual', workflow_id: 'ads.campaign.create', manual_grant: { action_id: 'create-1', approved_by: 'operator', approved_at: '2026-09-07T00:00:00Z' } }) });
   assert.equal(updated.tasks.find((task) => task.id === 'create').status, 'pending');
-  assert.throws(() => createToolkit(root, 'unknown', [{ id: 'bad', workflow_id: 'not.registered' }]), /unknown workflow/);
+  const unknown = createToolkit(root, 'unknown', [{ id: 'bad', workflow_id: 'not.registered' }]);
+  assert.equal(unknown.state.tasks[0].status, 'blocked'); assert.equal(unknown.state.tasks[0].reason, 'unknown_workflow');
   assert.throws(() => createToolkit(root, 'duplicate', [{ id: 'a', workflow_id: 'copy.social' }, { id: 'b', workflow_id: 'copy.page', idempotency_key: 'a' }]), /duplicate idempotency key/);
 } finally { fs.rmSync(root, { recursive: true, force: true }); }
 process.stdout.write('Claude toolkit workflow: ok\n');

@@ -516,3 +516,45 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 
 - `trafego-insights`, `trafego-analise`, `trafego-criar-campanha`, `trafego-otimizar` e `trafego-escalar` passaram a solicitar exclusivamente operações Meta allowlisted; endpoints, verbos HTTP e aliases `FB_AD_ACCOUNT_*`/`AD_ACCOUNT_ID` saíram da metodologia canônica.
 - As leituras necessárias à metodologia foram modeladas no adapter Meta como descriptors dry-run: conta, campanhas, pixels, conversões, audiências, interesses e validação de criativos.
+
+## Fase L1: auditoria de paridade Hermes
+
+- Claude Code foi declarado explicitamente como runtime funcional de referência; Hermes passa a ser runtime alvo em adaptação até obter paridade testada por workflow.
+- A matriz de paridade cobre todos os workflows do registry, inclusive risco, approval, capability, fonte metodológica, wrapper e lote futuro. `ads.insights` é canônico e `traffic.insights` ficou alias explícito para o mesmo wrapper.
+- O adapter Hermes continua estritamente dry-run: cron descreve `cronjob create`, mas mantém `scheduled:false`; delegates não recebem capabilities externas, financeiras, de publicação, notificação ou secrets; gateway Hermes não substitui `notification.send`/UAZAPI.
+- A política de fonte permite metodologia Claude segura e operations IDs runtime-neutral, mas continua bloqueando comandos Claude, Bash, secrets, provider direto, publicação e deploy.
+
+## Fase L2: paridade local Hermes
+
+- Produto, copy, página, carrossel e comercial passaram a compartilhar contracts locais runtime-neutral entre Claude e Hermes, sem importar adapters Claude pelo runtime Hermes.
+- Hermes passou a resolver wrappers locais testados para produto, copy, roteiro, página, carrossel e comercial. Low/Middle Ticket geram somente planos e handoff Meta manual em dry-run.
+- A regressão Hermes usa fixture temporária com guards reais para rede, child process e escrita fora da fixture; nenhum provider, secret, cron, delegate, deploy ou publicação foi ativado.
+
+## Fase L3: boundaries externos Hermes
+
+- Pesquisa, imagem, vídeo e dashboards passaram a compartilhar contracts externos entre Claude e Hermes: allowlists, secrets lógicos, descriptors dry-run, mocks e preservação de artefato/cache em erro.
+- Hermes ganhou wrappers externos para imagem, vídeo e dashboard; pesquisa e criativo estático agora persistem somente artefatos locais/mockados e nunca acionam provider.
+- Todas as integrações L3 permanecem `HERMES_EXTERNAL_DRY_RUN`, com guards de rede, subprocesso e filesystem na regressão local.
+
+## Fase L4: paridade Meta Ads Hermes
+
+- Meta Ads passou a usar `core/external/meta-ads.js` como boundary único entre Claude e Hermes, com allowlist de operações, transports APP/MCP, `META_ACCESS_TOKEN` lógico e sem cliente HTTP.
+- O contrato de relatório passou a `core/external/ads-report.js`; `ReportResult` mantém `delivery: null` antes de qualquer descriptor de notificação.
+- Hermes ganhou wrappers dry-run para criação, otimização, escala e relatório. Criação gera somente draft `PAUSED`; escrita exige approval manual e escala financeira exige grant manual para o `action_id` correto.
+- `traffic.insights` continua alias legado explícito de `ads.insights`, compartilhando o mesmo wrapper sem implementação paralela.
+- A regressão Hermes Meta bloqueia e contabiliza rede, subprocessos e escrita fora da fixture, além de verificar ausência de segredos nos resultados serializados.
+
+## Fase L5: orquestração e scheduling Hermes
+
+- Plan Executor e Toolkit passaram a compartilhar contracts neutros de tarefas tipadas, risco externo e financeiro, ApprovalPolicy, dependências, idempotência, retry explícito e estado persistente.
+- Hermes resolve e persiste planos sem dispatch automático. Tasks desconhecidas, compostos sem filhos, dependências bloqueadas e gates de approval falham fechados.
+- O wrapper de Toolkit deriva seu diretório de `meus-produtos/{slug}/projeto/{toolkit-id}/`; nenhum root fornecido pelo modelo obtém autoridade sobre outro caminho.
+- `carousel.schedule` ganhou wrapper Hermes e persiste descriptor local com timezone IANA, `publication:false`, `relatorio_cron_id:null` e `scheduled:false`.
+- Cron Hermes continua somente descriptor. Financeiro, publisher bloqueado e qualquer execução externa retornam inelegíveis; delegates permanecem dry-run e read/review only.
+
+## Fase L6: boundaries bloqueados Hermes
+
+- Publisher orgânico e status High Ticket foram extraídos para boundaries neutros compartilhados por Claude e Hermes, sem adapter de provider, secret ou cliente de rede.
+- `social.publish` resolve para wrapper `HERMES_BLOCKED_EXTERNAL`: request e ApprovalPolicy são avaliáveis localmente, mas external ID, data de publicação e side effect permanecem ausentes.
+- Todas as plataformas reconhecidas continuam bloqueadas por `official_publisher_adapter_absent`; `autopublish:true` nunca habilita publicação.
+- High Ticket preserva a detecção da lista completa de dependências C10X `ht-*`, artefatos existentes e condição de retomada. Mesmo com fixture completa, a execução Hermes permanece não implementada.
