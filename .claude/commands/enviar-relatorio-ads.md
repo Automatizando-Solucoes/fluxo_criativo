@@ -65,17 +65,14 @@ Se o usuario perguntar por que Telegram e recomendado: "O Telegram e gratuito e 
 
 Se WhatsApp, exiba antes de continuar: "Atencao: use um numero secundario aquecido, nao o numero principal da operacao."
 
-Salve `RELATORIO_CANAL=TELEGRAM` ou `RELATORIO_CANAL=WHATSAPP` no `.env` com `Edit`.
+Registre apenas a preferência não secreta de canal na configuração local apropriada; nunca escreva segredo em `.env`.
 
 **Se `RELATORIO_CANAL=TELEGRAM`:**
-- Verificar `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID`
-- Se faltar qualquer um: execute a skill `configurar-telegram`, depois retorne
+- Verificar `TELEGRAM_CHAT_ID` e disponibilidade lógica de `TELEGRAM_BOT_TOKEN` pelo SecretProvider.
 
 **Se `RELATORIO_CANAL=WHATSAPP`:**
-- Verificar `ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, `ZAPI_CLIENT_TOKEN`, `RELATORIO_WHATSAPP_NUMERO`
-- Se faltar qualquer credencial Z-API: pergunte se tem conta na Z-API
-  - Se sim: peca as 3 credenciais uma por vez e salve no `.env` com `Edit`
-  - Se nao: execute a skill `configurar-zapi`, depois retorne
+- Verificar `UAZAPI_BASE_URL`, `RELATORIO_WHATSAPP_NUMERO` e disponibilidade lógica de `UAZAPI_TOKEN` pelo SecretProvider.
+- Se faltar token, orientar provisionamento direto no 1Password; nunca solicitar o valor.
 - Se faltar `RELATORIO_WHATSAPP_NUMERO`:
 
 ```
@@ -164,9 +161,9 @@ Onde `{ESCOLHA_PERIODO}` e o numero escolhido no Passo 2 (1, 2, 3 ou 4). Para op
 powershell.exe -ExecutionPolicy Bypass -File "scripts/relatorio-ads.ps1"
 ```
 
-Nunca passe `ACCESS_TOKEN`, `ZAPI_TOKEN`, `TELEGRAM_BOT_TOKEN` ou qualquer chave pela URL, pelo chat ou por comando que possa aparecer no historico do terminal.
+Nunca passe segredo pela URL, chat ou comando. A aquisição Meta e delivery são boundaries separados por SecretProvider.
 
-> **Nota.** No modo APP, os scripts já fazem busca + envio juntos. O Passo 6 não precisa rodar de novo.
+> **Nota.** Scripts canônicos apenas constroem o relatório; delivery é adapter separado.
 
 ## PASSO 4. Montar a mensagem
 
@@ -205,106 +202,18 @@ Custo por resultado: R$ X,XX
 
 Formatacao numerica: valores monetarios com virgula decimal e ponto milhar (ex: `R$ 1.234,56`). Percentuais com virgula (ex: `3,42%`).
 
-## PASSO 5. Confirmar envio
+## PASSO 5. Criar descriptor de delivery
 
 **Se Telegram:**
 
 ```
-Relatorio pronto. Deseja enviar para o seu Telegram?
-
-1. Sim, enviar agora
-2. Nao, apenas exibir aqui
+Relatorio pronto. O delivery Telegram será representado por `notification.send` com provider `telegram` e descriptor dry-run.
 ```
 
 **Se WhatsApp:**
 
 ```
-Relatorio pronto. Deseja enviar para o WhatsApp {NUMERO_MASCARADO}?
-
-1. Sim, enviar agora
-2. Nao, apenas exibir aqui
+Relatorio pronto. O delivery WhatsApp será representado por `notification.send` com provider `uazapi`, `UAZAPI_BASE_URL` e número mascarado.
 ```
 
-Se opcao 2: encerre sem chamar nenhuma API de envio.
-
-## PASSO 6. Enviar
-
-O fluxo de envio depende do `META_AUTH_MODO`.
-
-### Se `META_AUTH_MODO=APP`
-
-O script já cuidou do envio internamente no Passo 3 (busca + envio integrados). Não há nada para refazer aqui — só conferir o resultado e passar para o Passo 7.
-
-Se por algum motivo o script no Passo 3 só buscou sem enviar (ex: aluno escolheu opção 2 "apenas exibir aqui" no Passo 5), execute o mesmo comando do Passo 3 para disparar de novo:
-
-**Se `RELATORIO_AUTH_MODO=CLI`:**
-```bash
-python scripts/relatorio-ads-cli.py {ESCOLHA_PERIODO}
-```
-
-**Se `RELATORIO_AUTH_MODO=MANUAL` (ou nao definido):**
-```bash
-powershell.exe -ExecutionPolicy Bypass -File "scripts/relatorio-ads.ps1"
-```
-
-Nao use `curl` manual com token em URL ou header escrito no comando.
-
-### Se `META_AUTH_MODO=MCP_CONECTOR`
-
-A tool MCP do Passo 3 só busca os dados, não envia. O envio precisa ser feito agora com a mensagem montada no Passo 4.
-
-**Se `RELATORIO_CANAL=TELEGRAM`:**
-
-Use Bash para chamar a API do Telegram. Leia `TELEGRAM_BOT_TOKEN` e `TELEGRAM_CHAT_ID` do `.env`. Salve a mensagem montada no Passo 4 num arquivo temporário para evitar problemas de escape e expor o token na linha de comando:
-
-```bash
-# Substitua {MENSAGEM} pelo texto montado no Passo 4
-TMPFILE=$(mktemp)
-cat > "$TMPFILE" <<'EOF'
-{MENSAGEM}
-EOF
-curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-  --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-  --data-urlencode "parse_mode=Markdown" \
-  --data-urlencode "text@${TMPFILE}"
-rm "$TMPFILE"
-```
-
-**Se `RELATORIO_CANAL=WHATSAPP`:**
-
-Use Bash para chamar a Z-API. Leia `ZAPI_INSTANCE_ID`, `ZAPI_TOKEN`, `ZAPI_CLIENT_TOKEN` e `RELATORIO_WHATSAPP_NUMERO` do `.env`:
-
-```bash
-TMPFILE=$(mktemp)
-cat > "$TMPFILE" <<'EOF'
-{
-  "phone": "${RELATORIO_WHATSAPP_NUMERO}",
-  "message": "{MENSAGEM}"
-}
-EOF
-curl -s -X POST "https://api.z-api.io/instances/${ZAPI_INSTANCE_ID}/token/${ZAPI_TOKEN}/send-text" \
-  -H "Content-Type: application/json" \
-  -H "Client-Token: ${ZAPI_CLIENT_TOKEN}" \
-  --data-binary "@${TMPFILE}"
-rm "$TMPFILE"
-```
-
-> **Atenção.** Não imprima o token no chat. Não passe credenciais como argumento da linha de comando (ficam no histórico). Sempre use variável de ambiente lida do `.env`. Apague os arquivos temporários ao final.
-
-## PASSO 7. Resultado
-
-**Se Telegram:**
-
-- Sucesso (`"ok":true`): informe "Relatorio enviado para o seu Telegram."
-- Erro: mostre a mensagem de erro e oriente:
-  - `"Unauthorized"` ou error_code 401: token do bot invalido. Rode `/configurar-telegram` para reconfigurar.
-  - `"chat not found"`: Chat ID errado. Rode `/configurar-telegram` para obter o Chat ID correto.
-  - Qualquer outro erro: mostre o retorno bruto para diagnostico.
-
-**Se WhatsApp (Z-API):**
-
-- Sucesso: informe "Relatorio enviado para {numero mascarado}."
-- Erro, mostre a mensagem e oriente:
-  - `"subscribe to this instance again"`: assinatura Z-API expirada. Acesse o painel da Z-API e renove o plano.
-  - `"connected":false`: WhatsApp desconectado. Acesse o painel da Z-API e reconecte pelo QR Code.
-  - Qualquer outro erro: mostre o retorno bruto para diagnostico.
+Os dois modos Meta, APP e MCP_CONECTOR, produzem o mesmo artefato de relatório. Nesta fase o command cria somente descriptor com `sent:false` e `dry_run:true`; não lê segredos, não usa curl e não envia mensagens. O runtime futuro delegará para o adapter de notification autorizado.
