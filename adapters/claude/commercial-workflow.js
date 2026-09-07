@@ -1,0 +1,3 @@
+'use strict'; const { immutableCopy } = require('../../core/contracts/immutable');
+function planCommercial({ module='COMMERCIAL_GENERAL', product_slug, existing_artifacts=[] }) { if(!product_slug) throw new TypeError('product_slug required'); if(module==='COMMERCIAL_HT') return immutableCopy({status:'BLOCKED_EXTERNAL',dependency:'ht-*',reason:'c10x_skills_unavailable',resume_condition:'install C10X plugin',existing_artifacts}); if(module!=='COMMERCIAL_GENERAL') throw new TypeError('unknown commercial module'); return immutableCopy({status:'READY',module,outputs:['playbook','funnel','launch-plan'],existing_artifacts}); }
+module.exports={planCommercial};

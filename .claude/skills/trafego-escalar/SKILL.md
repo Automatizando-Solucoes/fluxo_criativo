@@ -10,28 +10,14 @@ description: >
   sem sinal de prontidão. Use quando o aluno pedir "escalar campanha", "aumentar budget", "subir
   verba", "duplicar conjunto vencedor", "expandir audiência", "consolidar em CBO", "campanha
   Advantage", ou quando /trafego-otimizar emitiu sinal_para_escala.pronta=true.
+user-invocable: false
 ---
 
-## 🛡️ Gate obrigatório antes de qualquer escrita na Graph API
+> **CANONICAL_SAFE_META_METHODOLOGY** — Preserve modos vertical/horizontal, velocidades, revalidação de gatilhos, freios, tetos, audiência, CPM e volume. A metodologia produz proposta de escala; execução é exclusivamente `ads.scale`, classificada `FINANCIAL_WRITE`, com grant manual do `action_id` exato. Conversa, conexão ou resultado passado não concedem orçamento.
 
-Esta skill executa operações que **modificam estado** na conta Meta Ads. Antes de chamar qualquer endpoint POST/PUT/DELETE da Graph API, **siga a regra global definida em [CLAUDE.md](../../../CLAUDE.md)** na seção "GATE EM CAMADA DE CHAT ANTES DE OPERAÇÕES DE ESCRITA NA META GRAPH API":
+## Limite de runtime e gate financeiro
 
-1. Apresentar o bloco `🛡️ Confirmação necessária antes de tocar na conta Meta` com operação, endpoint humano-legível, o que vai mudar, impacto no aprendizado e reversibilidade.
-2. **Nunca exibir o `curl` completo no chat** — carrega o token.
-3. Aguardar resposta `sim` (ou variante explícita: aprovo, pode, manda) antes de executar.
-4. Em modo lote, mostrar o plano completo antes e pedir confirmação única.
-5. Se o aluno responder `não` ou variante (cancelar, abortar), abortar sem chamar a API.
-6. **NUNCA usar `python3 << 'EOF'` (heredoc) nem `curl | python3 -c`** com o token. Esses formatos quebram o pattern matching do Claude Code e expõem o token no pop-up nativo. Ver regra "EXECUÇÃO TÉCNICA DE CHAMADAS GRAPH API" no CLAUDE.md.
-
-**Operações desta skill que passam pelo gate:**
-
-- POST /<adset_id> com daily_budget (aumentar orçamento - modo vertical)
-- POST /<campaign_id> com daily_budget (aumentar orçamento CBO)
-- POST /<adset_id>/copies (duplicar conjunto - modo horizontal)
-- POST /<campaign_id>/copies (duplicar campanha)
-- POST /act_<id>/campaigns + /adsets + /ads (consolidação CBO ou Advantage)
-
-**Não passam pelo gate:** chamadas GET para leitura (insights, listagens, fields). Estado não muda.
+Esta skill preserva critérios e planos de escala. Qualquer execução é somente `ads.scale`, classificada `FINANCIAL_WRITE`, com ApprovalPolicy manual e grant correspondente ao `action_id`. A skill não chama provider, não faz cópia de campanha e não altera orçamento; nesta fase devolve somente plano ou descriptor dry-run.
 
 ---
 
@@ -63,11 +49,11 @@ Ao ser invocada, a skill primeiro detecta a origem da invocação. Quando vier p
 
 ### Passo 0.5. Selecionar conta de anúncios
 
-Mesma lógica do Passo 0.5 de `/trafego-otimizar`. Lê `FB_AD_ACCOUNT_IDS` no `.env` e `FB_AD_ACCOUNT_ID` (conta padrão).
+Mesma lógica do Passo 0.5 de `/trafego-otimizar`: `META_AD_ACCOUNT_ID` é a conta padrão e múltiplas contas são obtidas via `meta.accounts.list`.
 
 **Se houver apenas uma conta configurada**: usar automaticamente e pular a pergunta.
 
-**Se houver mais de uma conta**: listar nomes (via `GET /{act_ID}?fields=name`) com a conta padrão em primeiro lugar e etiqueta `"padrão"`. Demais seguem na ordem de `FB_AD_ACCOUNT_IDS`.
+**Se houver mais de uma conta**: usar `meta.accounts.list`, listar nomes com a conta padrão em primeiro lugar e etiqueta `"padrão"`.
 
 ```
 Qual conta de anúncios deseja escalar?
@@ -84,15 +70,7 @@ Salvar como `CONTA_ATIVA_ID`. **Filtro de status fica fixo em `effective_status=
 
 ### Passo 0.6. Identificar escopo
 
-Buscar todas as campanhas ativas da conta:
-
-```
-GET /act_{CONTA_ATIVA_ID}/campaigns
-  ?fields=id,name,objective,status
-  &effective_status=["ACTIVE"]
-  &limit=200
-  &access_token={token}
-```
+Solicitar `ads.campaigns.list` com filtro de campanhas ativas para a conta selecionada.
 
 Salvar lista em `CAMPANHAS_SESSAO`. Em seguida perguntar:
 

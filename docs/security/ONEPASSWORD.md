@@ -15,9 +15,9 @@ Referências seguem `op://<vault>/<item>/<field>`. O modelo pode conhecer a refe
 | `META_ACCESS_TOKEN` | SECRET | 1Password | Variável canônica da credencial Meta. |
 | `FB_ACCESS_TOKEN_PERMANENTE`, `FB_ACCESS_TOKEN_TEMPORARIO`, `ACCESS_TOKEN` | LEGACY_ALIAS | Referência canônica Meta | Usam temporariamente a mesma referência de `META_ACCESS_TOKEN`; adapter futuro deve mapear a variável canônica para aliases legados. |
 | `META_PIXEL_CAPI_TOKEN`, `META_PIXEL_TEST_EVENT_CODE` | SECRET | 1Password | Segredos específicos da integração Pixel/CAPI. |
-| `ZAPI_TOKEN`, `ZAPI_CLIENT_TOKEN` | SECRET | 1Password | Credenciais distintas da Z-API. |
+| `UAZAPI_TOKEN` | SECRET | 1Password | Token de instância UAZAPI para `notification.send`; nunca entra no modelo. Z-API é legado/não usado. |
 | `META_AD_ACCOUNT_ID`, `META_PIXEL_ID`, `GOOGLE_ADS_CUSTOMER_ID`, `HOTMART_PRODUCT_ID` | NON_SECRET_CONFIG | Configuração comum | Identificadores de conta, produto ou recurso. |
-| `WHATSAPP_PHONE_ID`, `TELEGRAM_CHAT_ID`, `FB_AD_ACCOUNT_ID`, `ZAPI_INSTANCE_ID`, `VERCEL_PROJECT_ID` | NON_SECRET_CONFIG | Configuração comum | IDs operacionais, sem vault obrigatório. |
+| `WHATSAPP_PHONE_ID`, `TELEGRAM_CHAT_ID`, `FB_AD_ACCOUNT_ID`, `UAZAPI_BASE_URL`, `RELATORIO_WHATSAPP_NUMERO`, `VERCEL_PROJECT_ID` | NON_SECRET_CONFIG | Configuração comum | IDs/endpoints operacionais, sem vault obrigatório. |
 | `HEYGEN_AVATAR_ID`, `HEYGEN_VOICE_ID`, `RELATORIO_CANAL`, `RELATORIO_WHATSAPP_NUMERO`, `RELATORIO_CRON_ID` | NON_SECRET_CONFIG | Configuração comum | Seleção, destino ou estado operacional. |
 | `AD_ACCOUNT_ID` | LEGACY_ALIAS | `META_AD_ACCOUNT_ID` | Não é segredo; adapter futuro deve mapear a configuração canônica. |
 | `OPENROUTER_IMAGE_MODEL`, `OPENROUTER_MODEL` | NON_SECRET_CONFIG | Configuração comum | Seleção de modelo, não credencial. |

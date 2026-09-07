@@ -26,7 +26,7 @@ Digite o número:
 ### 3. Execução por Tipo
 
 **Opção 1 — Criativo AIDA:**
-Leia `.claude/commands/criativo-aida.md` e execute o fluxo completo. O contexto do produto já foi carregado.
+Leia `.claude/commands/criativo-estatico/aida.md` e execute o fluxo completo. O contexto do produto já foi carregado.
 
 **Opção 2 — Referência Visual:**
 Leia `.claude/commands/img-anuncio.md` e execute o fluxo completo. O contexto do produto já foi carregado.

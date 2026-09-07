@@ -28,6 +28,8 @@ ativo no Passo 0. Não quebrem o comportamento determinístico de abertura.
 
 Porta de entrada do projeto. Detecta se já existe produto ativo, cria um produto novo ou ajuda a descobrir qual produto criar.
 
+> **Contrato local de estado:** ao criar ou ativar, aplique as invariantes em `docs/claude/PRODUCT-WORKFLOW.md` e `adapters/claude/product-workflow.js`: valide o slug, recuse sobrescrita de produto existente, limite writes a `meus-produtos/` e atualize o manifesto local. O contrato não substitui a metodologia VTSD deste command.
+
 ## Usage
 
 ```

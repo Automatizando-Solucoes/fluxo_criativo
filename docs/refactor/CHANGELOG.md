@@ -341,3 +341,178 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Risco mitigado: policy fora de escopo, expirada, revogada ou sem uso avaliado tornar cron aparentemente permitido; capability externa virar permissão implícita.
 - Possível regressão: chamadores futuros precisam fornecer rede, ação e uso quando a policy os limitar.
 - Validação: testes locais de standing válida/inválida, escopo, limites, manual, disabled e workflows externos.
+
+## Fase Claude, lote 1: auditoria funcional atual
+
+- Commit: `docs: map Claude workflow completion status`
+- Arquivos: `docs/claude/WORKFLOW-STATUS.md` e este changelog.
+- Antes: o inventário arquitetural não distinguia de forma operacional cadeia local coerente de roteiro parcial/legado.
+- Depois: os workflows principais têm commands, dependências, I/O, capabilities externas, approval, secrets e lacunas mapeados por leitura estática.
+- Risco mitigado: declarar workflow pronto apenas porque existe Markdown ou ativar integração sem boundary/fixture.
+- Possível regressão: nenhuma alteração de command, skill, agent, script, Hermes ou estado de produto.
+- Validação: inventário estático de árvore, referências de scheduling, secrets e dependências C10X.
+
+## Fase Claude, lote 2: produto e VTSD
+
+- Commit: `claude: complete product and VTSD workflow`
+- Arquivos: contrato local Claude de produto, teste com fixture, documentação de invariantes, commands de criar/trocar e status funcional.
+- Antes: criação, seleção, atualização de manifesto e não sobrescrita estavam apenas distribuídas em instruções de command e script.
+- Depois: o adapter local valida slug/tipo, recusa sobrescrita, confina writes a `meus-produtos/`, atualiza manifesto e é coberto sem tocar produto real; a cadeia VTSD e revisores existentes é preservada.
+- Risco mitigado: path traversal, seleção de produto inexistente, sobrescrita silenciosa e manifesto desatualizado.
+- Possível regressão: commands continuam a usar seus procedimentos compatíveis; o contrato não executa browser, pesquisa ou painel automaticamente.
+- Validação: `node tests/claude/product-vtsd-workflow.test.js` com fixture temporária e sem rede.
+
+## Fase Claude, lote 3: pesquisa de mercado
+
+- Commit: `claude: complete market research workflow`
+- Arquivos: adapter/fixture de pesquisa, documentação, skill de compatibilidade, status e este changelog.
+- Antes: os nove eixos eram instrucionais, sem contrato local de relatório, source failure ou boundary de provider autenticado.
+- Depois: relatório exige nove eixos, data, fonte e separação FATO/INFERÊNCIA; revisor é descrito sem invocação; Apify/Ads Library só produzem descriptor `dry_run` por `SecretProvider`.
+- Risco mitigado: pesquisa sem rastreabilidade, token no chat/.env, provider real sem boundary e falha de fonte destruindo a pesquisa anterior.
+- Possível regressão: o adapter não executa WebSearch/WebFetch nem o revisor; essas capacidades continuam no runtime Claude quando autorizadas.
+- Validação: `node tests/claude/market-research-workflow.test.js` com fonte/segredo mock e sem rede.
+
+## Fase Claude, lote 4: copy e gates de revisão
+
+- Commit: `claude: standardize copy workflows and review gates`
+- Arquivos: contrato/teste de copy, documentação, cinco commands, status e changelog.
+- Antes: Manual, elementos e revisora eram referenciados por commands, mas não havia gate comum de persistência/saída.
+- Depois: cinco IDs de copy têm output previsível, revisão comum e writes confinados; o contrato bloqueia vícios estáticos antes de salvar e mantém a revisora como autoridade editorial.
+- Risco mitigado: copy persistida sem revisão, caminho inconsistente ou etapa de mídia/publicação confundida com geração de texto.
+- Possível regressão: o gate não tenta reescrever texto nem chamar skill/agent; revisão metodológica completa continua no Claude.
+- Validação: `node tests/claude/copy-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 7: falha explícita de High Ticket/C10X
+
+- Commit: `claude: make high ticket dependency failure explicit`
+- Arquivos: resolver/status C10X, teste com fixture, documentação, agente HT, status e changelog.
+- Antes: o orquestrador preservado descrevia rota `/ht-*` indisponível sem um bloqueio executável que exibisse dependência e estado existente.
+- Depois: ausência de `ht-*` resulta em `BLOCKED_EXTERNAL`, com dependências faltantes, artefatos preservados e instrução de retomada; nenhuma aproximação de C10X foi criada.
+- Risco mitigado: agente tentar invocar skill ausente, inventar metodologia ou apagar estado High Ticket durante falha.
+- Possível regressão: High Ticket permanece bloqueado até o plugin C10X real ser disponibilizado, por design.
+- Validação: `node tests/claude/high-ticket-blocked.test.js` sem plugin, rede ou produto real.
+
+## Fase Claude, lote 5: Low Ticket
+
+- Commit: `claude: complete low ticket workflow`
+- Arquivos: contrato/teste de Low Ticket, status e changelog.
+- Antes: commands LT existentes não possuíam plano de cadeia tipado nem fixture de pré-requisitos/handoff.
+- Depois: pesquisa, perfil e consumidor são pré-requisitos; o plano persiste etapas, quiz opcional e handoff de tráfego dry-run com criação futura PAUSED/manual.
+- Risco mitigado: partir para anúncios/campanha sem base VTSD ou inferir publicação/checkout.
+- Validação: `node tests/claude/low-ticket-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 6: Middle Ticket
+
+- Commit: `claude: complete middle ticket workflow`
+- Arquivos: contrato/teste Middle Ticket, status e changelog.
+- Antes: a cadeia 8D e o handoff de tráfego dependiam somente do roteiro do agente.
+- Depois: contrato local exige pesquisa/perfil/consumidor, persiste as etapas 8D e preserva Meta como handoff dry-run/manual.
+- Risco mitigado: tratar criativos ou plano de anúncios como permissão para provider/campanha externa.
+- Validação: `node tests/claude/middle-ticket-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 8: páginas
+
+- Commit: `claude: complete page generation workflow`
+- Arquivos: adapter/teste de página, status e changelog.
+- Antes: build/deploy não tinham contrato local separado.
+- Depois: build requer copy revisada, verifica HTML e assets relativos, grava no produto e retorna deploy manual não aprovado.
+- Validação: `node tests/claude/page-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 9: carrossel e scheduling
+
+- Commit: `claude: complete carousel generation and scheduling`
+- Arquivos: adapter/teste de carrossel, status e changelog.
+- Antes: geração, scheduler Claude e publicação podiam ser confundidos; `RELATORIO_CRON_ID` aparecia no mesmo domínio.
+- Depois: artefato de conteúdo, descriptor de rotina e publicação são separados; cada rotina tem `schedule_id`, timezone e modo dry-run, sem publicação e sem ID de relatório Ads.
+- Validação: `node tests/claude/carousel-workflow.test.js` com fixture local.
+
+## Fase Claude, lote 10: imagem
+
+- Commit: `claude: complete image generation adapters`
+- Arquivos: adapter/teste de imagem, status e changelog.
+- Depois: OpenRouter/Freepik são allowlisted por capability, secret lógico e runtime injection mock; resultado não contém segredo e artefato fica no produto.
+- Validação: `node tests/claude/image-generation.test.js` sem rede.
+
+## Fase Claude, lote 11: vídeo
+
+- Commit: `claude: complete video generation workflow`
+- Arquivos: adapter/teste de vídeo, status e changelog.
+- Depois: FFmpeg/Remotion são `LOCAL_RENDER` dry-run sem secret; HeyGen/Replicate são `EXTERNAL_RENDER` allowlisted por SecretProvider e mock.
+- Validação: `node tests/claude/video-generation.test.js` sem render, rede ou credencial.
+
+## Fase Claude, lote 12: Meta Ads
+
+- Commit: `claude: complete Meta Ads workflow with approval gates`
+- Arquivos: adapter/teste Meta, status e changelog.
+- Depois: READ/WRITE/FINANCIAL_WRITE são explícitos; aliases convergem para `META_ACCESS_TOKEN`; drafts de campanha são PAUSED; write financeiro falha sem grant manual da ação correta.
+- Validação: `node tests/claude/meta-ads-workflow.test.js` com SecretProvider mock e sem API.
+
+## Fase Claude, lote 13: relatório Ads
+
+- Commit: `claude: complete Ads reporting workflow`
+- Arquivos: adapter/teste de relatório, status e changelog.
+- Depois: período, métricas e análise persistem artefato local; Telegram/WhatsApp/local recebem apenas descriptor `sent:false`; cron de relatório não se mistura com carrossel.
+- Validação: `node tests/claude/ads-report.test.js` sem envio.
+
+## Fase Claude, lote 14: dashboards sociais
+
+- Commit: `claude: complete social dashboard workflows`
+- Arquivos: adapter/teste de dashboards, status e changelog.
+- Depois: Instagram, TikTok, YouTube e LinkedIn têm descriptors individuais Apify, SecretProvider mock, normalização e preservação de cache em erro.
+- Validação: `node tests/claude/social-dashboard-workflow.test.js` sem rede.
+
+## Fase Claude, lote 15: publisher orgânico
+
+- Commit: `claude: add approval-gated organic publishing workflow`
+- Arquivos: contrato/teste publisher, status e changelog.
+- Depois: request usa `autopublish:false`, ApprovalPolicy por plataforma/ação e resultado dry-run sem ID externo; todas plataformas permanecem bloqueadas até adapter oficial comprovado.
+- Validação: `node tests/claude/organic-publisher-workflow.test.js` sem publicação.
+
+## Fase Claude, lote 16: executor de plano
+
+- Commit: `claude: harden plan executor workflow`
+- Depois: plano aceita tarefas tipadas/registradas e bloqueia workflow desconhecido, risco composto não resolvido e shell arbitrário.
+
+## Fase Claude, lote 17: Toolkit persistente
+
+- Commit: `claude: complete persistent toolkit workflow`
+- Depois: roteiro, plano e estado persistem tarefas tipadas; completed não reexecuta e dependência failed/blocked impede filho.
+
+## Fase Claude, lote 18: comercial
+
+- Commit: `claude: complete commercial workflow`
+- Depois: comercial geral permanece disponível; módulo High Ticket bloqueia somente a dependência C10X e preserva artefatos.
+
+## Fase Claude, ajuste de secrets e WhatsApp
+
+- Commit: `claude: migrate WhatsApp delivery from Z-API to UAZAPI`
+- Depois: UAZAPI é o provider canônico `notification.send`; Z-API e scripts acoplados ficam documentados como legado, sem fluxo novo canônico.
+
+## Fase Claude, boundary canônico Meta Ads
+
+- Commands de conexão, token, insights, análise, criação, otimização, escala e relatório passaram a usar operações Meta allowlisted em vez de `.env`, aliases ou requisições construídas no Markdown.
+- `META_ACCESS_TOKEN` é o único segredo lógico canônico; `META_AD_ACCOUNT_ID` e `META_AUTH_MODO` são configuração não secreta. `RELATORIO_AUTH_MODO` permanece somente como `LEGACY_CONFIG`.
+- Skills de tráfego com runtime histórico foram preservadas, marcadas `LEGACY_META_RUNTIME` e retiradas da invocação direta; a metodologia não foi apagada.
+- A criação continua `PAUSED`; escala é `FINANCIAL_WRITE` e exige grant manual ligado ao `action_id`.
+
+## Fase K: conclusão funcional Claude
+
+- VTSD/produto, pesquisa, copy e revisão passaram a ter contracts e fixtures locais; Low/Middle Ticket persistem planos e High Ticket bloqueia explicitamente a ausência de C10X.
+- Página, carrossel, imagem e vídeo foram separados de deploy/publicação/providers reais; imagens, vídeo e pesquisa autenticada usam mocks e SecretProvider.
+- Meta Ads foi sanitizado para `META_ACCESS_TOKEN`/`META_AD_ACCOUNT_ID`; leitura, escrita e escrita financeira possuem operations allowlisted, campanhas `PAUSED` e approval manual onde aplicável.
+- Ads report foi desacoplado de delivery. UAZAPI é o WhatsApp canônico, Telegram é opcional e Z-API ficou legado.
+- Dashboards sociais, publisher dry-run, executor tipado, Toolkit persistente e comercial geral receberam testes locais; publisher permanece bloqueado por provider oficial ausente.
+- A integridade de commands, o registry de workflows canônicos e o E2E com fixture temporária cobrem regressão sem rede, segredo ou side effect real.
+
+## Fase K: gates de risco e metodologia Meta
+
+- Plan Executor e Toolkit agora resolvem capabilities, risco externo/financeiro, approval e risco composto a partir do registry. Tarefas que exigem approval iniciam bloqueadas sem policy válida; `ads.scale` exige grant manual do `action_id` exato.
+- O registry modela `ads.write` e `ads.financial_write`, impedindo que workflows Meta de escrita pareçam filesystem-only.
+- O adapter Meta separa `APP` (SecretProvider com `META_ACCESS_TOKEN`) de `MCP_CONECTOR` (OAuth externo), sem conceder qualquer aprovação de escrita pelo transport.
+- As cinco skills de tráfego voltaram a expor metodologia canônica sem `.env`, token, request direta ou runtime específico; leitura e ações usam operations allowlisted.
+- O E2E instala guards reais para rede, child processes e writes fora da fixture, todos restaurados ao término do teste.
+
+## Fase K: runtime Meta removido das skills canônicas
+
+- `trafego-insights`, `trafego-analise`, `trafego-criar-campanha`, `trafego-otimizar` e `trafego-escalar` passaram a solicitar exclusivamente operações Meta allowlisted; endpoints, verbos HTTP e aliases `FB_AD_ACCOUNT_*`/`AD_ACCOUNT_ID` saíram da metodologia canônica.
+- As leituras necessárias à metodologia foram modeladas no adapter Meta como descriptors dry-run: conta, campanhas, pixels, conversões, audiências, interesses e validação de criativos.

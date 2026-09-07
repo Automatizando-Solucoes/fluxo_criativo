@@ -11,6 +11,8 @@ description: >
 
 # Pesquisa de Mercado. Skill Obrigatória na Concepção de Produto
 
+> **Boundary operacional:** a metodologia e os nove eixos abaixo continuam sendo a autoridade de conteúdo. Para WebSearch/WebFetch público, registre fontes e data no relatório. Para Apify, Ads Library ou outra fonte autenticada, use o descriptor de `adapters/claude/market-research.js` e o `SecretProvider`; nunca leia `.env`, peça token no chat, use `op read` ou execute chamada externa sem adapter/approval aplicável. Uma falha de fonte deve preservar `pesquisa-mercado.md` existente.
+
 Essa skill é a fonte de inteligência externa do sistema. Quando um produto está sendo concebido, nenhuma sugestão de preço, posicionamento, identidade, argumento incontestável ou oferta pode ser feita "de cabeça". Tudo precisa estar ancorado em dados reais de mercado coletados aqui.
 
 ## Quando é acionada

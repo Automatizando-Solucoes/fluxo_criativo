@@ -9,6 +9,8 @@ model: sonnet
 
 Cria variacoes de conteudo a partir dos posts com maior engajamento do perfil, usando o `insights.json` do dashboard do Instagram como base de dados.
 
+> **Gate comum:** antes de salvar variações, aplique `docs/claude/COPY-WORKFLOW.md`. O dashboard é apenas fonte de entrada; este command não autoriza provider, publicação ou segredo.
+
 Siga a skill `copy-variacao-post` para todas as regras tecnicas, fluxo e checklist de geracao.
 
 ---

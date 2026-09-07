@@ -10,15 +10,15 @@ const commands = [
   'configurar-imagens.md',
   'configurar-replicate.md',
   'configurar-telegram.md',
-  'configurar-zapi.md',
+  'configurar-uazapi.md',
 ]
 const forbidden = ['Cole o token', 'Cole a chave', 'TOKEN_INFORMADO', 'CHAVE_INFORMADA']
 const secretEnvs = [
   'VERCEL_TOKEN', 'FREEPIK_API_KEY', 'HEYGEN_API_KEY', 'META_ACCESS_TOKEN',
   'META_PIXEL_CAPI_TOKEN', 'META_PIXEL_TEST_EVENT_CODE', 'GOOGLE_ADS_DEVELOPER_TOKEN',
   'HOTMART_TOKEN', 'WHATSAPP_ACCESS_TOKEN', 'TELEGRAM_BOT_TOKEN',
-  'FB_ACCESS_TOKEN_PERMANENTE', 'FB_ACCESS_TOKEN_TEMPORARIO', 'ZAPI_TOKEN',
-  'ZAPI_CLIENT_TOKEN', 'OPENROUTER_API_KEY', 'GEMINI_API_KEY',
+  'FB_ACCESS_TOKEN_PERMANENTE', 'FB_ACCESS_TOKEN_TEMPORARIO', 'UAZAPI_TOKEN',
+  'OPENROUTER_API_KEY', 'GEMINI_API_KEY',
 ]
 
 for (const command of commands) {

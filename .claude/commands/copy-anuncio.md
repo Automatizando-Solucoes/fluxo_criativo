@@ -7,6 +7,8 @@ description: Criar pacotes completos de anúncios para Meta Ads e Google Ads usa
 
 Cria pacotes de anúncios usando os 18 tipos da Mandala VTSD + estrutura de campanha.
 
+> **Gate comum:** a peça textual deve passar pelo contrato de `docs/claude/COPY-WORKFLOW.md` antes de ser salva. Geração de mídia ou chamada de provider é uma etapa separada e não é autorizada por este gate.
+
 ## Usage
 
 ```

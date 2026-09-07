@@ -5,6 +5,8 @@ allowed-tools: Read, WebFetch, WebSearch
 model: sonnet
 ---
 
+# LEGACY PROVIDER — Z-API não é usada pelo projeto atual. Provider canônico de WhatsApp: UAZAPI. Não usar em novos workflows.
+
 # Configurar Z-API
 
 Esta integração opcional usa `ZAPI_INSTANCE_ID`, `ZAPI_TOKEN` e `ZAPI_CLIENT_TOKEN`.

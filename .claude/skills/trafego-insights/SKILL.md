@@ -11,6 +11,12 @@ description: >
 user-invocable: false
 ---
 
+> **CANONICAL_SAFE_META_METHODOLOGY** — Use esta seção para leitura de métricas: declare janela de atribuição, cruze janelas curta/média/longa, calcule métricas derivadas, preserve cache local e tolere falha parcial por campanha. Aquisição usa somente `ads.insights`; `META_ACCESS_TOKEN` é requisito lógico do transport APP e MCP é OAuth externo. Nenhuma credencial, `.env`, query string ou chamada direta pertence à metodologia.
+
+## Limite de runtime
+
+Esta skill define leitura, normalização, cache e interpretação de métricas. A aquisição usa somente o descriptor `ads.insights`: no transport APP ele requer `META_ACCESS_TOKEN` via SecretProvider; no `MCP_CONECTOR`, OAuth é gerenciado externamente. A skill nunca monta requisições, lê arquivos de secrets ou chama ferramentas específicas de runtime.
+
 # Tráfego Insights. Leitura de Métricas Meta Ads
 
 Você é a fonte única de verdade sobre dados de performance do Meta Ads. Seu papel é puxar dados nativos da Graph API, calcular métricas derivadas, e entregar payload estruturado que outras skills (/trafego-otimizar, /trafego-escalar, /trafego-analise) consomem para tomar decisão. Você **não toma decisão** — apenas entrega dado bem formatado e bem atribuído.
@@ -51,11 +57,7 @@ Você é a fonte única de verdade sobre dados de performance do Meta Ads. Seu p
 A janela de atribuição é o que define **quais conversões contam** para cada anúncio. Sem declarar, número não tem significado.
 
 ### 2.1 Detecção automática
-A skill primeiro tenta ler a janela de atribuição padrão da ad account via Graph API:
-
-```
-GET /act_{ad_account_id}?fields=attribution_spec
-```
+A skill primeiro solicita ao adapter a configuração de atribuição da conta por `ads.account.read`.
 
 Se a conta tem atribuição configurada, usar essa.
 
@@ -93,10 +95,9 @@ Se o gestor pedir janela explícita (`data_inicio` + `data_fim`), puxar essa jan
 
 ## 4. Métricas que a skill puxa
 
-### 4.1 Métricas nativas da Graph API
-Endpoint: `GET /{object_id}/insights`
+### 4.1 Métricas nativas normalizadas por `ads.insights`
 
-Campos obrigatórios na requisição:
+Campos obrigatórios do resultado normalizado:
 ```
 spend, impressions, reach, frequency, clicks, cpc, cpm, ctr,
 inline_link_clicks, inline_link_click_ctr,
@@ -175,7 +176,7 @@ Se denominador for menor que 50 (ex: 30 link clicks), calcular mas marcar `confi
 Quando `escopo: conta_completa`, a skill executa em duas fases:
 
 ### 6.1 Fase de listagem
-1. `GET /act_{id}/campaigns?fields=id,name,status,objective,daily_budget,lifetime_budget&limit=200&effective_status=%5B%22ACTIVE%22%5D`
+1. Solicitar `ads.campaigns.list` com o filtro de status escolhido.
 2. Para cada campanha ativa, puxar insights da janela média da trilha (ex: 7d para perpétuo low).
 3. Calcular métrica-norte (CPA ou CPL) por campanha.
 4. Ranquear por urgência:
@@ -204,7 +205,7 @@ Quando a chamada vem com `escopo: conta_completa` **e** `nivel: ad` explicitamen
 
 ```yaml
 status: ok
-ad_account_id: act_<id>
+account_id: act_<id>
 escopo: conta_completa
 nivel: ad
 total_ads_ativos: 64
@@ -252,7 +253,7 @@ A skill mantém dois níveis de cache, complementares:
 3. Graph API → busca, salva no arquivo .md e na memória.
 
 ### 7.4 Invalidação automática
-Ambos os caches da `ad_account_id` (memória + todos os arquivos da pasta) são invalidados **imediatamente** quando:
+Ambos os caches da `account_id` (memória + todos os arquivos da pasta) são invalidados **imediatamente** quando:
 - Qualquer skill de edição executa write (`/trafego-otimizar`, `/trafego-escalar`, `/trafego-criar-campanha`, Gerenciador (Regras automáticas), Gerenciador de Audiences, Duplicar entidade no Gerenciador (variando 1 dimensão)).
 - Gestor pede explicitamente "atualizar dados" ou "puxar de novo sem cache".
 - TTL expirou.
@@ -289,7 +290,7 @@ Mesmo em sucesso total, o campo `erros[]` aparece no output como lista vazia. Qu
 
 ```yaml
 status: ok | erro_fatal
-ad_account_id: "act_1234567890"
+account_id: "act_1234567890"
 campaign_id: "120203456789"
 trilha: perpetuo_low | perpetuo_mid | perpetuo_high | lancamento_low | lancamento_mid | lancamento_high
 moeda: BRL
@@ -373,7 +374,7 @@ erros: []
 
 ```yaml
 status: ok | erro_fatal
-ad_account_id: "act_1234567890"
+account_id: "act_1234567890"
 escopo: conta_completa
 moeda: BRL
 
@@ -433,39 +434,9 @@ detalhes_tecnicos:
 
 ---
 
-## 10. Como puxar os dados (rota por META_AUTH_MODO)
+## 10. Aquisição canônica por `META_AUTH_MODO`
 
-A skill respeita a preferência de conexão definida em `META_AUTH_MODO` no `.env` (ver `/trafego-conexao`).
-
-### 10.1 Modo `MCP_CONECTOR`
-Usar as tools do MCP da Meta que o aluno adicionou como conector personalizado. Localizar tools com prefixo `mcp__*` cujo sufixo seja relacionado a Meta Ads (ex: `mcp__Meta_Ads__ads_get_ad_entities`, `mcp__Meta_Ads__ads_insights_*`, `mcp__Meta_Ads__ads_get_ad_accounts`).
-
-Mapeamento direto:
-- `list_campaigns` → `mcp__*__ads_get_ad_entities` com filtro de tipo `campaign`
-- `get_insights` → `mcp__*__ads_insights_*`
-- `get_ad_account_info` → `mcp__*__ads_get_ad_accounts`
-
-### 10.2 Modo `APP`
-Ler `FB_ACCESS_TOKEN_PERMANENTE` e `FB_AD_ACCOUNT_ID` do `.env`. Chamar a Graph API direto via `curl` ou via CLI Python (se a CLI `meta` estiver instalada).
-
-Endpoint base: `https://graph.facebook.com/v25.0/`
-
-### 10.2.1 Boas práticas obrigatórias no Modo APP
-
-**URL encoding:** parâmetros que contêm colchetes `[]` DEVEM ser URL-encoded antes de montar a URL do curl. O bash interpreta colchetes literais como globbing e o curl falha silenciosamente (exit code 3). Sempre usar a forma encoded:
-- `effective_status=['ACTIVE']` → `effective_status=%5B%22ACTIVE%22%5D`
-- `time_range={"since":"..."}` → `time_range=%7B%22since%22%3A%22...%22%7D`
-
-**Cadência entre chamadas (rate limit):** o Meta aplica limite de uso por token. Em modo conta completa, nunca encadear mais de 3 chamadas sem pausa. Aguardar 3 segundos entre cada chamada à Graph API. Em Python, usar `time.sleep(3)` antes de cada request. Se a resposta vier com `"code": 4` (rate limit), aplicar backoff: aguardar 30s antes de retentar. Máximo 2 retries.
-
-**Paths de arquivo:** NUNCA salvar arquivos temporários em `/tmp` ou depender de variáveis de ambiente de sessões bash anteriores (`$TEMP`, `$TMPDIR`). Cada chamada bash tem sessão isolada. Salvar sempre em `meus-produtos/{ativo}/trafego/insights/` com path absoluto derivado do diretório de trabalho atual. Para arquivos intermediários de processamento, usar o mesmo diretório do produto.
-
-**Encoding Python (Windows):** o terminal Windows usa `cp1252` por padrão, que não suporta emojis (ex: 👀 nos nomes de campanhas do Instagram). Todo script Python que imprime nomes de campanhas DEVE começar com:
-```python
-import sys
-sys.stdout.reconfigure(encoding='utf-8')
-```
-Alternativa quando se escreve em arquivo: abrir com `open(path, 'w', encoding='utf-8')`. Nunca confiar no encoding padrão do terminal.
+O workflow encaminha `META_AUTH_MODO`, a conta canônica e o período ao adapter Meta. `MCP_CONECTOR` usa OAuth do transport; `APP` usa injeção de runtime para `META_ACCESS_TOKEN`. Ambos retornam o mesmo contrato normalizado de insights. O adapter controla encoding, rate limit, retries e qualquer acesso ao provider; esta skill só recebe o resultado e salva cache em `meus-produtos/{ativo}/trafego/insights/`.
 
 **f-string com lógica condicional:** NUNCA colocar expressão condicional dentro do especificador de formato. Isso gera `ValueError` em runtime. Sempre resolver antes:
 ```python

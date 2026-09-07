@@ -10,28 +10,14 @@ description: >
   "diagnóstico", "campanha não está performando", "CPA alto", "CPL caro", "criativo cansou",
   "pausar criativo", "reduzir orçamento", "pausa tudo com ROAS<1", "lookalike de compradores",
   ou "está pronta para escalar?".
+user-invocable: false
 ---
 
-## 🛡️ Gate obrigatório antes de qualquer escrita na Graph API
+> **CANONICAL_SAFE_META_METHODOLOGY** — Preserve diagnóstico em duas camadas, trilhas por funil, fadiga, CTR/CPA, aprendizado, segmentação e critérios de pausa. Recomendações são locais. Mudança de status ou segmentação vira `ads.optimize`/`ads.campaign.update_status` com ApprovalPolicy manual; orçamento é `ads.scale` e requer grant manual por ação.
 
-Esta skill executa operações que **modificam estado** na conta Meta Ads. Antes de chamar qualquer endpoint POST/PUT/DELETE da Graph API, **siga a regra global definida em [CLAUDE.md](../../../CLAUDE.md)** na seção "GATE EM CAMADA DE CHAT ANTES DE OPERAÇÕES DE ESCRITA NA META GRAPH API":
+## Limite de runtime e gate de otimização
 
-1. Apresentar o bloco `🛡️ Confirmação necessária antes de tocar na conta Meta` com operação, endpoint humano-legível, o que vai mudar, impacto no aprendizado e reversibilidade.
-2. **Nunca exibir o `curl` completo no chat** — carrega o token.
-3. Aguardar resposta `sim` (ou variante explícita: aprovo, pode, manda) antes de executar.
-4. Em modo lote, mostrar o plano completo antes e pedir confirmação única.
-5. Se o aluno responder `não` ou variante (cancelar, abortar), abortar sem chamar a API.
-6. **NUNCA usar `python3 << 'EOF'` (heredoc) nem `curl | python3 -c`** com o token. Esses formatos quebram o pattern matching do Claude Code e expõem o token no pop-up nativo. Ver regra "EXECUÇÃO TÉCNICA DE CHAMADAS GRAPH API" no CLAUDE.md.
-
-**Operações desta skill que passam pelo gate:**
-
-- POST /<adset_id> com daily_budget (reduzir orçamento -20%)
-- POST /<ad_id> com status=PAUSED (pausar anúncio)
-- POST /<adset_id> com status=PAUSED (pausar conjunto)
-- POST /<campaign_id> com status=PAUSED (pausar campanha, caso extremo)
-- Operações em lote (ver sub-skill acoes-lote.md)
-
-**Não passam pelo gate:** chamadas GET para leitura (insights, listagens, fields). Estado não muda.
+Esta skill produz diagnóstico e recomendação. Leitura usa `ads.insights`; mudanças tipadas de status ou segmentação usam `ads.optimize` ou `ads.campaign.update_status` com ApprovalPolicy manual. Mudanças de orçamento usam `ads.scale`, são `FINANCIAL_WRITE` e exigem grant manual do `action_id`. Nenhuma frase do usuário, conexão ou análise passada autoriza alteração externa.
 
 ---
 
@@ -54,16 +40,13 @@ Ao ser invocada, a skill guia o aluno por 4 passos antes de rodar qualquer anál
 
 ### Passo 0.5. Selecionar conta de anúncios
 
-Ler `FB_AD_ACCOUNT_IDS` no `.env` (múltiplas contas separadas por vírgula) e `FB_AD_ACCOUNT_ID` (conta padrão).
+Usar `META_AD_ACCOUNT_ID` como conta padrão. Para múltiplas contas, solicitar `meta.accounts.list` e apresentar as opções retornadas.
 
-**Se houver apenas uma conta configurada** (`FB_AD_ACCOUNT_IDS` vazio ou igual a `FB_AD_ACCOUNT_ID`): usar automaticamente e pular a pergunta.
+**Se houver apenas `META_AD_ACCOUNT_ID` disponível**: usar automaticamente e pular a pergunta.
 
-**Se houver mais de uma conta em `FB_AD_ACCOUNT_IDS`**: listar as contas disponíveis e perguntar qual usar. Para obter o nome de cada conta:
-```
-GET /{act_ID}?fields=name&access_token={token}
-```
+**Se houver várias contas**: usar `meta.accounts.list`, listar as opções e perguntar qual usar.
 
-**Ordenação obrigatória:** a conta cujo ID coincide com `FB_AD_ACCOUNT_ID` é a conta padrão e deve sempre aparecer em **primeiro lugar**, com a etiqueta `"padrão"` após o nome. As demais seguem na ordem de `FB_AD_ACCOUNT_IDS`.
+**Ordenação obrigatória:** a conta cujo ID coincide com `META_AD_ACCOUNT_ID` é a conta padrão e deve sempre aparecer em **primeiro lugar**, com a etiqueta `"padrão"` após o nome.
 
 ```
 Qual conta de anúncios deseja otimizar?
@@ -104,15 +87,7 @@ Salvar como `STATUS_FILTRO` (variável de sessão).
 
 ### Passo 0.6. Identificar escopo de análise
 
-Buscar todas as campanhas da conta com o status escolhido:
-
-```
-GET /act_{CONTA_ATIVA_ID}/campaigns
-  ?fields=id,name,objective,status
-  &effective_status={STATUS_FILTRO}
-  &limit=200
-  &access_token={token}
-```
+Solicitar `ads.campaigns.list` para a conta com o status escolhido.
 
 Salvar a lista em `CAMPANHAS_SESSAO`. Em seguida, perguntar o escopo:
 
