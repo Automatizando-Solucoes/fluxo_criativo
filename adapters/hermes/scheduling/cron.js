@@ -43,7 +43,7 @@ function toHermesCronJob(jobInput, approvalContext) {
   } else if (workflow.side_effects.financial) {
     reason = 'financial_workflow_blocked';
   } else if (workflow.side_effects.external) {
-    reason = 'external_capability_blocked';
+    reason = 'external_execution_unavailable';
   } else if (!resolution) {
     reason = 'hermes_wrapper_required';
   } else {
@@ -62,6 +62,7 @@ function toHermesCronJob(jobInput, approvalContext) {
     idempotency_key: job.idempotency_key,
     approval_policy: job.approval_policy,
     destination: job.destination,
+    delivery: job.destination,
     workdir: PROJECT_ROOT,
     skills: resolution ? [resolution.target.path] : [],
     requires_child_risk_resolution: resolution?.requires_child_risk_resolution || workflow.risk_from_children,

@@ -16,6 +16,7 @@ const LOCAL_WORKFLOW_SUPPORT = Object.freeze({
   'funnel.middle_ticket': Object.freeze({ support_status: 'HERMES_EXTERNAL_DRY_RUN', mode: 'local_with_external_dry_run' }),
   'page.sales': Object.freeze({ support_status: 'HERMES_READY', mode: 'local' }),
   'carousel.generate': Object.freeze({ support_status: 'HERMES_READY', mode: 'local' }),
+  'carousel.schedule': Object.freeze({ support_status: 'HERMES_READY', mode: 'dry_run' }),
   'commercial.playbook': Object.freeze({ support_status: 'HERMES_READY', mode: 'local' }),
 });
 
@@ -55,6 +56,7 @@ function executeHermesLocalWorkflow(input) {
     case 'funnel.middle_ticket': result = local.createMiddleTicketPlan({ projectRoot, product_slug: input.product_slug }); break;
     case 'page.sales': result = local.buildPage({ projectRoot, product_slug: input.product_slug, html: input.html, copy_review: input.copy_review }); break;
     case 'carousel.generate': result = local.createCarouselArtifact({ projectRoot, product_slug: input.product_slug, slug: input.slug, slides: input.slides, caption: input.caption, cta: input.cta, visual_prompts: input.visual_prompts }); break;
+    case 'carousel.schedule': result = local.createCarouselSchedule({ projectRoot, product_slug: input.product_slug, slug: input.slug, schedule_id: input.schedule_id, schedule: input.schedule, timezone: input.timezone }); break;
     case 'commercial.playbook': result = local.planCommercial({ product_slug: input.product_slug, module: input.module, existing_artifacts: input.existing_artifacts }); break;
     default: throw new TypeError(`Hermes local workflow is not supported: ${workflow.id}`);
   }
