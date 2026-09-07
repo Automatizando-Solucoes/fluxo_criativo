@@ -516,3 +516,10 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 
 - `trafego-insights`, `trafego-analise`, `trafego-criar-campanha`, `trafego-otimizar` e `trafego-escalar` passaram a solicitar exclusivamente operações Meta allowlisted; endpoints, verbos HTTP e aliases `FB_AD_ACCOUNT_*`/`AD_ACCOUNT_ID` saíram da metodologia canônica.
 - As leituras necessárias à metodologia foram modeladas no adapter Meta como descriptors dry-run: conta, campanhas, pixels, conversões, audiências, interesses e validação de criativos.
+
+## Fase L1: auditoria de paridade Hermes
+
+- Claude Code foi declarado explicitamente como runtime funcional de referência; Hermes passa a ser runtime alvo em adaptação até obter paridade testada por workflow.
+- A matriz de paridade cobre todos os workflows do registry, inclusive risco, approval, capability, fonte metodológica, wrapper e lote futuro. `ads.insights` é canônico e `traffic.insights` ficou alias explícito para o mesmo wrapper.
+- O adapter Hermes continua estritamente dry-run: cron descreve `cronjob create`, mas mantém `scheduled:false`; delegates não recebem capabilities externas, financeiras, de publicação, notificação ou secrets; gateway Hermes não substitui `notification.send`/UAZAPI.
+- A política de fonte permite metodologia Claude segura e operations IDs runtime-neutral, mas continua bloqueando comandos Claude, Bash, secrets, provider direto, publicação e deploy.

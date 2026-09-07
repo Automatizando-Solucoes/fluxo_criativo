@@ -12,6 +12,8 @@ O mapa é declarativo. Nenhum agente foi convertido em delegate real nesta fase 
 
 `pesquisa-mercado`, `revisor-pesquisa`, `revisor-perfil`, `revisor-idconsumidor`, `gerador-decorados`, `gerador-urgencias-ocultas` e `gerador-idconsumidor` são candidatos a delegate isolado. Todos ficam `enabled: false` até o contrato de delegação e gates futuros.
 
+Mesmo quando forem habilitados, delegates só poderão receber capabilities locais explicitamente permitidas. `ads.write`, `ads.financial_write`, `publisher.publish`, `notification.send`, pesquisa/provider externo, acesso a segredo, gasto e deploy permanecem bloqueados. O adapter nunca chama `delegate_task` nesta L1.
+
 ## DEFERRED
 
 `clonador-de-bloco-visual` não recebe delegate nesta fase: pode modificar arquivo ou depender de provider. Ele requer contrato específico de filesystem/provider antes de ser habilitado.
