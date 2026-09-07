@@ -472,3 +472,8 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 
 - Commit: `claude: harden plan executor workflow`
 - Depois: plano aceita tarefas tipadas/registradas e bloqueia workflow desconhecido, risco composto não resolvido e shell arbitrário.
+
+## Fase Claude, lote 17: Toolkit persistente
+
+- Commit: `claude: complete persistent toolkit workflow`
+- Depois: roteiro, plano e estado persistem tarefas tipadas; completed não reexecuta e dependência failed/blocked impede filho.
