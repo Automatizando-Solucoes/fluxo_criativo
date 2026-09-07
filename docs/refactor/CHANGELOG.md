@@ -535,3 +535,11 @@ Este registro descreve mudanças da Fase H. Cada lote é isolado em seu próprio
 - Pesquisa, imagem, vídeo e dashboards passaram a compartilhar contracts externos entre Claude e Hermes: allowlists, secrets lógicos, descriptors dry-run, mocks e preservação de artefato/cache em erro.
 - Hermes ganhou wrappers externos para imagem, vídeo e dashboard; pesquisa e criativo estático agora persistem somente artefatos locais/mockados e nunca acionam provider.
 - Todas as integrações L3 permanecem `HERMES_EXTERNAL_DRY_RUN`, com guards de rede, subprocesso e filesystem na regressão local.
+
+## Fase L4: paridade Meta Ads Hermes
+
+- Meta Ads passou a usar `core/external/meta-ads.js` como boundary único entre Claude e Hermes, com allowlist de operações, transports APP/MCP, `META_ACCESS_TOKEN` lógico e sem cliente HTTP.
+- O contrato de relatório passou a `core/external/ads-report.js`; `ReportResult` mantém `delivery: null` antes de qualquer descriptor de notificação.
+- Hermes ganhou wrappers dry-run para criação, otimização, escala e relatório. Criação gera somente draft `PAUSED`; escrita exige approval manual e escala financeira exige grant manual para o `action_id` correto.
+- `traffic.insights` continua alias legado explícito de `ads.insights`, compartilhando o mesmo wrapper sem implementação paralela.
+- A regressão Hermes Meta bloqueia e contabiliza rede, subprocessos e escrita fora da fixture, além de verificar ausência de segredos nos resultados serializados.

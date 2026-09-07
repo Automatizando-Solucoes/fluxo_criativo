@@ -22,3 +22,7 @@ Um runtime resolve um `workflow_id` no registry e traduz sua origem atual para a
 ## Estado, approvals e segredos
 
 `meus-produtos/{slug}/` continua sendo a fonte de verdade do negócio. A camada de estado apenas valida e resolve caminhos conhecidos. Aprovações usam `manual`, `standing` ou `disabled`. Segredos são referências e disponibilidade: valores plaintext não pertencem ao contrato nem ao contexto do modelo.
+
+## Meta Ads e relatórios
+
+`core/external/meta-ads.js` é o boundary compartilhado para Meta. Ele permite somente operações allowlisted, distingue `READ`, `WRITE` e `FINANCIAL_WRITE`, preserva APP com `META_ACCESS_TOKEN` lógico e MCP com OAuth gerenciado externamente. MCP não reduz gates de approval; `ads.scale` exige grant manual exato. `core/external/ads-report.js` produz `ReportResult` local com `delivery: null`; delivery é um descriptor separado e permanece dry-run.
