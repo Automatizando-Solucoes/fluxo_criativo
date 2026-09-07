@@ -48,6 +48,7 @@ assert.equal(resolveHermesWorkflow('traffic.insights').workflow_id, 'ads.insight
 assert.equal(resolveHermesWorkflow('traffic.insights').target.path, resolveHermesWorkflow('ads.insights').target.path);
 
 assert.equal(matrix.find((entry) => entry.workflow_id === 'social.publish').hermes_current_support, 'HERMES_BLOCKED_EXTERNAL');
+assert.equal(matrix.find((entry) => entry.workflow_id === 'social.publish').wrapper, 'adapters/hermes/skills/social-publish/SKILL.md');
 assert.equal(matrix.find((entry) => entry.workflow_id === 'ads.scale').financial, true);
 assert.equal(matrix.find((entry) => entry.workflow_id === 'ads.scale').approval_required, true);
 for (const workflowId of ['ads.insights', 'ads.campaign.create', 'ads.optimize', 'ads.scale', 'ads.report']) {
@@ -80,5 +81,12 @@ for (const skillId of [
   assert.ok(skill.classification === 'HERMES_NATIVE' || skill.classification === 'HERMES_WRAPPER');
   assert.equal(fs.existsSync(path.join(root, skill.source)), true, `skill source missing: ${skillId}`);
 }
+
+const terminalStatuses = new Set(['HERMES_READY', 'HERMES_EXTERNAL_DRY_RUN', 'HERMES_BLOCKED_EXTERNAL', 'HERMES_LEGACY']);
+for (const entry of matrix) {
+  assert.equal(terminalStatuses.has(entry.hermes_current_support), true, `${entry.workflow_id} must not retain a transitional Hermes status`);
+}
+assert.equal(getSkillCompatibility('social-publish').classification, 'HERMES_BLOCKED_EXTERNAL');
+assert.equal(getSkillCompatibility('estrategista-ht').classification, 'HERMES_BLOCKED_EXTERNAL');
 
 process.stdout.write('Hermes parity matrix: ok\n');

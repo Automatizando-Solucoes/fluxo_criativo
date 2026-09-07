@@ -13,6 +13,7 @@ const { LOCAL_WORKFLOW_SUPPORT } = require('../../adapters/hermes/local-workflow
 const { EXTERNAL_DRY_RUN_WORKFLOWS } = require('../../adapters/hermes/external-workflows');
 const { HERMES_META_WORKFLOWS } = require('../../adapters/hermes/meta-workflows');
 const { ORCHESTRATION_WORKFLOW_SUPPORT } = require('../../adapters/hermes/orchestration-workflows');
+const { HERMES_PUBLISHER_SUPPORT } = require('../../adapters/hermes/publisher-workflow');
 const { getSkillCompatibility, isHermesWrapperCandidate } = require('../../adapters/hermes/skill-compatibility');
 const { createDelegateRequest, resolveDelegateRequest } = require('../../adapters/hermes/delegation');
 const { toHermesCronJob } = require('../../adapters/hermes/scheduling/cron');
@@ -37,6 +38,7 @@ const EXPECTED_SLASH_COMMANDS = Object.freeze({
   'image.generate': 'imagem-gerar',
   'video.generate': 'video-gerar',
   'social.dashboard': 'social-dashboard',
+  'social.publish': 'social-publicar',
   'ads.insights': 'trafego-insights',
   'ads.campaign.create': 'trafego-criar-campanha',
   'ads.optimize': 'trafego-otimizar',
@@ -58,7 +60,7 @@ const wrapperWorkflowIds = new Set();
 for (const [workflowId, wrapperPath] of Object.entries(WRAPPER_PATHS)) {
   const resolution = resolveHermesWorkflow(workflowId);
   assert.equal(resolution.target.path, wrapperPath);
-  assert.equal(resolution.executable, Boolean(LOCAL_WORKFLOW_SUPPORT[workflowId]) || Boolean(ORCHESTRATION_WORKFLOW_SUPPORT[workflowId]) || EXTERNAL_DRY_RUN_WORKFLOWS.includes(workflowId) || HERMES_META_WORKFLOWS.includes(workflowId));
+  assert.equal(resolution.executable, Boolean(LOCAL_WORKFLOW_SUPPORT[workflowId]) || Boolean(ORCHESTRATION_WORKFLOW_SUPPORT[workflowId]) || Boolean(HERMES_PUBLISHER_SUPPORT[workflowId]) || EXTERNAL_DRY_RUN_WORKFLOWS.includes(workflowId) || HERMES_META_WORKFLOWS.includes(workflowId));
   assert.equal(resolution.external_executable, false);
   assert.equal(fs.existsSync(path.join(root, wrapperPath)), true, `wrapper missing: ${wrapperPath}`);
   const content = fs.readFileSync(path.join(root, wrapperPath), 'utf8');
