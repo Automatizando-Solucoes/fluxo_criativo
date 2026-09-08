@@ -1,5 +1,18 @@
 # Arquitetura do Repositorio. Guia Tecnico Completo
 
+> Atualização de runtime: `agents/` contém metodologia e políticas
+> compartilhadas; `core/` contém contratos e state; `CLAUDE.md`, `HERMES.md` e
+> `AGENTS.md` são entrypoints de seus runtimes. Claude, Hermes e Codex só
+> convergem por `agents/` e `core/`, sem importar adapters entre si.
+
+```text
+agents/  metodologia + políticas
+   ↓
+core/    contratos de negócio e boundaries
+   ↓
+Claude   Hermes   Codex
+```
+
 Este documento explica como o repositorio `workshop_inteligente` esta estruturado e como inserir novas capacidades (commands, agents, skills, ferramentas). Escrito para ser lido por humanos e LLMs que precisem entender, manter ou expandir o projeto.
 
 ---

@@ -10,4 +10,4 @@ mode: local
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md`. Receba somente `product_slug`, confirme que o produto já existe e atualize `.ativo` e o manifest local. Não crie produto implicitamente, não leia secrets e não execute command Claude.
 
-Fonte metodológica de compatibilidade: `.claude/commands/produto-trocar.md`.
+Fonte metodológica de compatibilidade: `agents/methodology/product/lifecycle.md`.

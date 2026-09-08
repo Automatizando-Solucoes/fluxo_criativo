@@ -10,7 +10,7 @@ O estado de negócio vive em `meus-produtos/{slug}/`. O produto ativo está em `
 
 ## Core e runtime
 
-Resolva intenções no registry `core/workflows/registry.js`. `.claude/commands/` e `.claude/skills/` são fontes de compatibilidade, não comandos nativos executáveis pelo Hermes. Use wrappers do adapter somente quando o workflow estiver explicitamente suportado.
+Resolva intenções no registry `core/workflows/registry.js`. Metodologia e políticas canônicas vivem em `agents/`; `.claude/commands/` e `.claude/skills/` são superfícies de compatibilidade do Claude, não fontes metodológicas nem comandos executáveis pelo Hermes. Use wrappers do adapter somente quando o workflow estiver explicitamente suportado.
 
 ## Segurança e approvals
 

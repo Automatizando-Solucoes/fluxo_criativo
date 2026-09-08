@@ -128,7 +128,9 @@ assert.equal(resolveClaudeWorkflow('copy.social').executable, false);
 assert.equal(resolveHermesWorkflow('copy.social').target.kind, 'hermes.skill');
 assert.equal(resolveHermesWorkflow('copy.social').mode, 'local');
 assert.equal(resolveHermesWorkflow('copy.social').executable, true);
-assert.equal(resolveCodexWorkflow('copy.social').target.status, 'not_implemented');
+assert.equal(resolveCodexWorkflow('copy.social').target.status, 'CODEX_READY');
+assert.equal(resolveCodexWorkflow('traffic.insights').workflow_id, 'ads.insights');
+assert.equal(resolveCodexWorkflow('traffic.insights').compatibility_alias_of, 'ads.insights');
 assert.equal(resolveClaudeWorkflow('toolkit.execute').requires_child_risk_resolution, true);
 assert.throws(() => resolveClaudeWorkflow('unknown.workflow'), UnknownWorkflowError);
 

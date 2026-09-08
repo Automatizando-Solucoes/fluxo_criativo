@@ -1,5 +1,11 @@
 # Workshop Marketing IA. Assistente de Marketing Digital
 
+> Arquitetura canônica: `agents/` contém metodologia e políticas compartilhadas;
+> `core/` contém contratos de negócio; este arquivo e `.claude/commands/` são a
+> entrada e UX específicas do Claude. Quando houver divergência metodológica,
+> `agents/` prevalece. Nenhum outro runtime deve depender operacionalmente
+> desta árvore `.claude/`.
+
 ## Como o Projeto é Chamado
 
 Este projeto tem dois nomes e os dois valem: **Fluxo Criativo** (nome do repositório) e **Severino** (como o time chama no dia a dia). Se alguém pedir "atualiza o Severino", "roda isso no Severino" ou "o Severino está usando tal skill", está falando deste projeto, não de outra ferramenta.

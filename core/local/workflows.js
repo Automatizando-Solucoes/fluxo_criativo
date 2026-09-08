@@ -13,9 +13,9 @@ const PRODUCT_TYPES = Object.freeze(['Low Ticket', 'Middle Ticket']);
 const DELIVERY_DIRECTORIES = Object.freeze([
   'entregas/paginas', 'entregas/emails', 'entregas/copy-pagina', 'entregas/criativos', 'entregas/comercial', 'entregas/textos-de-venda',
 ]);
-const MANUAL_COPY_PATH = '.claude/skills/revisora/references/manual-copy.md';
+const MANUAL_COPY_PATH = 'agents/methodology/copy/manual-copy.md';
 const REQUIRED_KNOWLEDGE_PATHS = Object.freeze([
-  MANUAL_COPY_PATH, '.claude/skills/elementos-literarios/SKILL.md', '.claude/skills/revisora/SKILL.md',
+  MANUAL_COPY_PATH, 'agents/skills/elementos-literarios/SKILL.md', 'agents/skills/revisora/SKILL.md',
 ]);
 const COPY_WORKFLOWS = Object.freeze({
   'copy.page': Object.freeze({ command: 'copy-pagina', output: (slug) => `entregas/copy-pagina/copy-${slug}.md`, requires_page_blocks: true }),
@@ -37,7 +37,7 @@ const LOW_TICKET_STEPS = Object.freeze([
 ]);
 const LOW_TICKET_COMMANDS = Object.freeze(['lt-funil', 'lt-criar-produto', 'lt-quiz', 'lt-pagina', 'copy-anuncio']);
 const MIDDLE_TICKET_STEPS = Object.freeze(['research', 'conception', 'identity', 'offer', 'page_8d', 'copy', 'creatives', 'ads_plan', 'traffic_handoff']);
-const MIDDLE_TICKET_SOURCES = Object.freeze(['.claude/agents/estrategista-middle-ticket.md', '.claude/commands/copy-pagina.md', '.claude/commands/copy-anuncio.md']);
+const MIDDLE_TICKET_SOURCES = Object.freeze(['agents/methodology/funnels/middle-ticket.md', 'agents/skills/paginas/SKILL.md', 'agents/skills/anuncios/SKILL.md']);
 
 function assertNonEmptyText(value, field) {
   if (typeof value !== 'string' || value.trim().length === 0) throw new TypeError(`${field} must be a non-empty string`);

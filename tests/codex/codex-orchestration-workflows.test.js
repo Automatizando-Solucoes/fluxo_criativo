@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+'use strict';
+
+const assert = require('node:assert/strict'); const fs = require('node:fs'); const os = require('node:os'); const path = require('node:path');
+const { createCodexLocal, resolveCodexPlan, createCodexToolkit, transitionCodexToolkit, reevaluateCodexToolkit, pauseCodexToolkit, resumeCodexToolkit } = require('../../adapters/codex/workflows');
+const plan = resolveCodexPlan([{ task_id: 'local', workflow_id: 'copy.social' }, { task_id: 'unknown', workflow_id: 'unknown.workflow' }, { task_id: 'scale', workflow_id: 'ads.scale' }]).result;
+assert.equal(plan.tasks.find((task) => task.task_id === 'local').status, 'pending'); assert.equal(plan.tasks.find((task) => task.task_id === 'unknown').reason, 'unknown_workflow'); assert.equal(plan.tasks.find((task) => task.task_id === 'scale').status, 'blocked'); assert.throws(() => resolveCodexPlan([{ task_id: 'shell', workflow_id: 'copy.social', shell: 'echo unsafe' }]));
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'codex-toolkit-')); const product = 'produto';
+try {
+  createCodexLocal({ workflow_id: 'product.create', projectRoot: root, product_slug: product, name: 'Produto', type: 'Low Ticket', price: 'R$47' });
+  const created = createCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro', tasks: [{ id: 'local', workflow_id: 'copy.social', idempotency_key: 'local' }, { id: 'blocked', workflow_id: 'ads.scale', idempotency_key: 'blocked' }, { id: 'dependent', workflow_id: 'copy.ad', depends_on: ['blocked'], idempotency_key: 'dependent' }] }).result;
+  assert.equal(created.state.tasks.find((task) => task.id === 'blocked').status, 'blocked'); assert.equal(created.state.tasks.find((task) => task.id === 'dependent').reason, 'dependency_blocked');
+  assert.throws(() => createCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'duplicado', tasks: [{ id: 'a', workflow_id: 'copy.social', idempotency_key: 'same' }, { id: 'b', workflow_id: 'copy.ad', idempotency_key: 'same' }] }));
+  pauseCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro' }); assert.throws(() => transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro', task_id: 'local', status: 'running' }), /paused/); resumeCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro' });
+  transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro', task_id: 'local', status: 'running' }); const completed = transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro', task_id: 'local', status: 'completed' }); const attempts = completed.tasks.find((task) => task.id === 'local').attempts;
+  const rerun = transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro', task_id: 'local', status: 'running' }); assert.equal(rerun.tasks.find((task) => task.id === 'local').attempts, attempts);
+  const retry = createCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'retry', tasks: [{ id: 'task', workflow_id: 'copy.social' }] }).result; assert.equal(retry.state.status, 'pending'); transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'retry', task_id: 'task', status: 'failed' }); assert.throws(() => transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'retry', task_id: 'task', status: 'running' }), /explicit retry/); assert.equal(transitionCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'retry', task_id: 'task', status: 'running', extra: { retry: true } }).tasks[0].status, 'running');
+  const reevaluated = reevaluateCodexToolkit({ projectRoot: root, product_slug: product, toolkit_id: 'roteiro', task_id: 'blocked', update: { workflow_id: 'copy.social' } }); assert.equal(reevaluated.tasks.find((task) => task.id === 'blocked').status, 'pending');
+} finally { fs.rmSync(root, { recursive: true, force: true }); }
+process.stdout.write('Codex orchestration workflows: ok\n');

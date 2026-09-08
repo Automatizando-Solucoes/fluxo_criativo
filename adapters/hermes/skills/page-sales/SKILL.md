@@ -10,4 +10,4 @@ mode: local
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md`. Exija copy revisada, valide HTML estrutural e paths relativos de assets e persista a página somente no produto. Deploy não pertence a este workflow.
 
-Fonte metodológica de compatibilidade: `.claude/skills/paginas/SKILL.md`.
+Fonte metodológica de compatibilidade: `agents/skills/paginas/SKILL.md`.

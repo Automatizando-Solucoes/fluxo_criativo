@@ -1,6 +1,9 @@
 # Core neutro de runtime
 
-O diretório `core/` contém contratos pequenos e testáveis entre a inteligência já existente, workflows lógicos, estado local e runtimes. Ele não substitui nem move, nesta fase, `.claude/agents/`, `.claude/commands/` ou `.claude/skills/`.
+O diretório `core/` contém contratos pequenos e testáveis entre metodologia
+neutra, workflows lógicos, estado local e runtimes. A metodologia e as
+políticas compartilhadas vivem em `agents/`; `.claude/` preserva a UX e a
+compatibilidade específicas do Claude.
 
 ## O que é
 

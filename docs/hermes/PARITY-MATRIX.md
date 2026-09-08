@@ -1,6 +1,6 @@
 # Matriz de paridade Hermes
 
-Baseline: `main` em `88a26628cbfc87981d46bdad0bb7134038ee24e1`. Claude Code é a referência funcional. A Fase L está concluída: esta matriz cobre todos os workflows do registry e descreve resolução, wrapper e gates dry-run, sem habilitar providers, cron, delegates ou publicação. O teste `claude-hermes-e2e-parity.test.js` compara as duas fixtures isoladas.
+Baseline: `main` em `88a26628cbfc87981d46bdad0bb7134038ee24e1`. Claude Code é a referência funcional. A Fase L está concluída: esta matriz cobre todos os workflows do registry e descreve resolução, wrapper e gates dry-run, sem habilitar providers, cron, delegates ou publicação. O teste `claude-hermes-e2e-parity.test.js` compara as duas fixtures isoladas. A Fase M moveu as fontes metodológicas canônicas para `agents/`; os wrappers Hermes não dependem operacionalmente de `.claude/`.
 
 | Workflow | Categoria | Core source | Ext. | Financ. | Approval | Kind / child risk | Claude | Hermes atual → alvo | Wrapper | Metodologia | Capability | Secret lógico | Estratégia | Lote | Nota |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

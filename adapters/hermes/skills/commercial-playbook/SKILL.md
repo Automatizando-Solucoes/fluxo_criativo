@@ -10,4 +10,4 @@ mode: local
 
 Leia e aplique `adapters/hermes/SOURCE-POLICY.md`. O módulo `COMMERCIAL_GENERAL` permanece local. `COMMERCIAL_HT` retorna `BLOCKED_EXTERNAL` para a dependência `ht-*` sem inventar C10X e sem apagar artefatos existentes.
 
-Fonte metodológica de compatibilidade: `.claude/commands/comercial-playbook.md`.
+Fonte metodológica de compatibilidade: `agents/methodology/commercial/playbook.md`.
