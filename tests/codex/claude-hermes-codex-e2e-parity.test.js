@@ -1,67 +1,47 @@
 #!/usr/bin/env node
 'use strict';
 
-const assert = require('node:assert/strict');
-const childProcess = require('node:child_process');
-const fs = require('node:fs');
-const http = require('node:http');
-const https = require('node:https');
-const net = require('node:net');
-const os = require('node:os');
-const path = require('node:path');
-const { createProduct } = require('../../core/local/workflows');
-const { workflowRegistry } = require('../../core/workflows/registry');
-const { buildHermesParityMatrix } = require('../../adapters/hermes/parity');
-const { buildCodexParityMatrix } = require('../../adapters/codex/parity');
-const { createCodexLocal } = require('../../adapters/codex/workflows');
+const assert = require('node:assert/strict'); const fs = require('node:fs'); const os = require('node:os'); const path = require('node:path'); const http = require('node:http'); const https = require('node:https'); const net = require('node:net'); const child = require('node:child_process');
+const local = require('../../core/local/workflows'); const research = require('../../core/external/research'); const image = require('../../core/external/image'); const video = require('../../core/external/video'); const dashboard = require('../../core/external/social-dashboard'); const meta = require('../../core/external/meta-ads'); const report = require('../../core/external/ads-report'); const publisher = require('../../core/external/organic-publisher'); const plan = require('../../core/orchestration/plan'); const toolkit = require('../../core/orchestration/toolkit'); const { workflowRegistry } = require('../../core/workflows/registry'); const { MockSecretProvider } = require('../../core/secrets/provider'); const { createApprovalPolicy } = require('../../core/approvals/policy');
+const { executeHermesLocalWorkflow } = require('../../adapters/hermes/local-workflows'); const hermesExternal = require('../../adapters/hermes/external-workflows'); const hermesMeta = require('../../adapters/hermes/meta-workflows'); const hermesPublisher = require('../../adapters/hermes/publisher-workflow'); const { getHermesHighTicketStatus } = require('../../adapters/hermes/high-ticket-status');
+const { createCodexLocal, resolveCodexPlan, createCodexToolkit, evaluateCodexPublication } = require('../../adapters/codex/workflows'); const codexExternal = require('../../adapters/codex/external-workflows'); const codexMeta = require('../../adapters/codex/meta-workflows'); const { getCodexHighTicketStatus } = require('../../adapters/codex/high-ticket-status'); const { resolveCodexWorkflow } = require('../../adapters/codex/resolver');
 
-const root = fs.mkdtempSync(path.join(os.tmpdir(), 'three-runtime-'));
-const counters = { network_calls: 0, child_process_calls: 0, writes_outside_fixture: 0 };
-const originals = {
-  fetch: global.fetch, httpRequest: http.request, httpGet: http.get, httpsRequest: https.request, httpsGet: https.get, netConnect: net.connect,
-  child: Object.fromEntries(['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync', 'fork'].map((name) => [name, childProcess[name]])),
-  fs: Object.fromEntries(['writeFileSync', 'appendFileSync', 'renameSync', 'mkdirSync', 'rmSync'].map((name) => [name, fs[name]])),
-};
-function blockNetwork() { counters.network_calls += 1; throw new Error('network forbidden in three-runtime parity'); }
-function blockChild() { counters.child_process_calls += 1; throw new Error('child process forbidden in three-runtime parity'); }
-function assertFixtureWrite(target) { if (typeof target === 'number') return; const value = path.resolve(String(target)); if (value !== root && !value.startsWith(`${root}${path.sep}`)) { counters.writes_outside_fixture += 1; throw new Error(`write outside fixture: ${value}`); } }
-function installGuards() {
-  if (typeof global.fetch === 'function') global.fetch = blockNetwork;
-  http.request = blockNetwork; http.get = blockNetwork; https.request = blockNetwork; https.get = blockNetwork; net.connect = blockNetwork;
-  for (const name of Object.keys(originals.child)) childProcess[name] = blockChild;
-  fs.writeFileSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.writeFileSync(target, ...args); };
-  fs.appendFileSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.appendFileSync(target, ...args); };
-  fs.renameSync = (from, to, ...args) => { assertFixtureWrite(from); assertFixtureWrite(to); return originals.fs.renameSync(from, to, ...args); };
-  fs.mkdirSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.mkdirSync(target, ...args); };
-  fs.rmSync = (target, ...args) => { assertFixtureWrite(target); return originals.fs.rmSync(target, ...args); };
-}
-function restoreGuards() {
-  global.fetch = originals.fetch; http.request = originals.httpRequest; http.get = originals.httpGet; https.request = originals.httpsRequest; https.get = originals.httpsGet; net.connect = originals.netConnect;
-  for (const [name, value] of Object.entries(originals.child)) childProcess[name] = value;
-  for (const [name, value] of Object.entries(originals.fs)) fs[name] = value;
-}
+const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'three-runtime-real-')); const counters = { network_calls: 0, child_process_calls: 0, writes_outside_fixture: 0 }; const coverage = new Set();
+const original = { fetch: global.fetch, http: [http.request, http.get, https.request, https.get, net.connect], child: Object.fromEntries(['exec', 'execSync', 'spawn', 'spawnSync', 'execFile', 'execFileSync', 'fork'].map((k) => [k, child[k]])), fs: Object.fromEntries(['writeFileSync', 'appendFileSync', 'renameSync', 'mkdirSync', 'rmSync'].map((k) => [k, fs[k]])) };
+function blockedNetwork() { counters.network_calls += 1; throw new Error('network forbidden'); } function blockedChild() { counters.child_process_calls += 1; throw new Error('child process forbidden'); }
+function guard(target) { if (typeof target !== 'number') { const resolved = path.resolve(String(target)); if (resolved !== fixture && !resolved.startsWith(`${fixture}${path.sep}`)) { counters.writes_outside_fixture += 1; throw new Error(`write outside fixture: ${resolved}`); } } }
+function install() { if (typeof global.fetch === 'function') global.fetch = blockedNetwork; [http, https].forEach((mod) => { mod.request = blockedNetwork; mod.get = blockedNetwork; }); net.connect = blockedNetwork; for (const key of Object.keys(original.child)) child[key] = blockedChild; fs.writeFileSync = (p, ...a) => { guard(p); return original.fs.writeFileSync(p, ...a); }; fs.appendFileSync = (p, ...a) => { guard(p); return original.fs.appendFileSync(p, ...a); }; fs.renameSync = (a, b, ...rest) => { guard(a); guard(b); return original.fs.renameSync(a, b, ...rest); }; fs.mkdirSync = (p, ...a) => { guard(p); return original.fs.mkdirSync(p, ...a); }; fs.rmSync = (p, ...a) => { guard(p); return original.fs.rmSync(p, ...a); }; }
+function restore() { global.fetch = original.fetch; [http.request, http.get, https.request, https.get, net.connect] = original.http; for (const [k, v] of Object.entries(original.child)) child[k] = v; for (const [k, v] of Object.entries(original.fs)) fs[k] = v; }
+function copy() { return Array.from({ length: 16 }, (_, i) => `## Bloco ${String(i + 1).padStart(2, '0')}\nTexto específico validado.`).join('\n\n'); }
+function manual(workflow_id, action_id) { return createApprovalPolicy({ mode: 'manual', workflow_id, manual_grant: { action_id, approved_by: 'fixture', approved_at: '2026-09-07T00:00:00.000Z' } }); }
+function assertEquivalent(label, values, fields) { const normalized = values.map((item) => Object.fromEntries(fields.map((field) => [field, item[field]]))); assert.deepEqual(normalized[1], normalized[0], `${label}: Hermes`); assert.deepEqual(normalized[2], normalized[0], `${label}: Codex`); }
 
+install();
 try {
-  installGuards();
-  const input = { slug: 'produto-paridade', name: 'Produto Paridade', type: 'Low Ticket', price: 'R$47' };
-  const claude = createProduct({ projectRoot: path.join(root, 'claude'), ...input });
-  const hermes = createProduct({ projectRoot: path.join(root, 'hermes'), ...input });
-  const codex = createCodexLocal({ workflow_id: 'product.create', projectRoot: path.join(root, 'codex'), product_slug: input.slug, name: input.name, type: input.type, price: input.price }).result;
-  assert.deepEqual({ slug: claude.slug, active: claude.manifest.ativo }, { slug: hermes.slug, active: hermes.manifest.ativo });
-  assert.deepEqual({ slug: claude.slug, active: claude.manifest.ativo }, { slug: codex.slug, active: codex.manifest.ativo });
-
-  const hermesMatrix = new Map(buildHermesParityMatrix().map((item) => [item.workflow_id, item]));
-  const codexMatrix = new Map(buildCodexParityMatrix().map((item) => [item.workflow_id, item]));
-  for (const workflow of workflowRegistry.list()) {
-    const hermesEntry = hermesMatrix.get(workflow.id); const codexEntry = codexMatrix.get(workflow.id);
-    assert.ok(hermesEntry, `Hermes decision missing: ${workflow.id}`); assert.ok(codexEntry, `Codex decision missing: ${workflow.id}`);
-    assert.equal(hermesEntry.external, workflow.side_effects.external); assert.equal(codexEntry.external, workflow.side_effects.external);
-    assert.equal(hermesEntry.financial, workflow.side_effects.financial); assert.equal(codexEntry.financial, workflow.side_effects.financial);
-    assert.equal(hermesEntry.approval_required, workflow.approval.required); assert.equal(codexEntry.approval_required, workflow.approval.required);
-  }
-  assert.deepEqual(counters, { network_calls: 0, child_process_calls: 0, writes_outside_fixture: 0 });
-} finally {
-  restoreGuards(); fs.rmSync(root, { recursive: true, force: true });
-}
-assert.equal(fs.existsSync(root), false);
-process.stdout.write('Claude/Hermes/Codex E2E parity: ok\n');
+  const roots = ['claude', 'hermes', 'codex'].map((runtime) => path.join(fixture, runtime)); const slug = 'produto-paridade'; const productInput = { product_slug: slug, name: 'Produto Paridade', type: 'Low Ticket', price: 'R$47' };
+  const claudeCreate = local.createProduct({ projectRoot: roots[0], slug, name: productInput.name, type: productInput.type, price: productInput.price });
+  const hermesCreate = executeHermesLocalWorkflow({ workflow_id: 'product.create', projectRoot: roots[1], ...productInput }).result; const codexCreate = createCodexLocal({ workflow_id: 'product.create', projectRoot: roots[2], ...productInput }).result;
+  assertEquivalent('product.create', [claudeCreate, hermesCreate, codexCreate], ['slug']); coverage.add('product.create');
+  for (const root of roots) { local.activateProduct({ projectRoot: root, slug }); for (const file of ['pesquisa-mercado.md', 'perfil.md', 'idconsumidor.md']) fs.writeFileSync(path.join(root, 'meus-produtos', slug, file), '# fixture\n'); } coverage.add('product.select');
+  const content = copy(); const localWorkflows = ['copy.page', 'copy.ad', 'copy.social', 'copy.script'];
+  for (const workflow_id of localWorkflows) { const base = { workflow_id, product_slug: slug, projectRoot: roots[0], content: workflow_id === 'copy.page' ? content : 'Texto específico validado.', page_type: 'vendas', offer: 'Oferta', platform: 'instagram', objective: 'vender' }; const cReview = local.reviewCopy({ workflow_id, content: base.content }); const c = local.saveReviewedCopy({ ...base, review: cReview }); const h = executeHermesLocalWorkflow({ ...base, projectRoot: roots[1] }).result; const x = createCodexLocal({ ...base, projectRoot: roots[2] }).result; assertEquivalent(workflow_id, [c, h, x], ['status']); coverage.add(workflow_id); }
+  for (const workflow_id of ['funnel.low_ticket', 'funnel.middle_ticket']) { const input = { workflow_id, product_slug: slug, quiz_required: true }; const c = workflow_id.endsWith('low_ticket') ? local.createLowTicketPlan({ projectRoot: roots[0], ...input }) : local.createMiddleTicketPlan({ projectRoot: roots[0], ...input }); const h = executeHermesLocalWorkflow({ ...input, projectRoot: roots[1] }).result; const x = createCodexLocal({ ...input, projectRoot: roots[2] }).result; assert.equal(c.plan.traffic_handoff.mode, h.plan.traffic_handoff.mode); assert.equal(c.plan.traffic_handoff.mode, x.plan.traffic_handoff.mode); coverage.add(workflow_id); }
+  const pageReview = local.reviewCopy({ workflow_id: 'copy.page', content }); const html = '<html><body><img src="assets/mock.png"></body></html>'; const cPage = local.buildPage({ projectRoot: roots[0], product_slug: slug, html, copy_review: pageReview }); const hPage = executeHermesLocalWorkflow({ workflow_id: 'page.sales', projectRoot: roots[1], product_slug: slug, html, copy_review: pageReview }).result; const xPage = createCodexLocal({ workflow_id: 'page.sales', projectRoot: roots[2], product_slug: slug, html, copy_review: pageReview }).result; assertEquivalent('page.sales', [cPage, hPage, xPage], ['status']); coverage.add('page.sales');
+  const carouselInput = { product_slug: slug, slug: 'post', slides: ['Um', 'Dois'], caption: 'Legenda', cta: 'CTA', visual_prompts: ['Prompt um', 'Prompt dois'] }; const cCarousel = local.createCarouselArtifact({ projectRoot: roots[0], ...carouselInput }); const hCarousel = executeHermesLocalWorkflow({ workflow_id: 'carousel.generate', projectRoot: roots[1], ...carouselInput }).result; const xCarousel = createCodexLocal({ workflow_id: 'carousel.generate', projectRoot: roots[2], ...carouselInput }).result; assert.equal(cCarousel.artifact.publication.autopublish, false); assert.equal(hCarousel.artifact.publication.autopublish, false); assert.equal(xCarousel.artifact.publication.autopublish, false); coverage.add('carousel.generate');
+  for (const root of roots) local.createCarouselSchedule({ projectRoot: root, product_slug: slug, slug: 'post', schedule_id: 'schedule', schedule: '0 9 * * 1', timezone: 'America/Manaus' }); coverage.add('carousel.schedule');
+  for (const root of roots) assert.equal(local.planCommercial({ product_slug: slug, module: 'COMMERCIAL_HT', existing_artifacts: ['existente.md'] }).status, 'BLOCKED_EXTERNAL'); coverage.add('commercial.playbook');
+  const secrets = new MockSecretProvider({ APIFY_API_TOKEN: 'op://fixture/apify/token', OPENROUTER_API_KEY: 'op://fixture/openrouter/key', FREEPIK_API_KEY: 'op://fixture/freepik/key', META_ACCESS_TOKEN: 'op://fixture/meta/token' });
+  const externalCases = [{ id: 'research.market', input: { provider: 'apify' } }, { id: 'image.generate', input: { provider: 'openrouter', prompt: 'Prompt' } }, { id: 'creative.static', input: { brief: 'Brief' } }, { id: 'video.generate', input: { renderer: 'ffmpeg', script: 'Roteiro' } }, { id: 'social.dashboard', input: { platform: 'instagram' } }];
+  for (const item of externalCases) { const c = item.id === 'research.market' ? research.prepareSpecializedResearchProvider({ ...item.input, secretProvider: secrets }) : item.id === 'image.generate' ? image.prepareImageRequest({ ...item.input, secretProvider: secrets }) : item.id === 'video.generate' ? video.prepareVideoJob({ ...item.input, secretProvider: secrets }) : item.id === 'social.dashboard' ? dashboard.prepareDashboard({ ...item.input, secretProvider: secrets }) : { status: 'dry_run' }; const h = hermesExternal.prepareHermesExternalWorkflow({ workflow_id: item.id, ...item.input, secretProvider: secrets }).result; const x = codexExternal.prepareCodexExternalWorkflow({ workflow_id: item.id, ...item.input, secretProvider: secrets }).result; assert.equal(c.status, h.status); assert.equal(c.status, x.status); coverage.add(item.id); }
+  const reads = ['meta.auth.validate', 'meta.accounts.list', 'ads.account.read', 'ads.campaigns.list', 'ads.pixels.list', 'ads.conversions.list', 'ads.audiences.list', 'ads.interests.search', 'ads.creatives.validate', 'ads.insights']; for (const operation of reads) { assert.equal(meta.prepareMetaOperation({ operation, auth_mode: 'MCP_CONECTOR' }).status, 'dry_run'); assert.equal(hermesMeta.prepareHermesMetaOperation({ operation, auth_mode: 'MCP_CONECTOR' }).result.status, 'dry_run'); assert.equal(codexMeta.prepareCodexMetaOperation({ operation, auth_mode: 'MCP_CONECTOR' }).result.status, 'dry_run'); } coverage.add('ads.insights');
+  for (const workflow_id of ['ads.campaign.create', 'ads.optimize', 'ads.scale']) { const action_id = `${workflow_id}-action`; const context = { workflow_id, action_id }; const policy = manual(workflow_id, action_id); const c = meta.prepareMetaOperation({ operation: workflow_id, context, policy, secretProvider: secrets }); const h = hermesMeta.prepareHermesMetaWorkflow({ workflow_id, context, policy, secretProvider: secrets }).result; const x = codexMeta.prepareCodexMetaWorkflow({ workflow_id, context, policy, secretProvider: secrets }).result; assert.equal(c.status, 'dry_run'); assert.equal(h.status, c.status); assert.equal(x.status, c.status); coverage.add(workflow_id); }
+  assert.equal(hermesMeta.createHermesCampaignDraft({ name: 'x', action_id: 'create' }).draft.status, 'PAUSED'); assert.equal(codexMeta.createCodexCampaignDraft({ name: 'x', action_id: 'create' }).draft.status, 'PAUSED');
+  const reports = roots.map((projectRoot) => report.createAdsReport({ projectRoot, product_slug: slug, period: '2026-09', metrics: { spend: 0 }, analysis: 'Mock' })); for (const item of reports) assert.equal(item.delivery, null); coverage.add('ads.report');
+  const pub = { publication_id: 'publish', workflow_id: 'social.publish', product: slug, platform: 'instagram', content_type: 'post', artifact_path: 'entregas/post.md', approval_policy: manual('social.publish', 'publish'), autopublish: true }; assert.equal(publisher.evaluatePublication(publisher.createPublicationRequest(pub)).status, 'blocked'); assert.equal(hermesPublisher.evaluateHermesPublication(pub).result.status, 'blocked'); assert.equal(evaluateCodexPublication(pub).result.status, 'blocked'); coverage.add('social.publish');
+  const tasks = [{ task_id: 'copy', workflow_id: 'copy.social' }, { task_id: 'unknown', workflow_id: 'unknown.workflow' }, { task_id: 'scale', workflow_id: 'ads.scale' }]; assert.equal(plan.resolvePlan(tasks, workflowRegistry).tasks[1].status, 'blocked'); assert.equal(resolveCodexPlan(tasks).result.tasks[1].status, 'blocked'); coverage.add('plan.execute');
+  for (const root of roots) { const output = toolkit.createProductToolkit({ projectRoot: root, product_slug: slug, id: 'toolkit', tasks: [{ id: 'copy', workflow_id: 'copy.social' }], registry: workflowRegistry }); assert.equal(output.state.tasks[0].status, 'pending'); } coverage.add('toolkit.execute');
+  const ht = require('../../core/external/high-ticket-status').getHighTicketStatus({ projectRoot: roots[0], product_slug: slug }); assert.equal(ht.status, 'BLOCKED_EXTERNAL'); assert.equal(getHermesHighTicketStatus({ projectRoot: roots[1], product_slug: slug }).result.status, 'BLOCKED_EXTERNAL'); assert.equal(getCodexHighTicketStatus({ projectRoot: roots[2], product_slug: slug }).result.status, 'BLOCKED_EXTERNAL');
+  const alias = resolveCodexWorkflow('traffic.insights'); assert.deepEqual({ requested: alias.requested_workflow_id, workflow: alias.workflow_id, alias: alias.compatibility_alias_of }, { requested: 'traffic.insights', workflow: 'ads.insights', alias: 'ads.insights' }); coverage.add('traffic.insights');
+  assert.equal(coverage.size, 26); for (const workflow of workflowRegistry.list()) assert.equal(coverage.has(workflow.id), true, `not exercised: ${workflow.id}`); assert.deepEqual(counters, { network_calls: 0, child_process_calls: 0, writes_outside_fixture: 0 }); assert.equal(/op:\/\/|Bearer|Authorization|access_token=|password=|api_key=|EAA[A-Za-z0-9]+|sk-[A-Za-z0-9]+/.test(JSON.stringify({ reports })), false);
+} finally { restore(); fs.rmSync(fixture, { recursive: true, force: true }); }
+assert.equal(fs.existsSync(fixture), false); process.stdout.write('Claude/Hermes/Codex real E2E parity: ok\n');

@@ -11,6 +11,13 @@ externos são `CODEX_EXTERNAL_DRY_RUN`, `social.publish` é
 `CODEX_BLOCKED_EXTERNAL` e `traffic.insights` é `CODEX_LEGACY` que resolve para
 `ads.insights`.
 
+A regressão tripla executa concretamente os 26 contratos e boundaries em três
+fixtures isoladas, uma por runtime. A cobertura só é marcada depois da chamada
+do workflow ou boundary: fluxos locais, funis, pesquisa e criativos mockados,
+Meta APP/MCP, relatório, plano, Toolkit, publisher bloqueado e alias histórico.
+Ela termina com `network_calls`, `child_process_calls` e
+`writes_outside_fixture` iguais a zero.
+
 `CODEX_EXTERNAL_DRY_RUN` significa contrato, metodologia e boundary seguro
 prontos, sem validação live de provider. O runtime não acessa rede, vault,
 MCP, cron, delegates, gateway, publisher, deploy ou provider nesta paridade.
