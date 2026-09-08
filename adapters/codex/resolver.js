@@ -21,9 +21,10 @@ function resolveCodexWorkflow(workflowId) {
     financial: workflow.side_effects.financial,
     approval_required: workflow.approval.required,
     support_status: status,
-    local_executable: status !== 'CODEX_LEGACY' && status !== 'CODEX_BLOCKED_EXTERNAL',
+    // A blocked publisher still has a local request/evaluation boundary.
+    local_executable: status !== 'CODEX_LEGACY',
     external_executable: false,
-    executable: status !== 'CODEX_LEGACY',
+    executable: status !== 'CODEX_LEGACY' && status !== 'CODEX_BLOCKED_EXTERNAL',
   });
 }
 
