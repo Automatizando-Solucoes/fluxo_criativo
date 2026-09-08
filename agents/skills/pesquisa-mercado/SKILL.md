@@ -51,3 +51,23 @@ lacuna, sem inventar dado ou sobrescrever artefato útil. A saída contém os
 nove eixos, fatos separados de inferências, tabela de concorrentes e preços,
 Top 10 com padrões, objeções priorizadas, oportunidades, diferenciais,
 alertas, fontes e dados estruturados para gráficos quando disponíveis.
+
+## Mínimos, evidência e segunda tentativa
+
+Busque no mínimo 10 concorrentes e 10 objeções reais quando o mercado tiver
+material público suficiente. Cada concorrente deve contribuir com uma
+observação verificável, não apenas uma lista de nomes. Toda afirmação registra
+fonte, data, tipo de evidência e confiança; fato observado e inferência devem
+ficar separados.
+
+No YouTube Top 10, limite a no máximo 2 vídeos por canal para preservar
+diversidade. Inclua Shorts quando forem representativos do formato ou do
+ângulo, registre comentários relevantes, atributos de thumbnail, duração,
+data, lacunas por vídeo e padrões que se repetem. A síntese final aponta o que
+é recorrente, o que é exceção e o que ainda precisa ser testado.
+
+Quando um eixo vier vazio, faça uma segunda tentativa usando fonte ou termo de
+busca alternativo antes de registrar a lacuna. Fontes recomendadas incluem
+sites e páginas públicas do nicho, avaliações e comentários, canais de vídeo,
+resultados de busca, lojas e anúncios públicos. Não transforme ausência de
+dado em confirmação de inexistência.

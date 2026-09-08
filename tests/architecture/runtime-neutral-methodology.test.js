@@ -30,6 +30,7 @@ for (const entry of METHODOLOGY_MANIFEST) {
   assert.equal(fs.existsSync(path.join(root, entry.legacy_source)), true, `legacy inventory missing: ${entry.id}`);
   const text = fs.readFileSync(canonical, 'utf8');
   for (const section of entry.required_sections) assert.match(text, new RegExp(`^## ${section.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'm'), `${entry.id} lacks ${section}`);
+  for (const concept of entry.required_concepts || []) assert.match(text, concept, `${entry.id} lacks required methodology concept ${concept}`);
   assert.equal(/\.claude\/.*(?:legacy-runtime|LEGACY-METHODOLOGY)/.test(text), false, `${entry.id} must not depend on legacy methodology`);
 }
 for (const entry of [...buildHermesParityMatrix(), ...buildCodexParityMatrix()]) {

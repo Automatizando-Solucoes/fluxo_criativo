@@ -68,3 +68,29 @@ horário e histórico, separados do agregado. O payload contém contexto,
 atribuição, janelas, métricas nativas e derivadas, maturidade, cache, erros,
 ranking e interpretação cautelosa. Comparação, ranking, funil por campanha e
 histórico mensal consomem apenas dados normalizados.
+
+## Defaults, fórmulas e cache detalhado
+
+| Trilha | Curta | Média | Longa |
+| --- | --- | --- | --- |
+| Perpétuo Low, até R$ 500 | 1d | 3d | 7d |
+| Perpétuo Mid, R$ 501 a R$ 1.499 | 3d | 7d | 14d |
+| Perpétuo High, R$ 1.500 ou mais | 7d | 14d | 30d |
+| Lançamento, qualquer ticket | 1d | 3d | 7d |
+
+A atribuição vem da conta; ausente, o default é `7d_click`, sempre declarado.
+Intervalo com início e fim é `custom_range` e não cruza as três janelas;
+`lifetime` só entra como bloco extra pedido explicitamente. Além de gasto,
+impressões, alcance, frequência, cliques, CTR, CPM, CPC, eventos e valor,
+calcule `connect_rate = lp_views / link_clicks`, taxas de conversão da página
+e do anúncio, taxa carrinho-compra, taxa checkout-compra e custos por LP view,
+carrinho, checkout e compra. Denominador zero retorna `null`; abaixo de 50
+observações a confiabilidade é baixa, de 50 a 200 média e acima de 200 alta.
+
+Cache de sessão tem TTL de 5 minutos. Cache local usa TTL adaptativo: 1 hora
+para hoje, 6 horas para 7 a 14 dias, 24 horas para 30 dias e 7 dias para
+períodos fechados. Invalide por período, nível, campos, breakdown, atribuição,
+escopo, write aprovado ou refresh explícito; preserve artefatos obsoletos para
+auditoria. Conta completa ranqueia urgência e limita drill-down aos 5 piores e
+listagem a 200 itens. Falha parcial preserva relatório e preenche `erros[]`;
+falha fatal retorna motivo sem métricas fictícias.
