@@ -9,6 +9,7 @@ const research = require('../../core/external/research');
 const image = require('../../core/external/image');
 const video = require('../../core/external/video');
 const dashboard = require('../../core/external/social-dashboard');
+const geminiLive = require('./gemini-image-live');
 
 const EXTERNAL_DRY_RUN_WORKFLOWS = Object.freeze(['research.market', 'image.generate', 'creative.static', 'video.generate', 'social.dashboard']);
 
@@ -61,4 +62,13 @@ function preserveHermesExternalCacheOnFailure({ workflow_id, projectRoot, produc
   throw new TypeError('cache preservation is not supported for this workflow');
 }
 
-module.exports = { EXTERNAL_DRY_RUN_WORKFLOWS, prepareHermesExternalWorkflow, writeHermesMockResult, preserveHermesExternalCacheOnFailure };
+function executeApprovedGeminiImage(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new TypeError('approved image input must be an object');
+  const workflow = assertExternalWorkflow(input.workflow_id);
+  if (!['image.generate', 'creative.static'].includes(workflow.id)) throw new TypeError('approved Gemini execution is not supported for this workflow');
+  const prompt = typeof input.prompt === 'string' && input.prompt.trim() ? input.prompt : input.brief;
+  const result = geminiLive.executeGeminiImage({ projectRoot: assertProjectRoot(input.projectRoot), product_slug: input.product_slug, slug: input.slug || 'criativo', prompt, aspect_ratio: input.aspect_ratio, resolution: input.resolution, workflow_id: workflow.id, action_id: input.action_id, approval_policy: input.approval_policy, now: input.now, usage: input.usage });
+  return immutableCopy({ workflow_id: workflow.id, runtime: 'hermes', support_status: result.status === 'generated' ? 'HERMES_READY_EXTERNAL' : 'HERMES_EXTERNAL_GATED', mode: result.status === 'generated' ? 'approved_execution' : 'blocked', local_executable: true, external_executable: result.status === 'generated', external: true, financial: true, result });
+}
+
+module.exports = { EXTERNAL_DRY_RUN_WORKFLOWS, prepareHermesExternalWorkflow, writeHermesMockResult, preserveHermesExternalCacheOnFailure, executeApprovedGeminiImage };

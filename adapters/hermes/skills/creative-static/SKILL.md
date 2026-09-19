@@ -15,4 +15,4 @@ Leia e aplique `adapters/hermes/SOURCE-POLICY.md` antes de consultar qualquer fo
 3. Use `agents/methodology/creative/static.md` e suas referências somente para metodologia, formatos, briefing e prompt visual.
 4. Persista briefing/prompt local quando solicitado; `image.generate` é boundary separado.
 
-`image.generate` é externo. Não gere imagem, não leia segredo e não acione provider. Retorne descriptor `dry_run`; um mock não comprova provider live.
+`image.generate` é externo. Não gere imagem, não leia segredo e não acione provider. Retorne descriptor `dry_run`, a menos que o chamador execute explicitamente o adapter aprovado fora desta skill.

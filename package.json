@@ -10,6 +10,7 @@
     "build:win": "electron-builder --win"
   },
   "dependencies": {
+    "@google/genai": "2.22.0",
     "docx": "^9.6.1",
     "pdf-lib": "^1.17.1",
     "pdfkit": "^0.18.0"
@@ -30,13 +31,24 @@
     ],
     "mac": {
       "target": [
-        { "target": "dmg", "arch": ["arm64", "x64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ],
       "category": "public.app-category.productivity"
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "assets/icon.ico",
       "requestedExecutionLevel": "requireAdministrator"
@@ -48,5 +60,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     }
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

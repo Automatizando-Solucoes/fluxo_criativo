@@ -147,8 +147,9 @@ entregas/instagram-dashboard/imagens/
 skill-analise/
 inputs/
 
-package-lock.json
-package.json
+# Hermes plans are versioned; generated archives remain local.
+.hermes/artifacts/
+
 # Exportacoes locais para outros agentes (contem caminhos da maquina local)
 .agents/
 .codex/

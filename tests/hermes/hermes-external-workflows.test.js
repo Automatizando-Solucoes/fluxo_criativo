@@ -17,7 +17,7 @@ const { prepareHermesExternalWorkflow, writeHermesMockResult, preserveHermesExte
 
 const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'hermes-external-workflows-'));
 const slug = 'produto-externo'; const productPath = path.join(fixture, 'meus-produtos', slug);
-const available = new MockSecretProvider({ APIFY_API_TOKEN: 'op://fixture/apify/token', META_ACCESS_TOKEN: 'op://fixture/meta/token', OPENROUTER_API_KEY: 'op://fixture/openrouter/key', FREEPIK_API_KEY: 'op://fixture/freepik/key', HEYGEN_API_KEY: 'op://fixture/heygen/key', REPLICATE_API_TOKEN: 'op://fixture/replicate/key' });
+const available = new MockSecretProvider({ APIFY_API_TOKEN: 'op://fixture/apify/token', META_ACCESS_TOKEN: 'op://fixture/meta/token', GEMINI_API_KEY: 'op://fixture/gemini/key', OPENROUTER_API_KEY: 'op://fixture/openrouter/key', FREEPIK_API_KEY: 'op://fixture/freepik/key', HEYGEN_API_KEY: 'op://fixture/heygen/key', REPLICATE_API_TOKEN: 'op://fixture/replicate/key' });
 const unavailable = new MockSecretProvider({ APIFY_API_TOKEN: 'op://fixture/apify/token' }, { APIFY_API_TOKEN: false });
 const counters = { network_calls: 0, child_process_calls: 0, writes_outside_fixture: 0 };
 const l3Results = [];
@@ -42,7 +42,7 @@ try {
   const researchArtifact = writeHermesMockResult({ workflow_id: 'research.market', projectRoot: fixture, research_input: researchInput() }); assertProductPath(researchArtifact.result.artifact_path);
   const researchFailure = preserveHermesExternalCacheOnFailure({ workflow_id: 'research.market', projectRoot: fixture, product_slug: slug, reason: 'provider_error' }); assert.equal(researchFailure.preserved_existing_artifact, true);
 
-  for (const provider of ['openrouter', 'freepik']) { const descriptor = prepareHermesExternalWorkflow({ workflow_id: 'image.generate', provider, prompt: 'imagem mock', secretProvider: available }); l3Results.push(descriptor); assert.equal(descriptor.result.status, 'dry_run'); assert.equal(descriptor.result.required_secret, coreImage.IMAGE_PROVIDERS[provider].secret); const artifact = writeHermesMockResult({ workflow_id: 'image.generate', projectRoot: fixture, product_slug: slug, provider, request_id: `${provider}-job` }); l3Results.push(artifact); assert.equal(artifact.result.status, 'success'); assertProductPath(artifact.result.artifact_path); }
+  for (const provider of ['gemini', 'openrouter', 'freepik']) { const descriptor = prepareHermesExternalWorkflow({ workflow_id: 'image.generate', provider, prompt: 'imagem mock', secretProvider: available }); l3Results.push(descriptor); assert.equal(descriptor.result.status, 'dry_run'); assert.equal(descriptor.result.required_secret, coreImage.IMAGE_PROVIDERS[provider].secret); const artifact = writeHermesMockResult({ workflow_id: 'image.generate', projectRoot: fixture, product_slug: slug, provider, request_id: `${provider}-job` }); l3Results.push(artifact); assert.equal(artifact.result.status, 'success'); assertProductPath(artifact.result.artifact_path); }
   assert.throws(() => prepareHermesExternalWorkflow({ workflow_id: 'image.generate', provider: 'unknown', prompt: 'x', secretProvider: available }), /allowlisted/);
   assert.equal(prepareHermesExternalWorkflow({ workflow_id: 'image.generate', provider: 'openrouter', prompt: 'x', secretProvider: unavailable }).result.error, 'secret_unavailable');
 
